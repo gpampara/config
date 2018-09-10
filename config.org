@@ -1,0 +1,618 @@
+#+TITLE: Emacs Config
+#+AUTHOR: Gary Pamparà
+#+TOC: true
+
+This is the my emacs config as an =org-mode= configuration. The idea of
+using this literate style is to keep the config as organized as
+possible.
+
+** Bootstrap use-package
+
+#+BEGIN_SRC emacs-lisp
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+#+END_SRC
+
+
+#+BEGIN_SRC emacs-lisp
+(setq use-package-always-ensure t)
+#+END_SRC
+** Configure package sources
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'package-archives
+ 	     '("melpa" . "https://melpa.org/packages/"))
+(setq package-enable-at-startup nil)
+#+END_SRC
+
+
+
+# ** Benchmark setup
+# `benchmark-init` records the startup time by package so that we can
+# debug problems. The package only records after it has been loaded, so
+# we put it as early as possible.
+#
+# #+BEGIN_SRC emacs-lisp
+# (use-package benchmark-init
+#   :config
+#   ;; To disable collection of benchmark data after init is done.
+#   (add-hook 'after-init-hook 'benchmark-init/deactivate))
+#
+# (add-hook 'after-init-hook
+#   (lambda () (message "loaded in %s" (emacs-init-time))))
+# #+END_SRC
+** Load custom settings
+#+BEGIN_SRC emacs-lisp
+(setq custom-file "~/.emacs.d/custom-settings.el")
+(load custom-file t)
+#+END_SRC
+
+** Preferences
+
+Don't display the help screen
+
+#+BEGIN_SRC emacs-lisp
+  (setq inhibit-startup-screen t)
+#+END_SRC
+
+On  I use ⌘ as =meta= and prefer ⌥ to do nothing so I can still
+insert special characters like easily.
+
+#+BEGIN_SRC emacs-lisp
+  (setq mac-command-modifier 'meta
+        mac-option-modifier 'none)
+#+END_SRC
+
+Some fancy  composition, particularly when using FiraCode fonts.
+
+#+BEGIN_SRC emacs-lisp
+  (mac-auto-operator-composition-mode)
+#+END_SRC
+
+Turn off unwanted window decoration.
+
+#+BEGIN_SRC emacs-lisp
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+#+END_SRC
+
+Make the =yes or no= prompts shorter.
+
+#+BEGIN_SRC emacs-lisp
+  (defalias 'yes-or-no-p 'y-or-n-p)
+#+END_SRC
+
+I usually don't want tabs, if I do I can set this buffer-local to
+=t=. If I just want one tab then use =C-q= (=quoted-insert=) to insert
+as a literal.
+
+#+BEGIN_SRC emacs-lisp
+  (setq-default indent-tabs-mode nil)
+#+END_SRC
+
+I'm not a fan of the backup and autosave functionality of emacs as
+most of my work will be in a repository anyway.
+
+#+BEGIN_SRC emacs-lisp
+(setq make-backup-file nil)
+(setq auto-save-default nil)
+#+END_SRC
+
+*** Font settings
+#+BEGIN_SRC emacs-lisp
+(when (window-system)
+   (set-frame-font "Fira Code"))
+ (let ((alist '((33 . ".\\(?:\\(?:==\\|!!\\)\\|[!=]\\)")
+                (35 . ".\\(?:###\\|##\\|_(\\|[#(?[_{]\\)")
+                (36 . ".\\(?:>\\)")
+                (37 . ".\\(?:\\(?:%%\\)\\|%\\)")
+                (38 . ".\\(?:\\(?:&&\\)\\|&\\)")
+                (42 . ".\\(?:\\(?:\\*\\*/\\)\\|\\(?:\\*[*/]\\)\\|[*/>]\\)")
+                (43 . ".\\(?:\\(?:\\+\\+\\)\\|[+>]\\)")
+                (45 . ".\\(?:\\(?:-[>-]\\|<<\\|>>\\)\\|[<>}~-]\\)")
+                (46 . ".\\(?:\\(?:\\.[.<]\\)\\|[.=-]\\)")
+                (47 . ".\\(?:\\(?:\\*\\*\\|//\\|==\\)\\|[*/=>]\\)")
+                (48 . ".\\(?:x[a-zA-Z]\\)")
+                (58 . ".\\(?:::\\|[:=]\\)")
+                (59 . ".\\(?:;;\\|;\\)")
+                (60 . ".\\(?:\\(?:!--\\)\\|\\(?:~~\\|->\\|\\$>\\|\\*>\\|\\+>\\|--\\|<[<=-]\\|=[<=>]\\||>\\)\\|[*$+~/<=>|-]\\)")
+                (61 . ".\\(?:\\(?:/=\\|:=\\|<<\\|=[=>]\\|>>\\)\\|[<=>~]\\)")
+                (62 . ".\\(?:\\(?:=>\\|>[=>-]\\)\\|[=>-]\\)")
+                (63 . ".\\(?:\\(\\?\\?\\)\\|[:=?]\\)")
+                (91 . ".\\(?:]\\)")
+                (92 . ".\\(?:\\(?:\\\\\\\\\\)\\|\\\\\\)")
+                (94 . ".\\(?:=\\)")
+                (119 . ".\\(?:ww\\)")
+                (123 . ".\\(?:-\\)")
+                (124 . ".\\(?:\\(?:|[=|]\\)\\|[=>|]\\)")
+                (126 . ".\\(?:~>\\|~~\\|[>=@~-]\\)")
+                )
+              ))
+   (dolist (char-regexp alist)
+     (set-char-table-range composition-function-table (car char-regexp)
+                           `([,(cdr char-regexp) 0 font-shape-gstring]))))
+#+END_SRC
+
+
+* Interface
+** General
+
+ I *never* want whitespace at the end of lines. Remove it on save.
+
+ #+BEGIN_SRC emacs-lisp
+   (add-hook 'before-save-hook 'delete-trailing-whitespace)
+ #+END_SRC
+
+ Also, having a newline at the end of the file is a "good" thing:
+
+ #+BEGIN_SRC emacs-lisp
+   (setq require-final-newline t)
+ #+END_SRC
+
+ Add multiple cursor support.
+
+ #+BEGIN_SRC emacs-lisp
+ (use-package multiple-cursors
+    :ensure t
+    :bind (("C-S-c C-S-c" . mc/edit-lines)
+          ("C->" . mc/mark-next-like-this)
+          ("C-<" . mc/mark-prev-like-this)
+          ("C-c C-<" . mc/mark-all-like-this)))
+ #+END_SRC
+
+Add expand-region
+
+#+BEGIN_SRC emacs-lisp
+  (use-package expand-region
+    :ensure t
+    :bind ("C-=" . er/expand-region))
+
+#+END_SRC
+
+ Include magit
+
+#+BEGIN_SRC emacs-lisp
+ (use-package magit
+   :ensure t
+   :bind ("C-x g" . magit-status))
+#+END_SRC
+
+Which key to show a list of keys that follow a speicific key-chord
+#+BEGIN_SRC emacs-lisp
+ (use-package which-key
+   :ensure t
+   :config (which-key-mode))
+#+END_SRC
+
+Use the ivy completion frontend, and the set of ivy-enhanced emacs commands
+
+#+BEGIN_SRC emacs-lisp
+ (use-package ivy
+   :ensure t
+   :diminish ivy-mode
+   :config (ivy-mode 1))
+
+ (use-package counsel
+   :ensure t
+   :config
+   (global-set-key (kbd "M-x") 'counsel-M-x)
+   ;(global-set-key (kbd "C-x C-f") 'counsel-find-file)
+   ;(global-set-key (kbd "<f1> f") 'counsel-describe-function)
+   ;(global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+   ;(global-set-key (kbd "<f1> l") 'counsel-find-library)
+   ;(global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+   ;(global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+   ;(global-set-key (kbd "C-c g") 'counsel-git)
+   ;(global-set-key (kbd "C-c j") 'counsel-git-grep)
+   ;(global-set-key (kbd "C-c k") 'counsel-ag)
+   ;(global-set-key (kbd "C-x l") 'counsel-locate)
+   ;(global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
+   ;(define-key read-expression-map (kbd "C-r") 'counsel-expression-history)
+   )
+
+ (use-package smex
+   :ensure t)
+#+END_SRC
+
+Use the ivy enhanced version of =isearch=
+
+#+BEGIN_SRC emacs-lisp
+ (use-package swiper
+   :ensure t
+   :bind (("\C-s" . swiper))
+   :config
+   (progn
+     (ivy-mode 1)
+     (setq ivy-use-virtual-buffers t)
+     (setq enable-recursive-minibuffers t)
+     ;(global-set-key (kbd "C-c C-r") 'ivy-resume)
+     ;(global-set-key (kbd "<f6>") 'ivy-resume)
+     ))
+ #+END_SRC
+
+Prefer the use of =ibuffer= instead of the default buffer list
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "C-c C-b") 'ibuffer)
+#+END_SRC
+
+Display a simple dashboard at startup
+#+BEGIN_SRC emacs-lisp
+  (use-package dashboard
+    :ensure t
+    :config
+    (dashboard-setup-startup-hook)
+    (setq show-week-agenda-p t)
+    (setq dashboard-items '((recents . 10)
+                            (agenda . 5))))
+#+END_SRC
+
+Faster switching between windows, via =ace-window=
+#+BEGIN_SRC emacs-lisp
+  (use-package ace-window
+    :ensure t
+    :config
+    (global-set-key (kbd "M-o") 'ace-window))
+#+END_SRC
+
+Simpler interactions with the kill-ring
+#+BEGIN_SRC emacs-lisp
+  (use-package popup-kill-ring
+    :ensure t
+    :bind ("M-y" . popup-kill-ring))
+#+END_SRC
+
+** Appearance
+
+At the moment the zenburn-theme is treating me well.
+
+#+BEGIN_SRC emacs-lisp
+ (use-package zenburn-theme
+   :ensure t
+   :config
+   ;; (setq zenburn-override-colors-alist
+   ;;     '(("zenburn-bg+05" . "#282828")
+   ;;       ("zenburn-bg+1"  . "#2F2F2F")
+   ;;       ("zenburn-bg+2"  . "#3F3F3F")
+   ;;       ("zenburn-bg+3"  . "#4F4F4F")))
+   (load-theme 'zenburn t)
+   )
+#+END_SRC
+
+Highlight the current line.
+
+#+BEGIN_SRC emacs-lisp
+  (global-hl-line-mode 1)
+#+END_SRC
+
+Improve look and feel of titlebar on Macos. Set =ns-appearance= to
+=dark= for white title text and =nil= for black title text.
+
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+  (add-to-list 'default-frame-alist '(ns-appearance . dark))
+#+END_SRC
+
+Add telephone-line as the mode line
+
+#+BEGIN_SRC emacs-lisp
+(use-package telephone-line
+  :ensure t
+  :config
+  (telephone-line-mode 1))
+#+END_SRC
+
+Inline display of colours
+
+#+BEGIN_SRC emacs-lisp
+  (use-package rainbow-mode
+    :ensure t
+    :init
+    (add-hook 'prog-mode-hook 'rainbow-mode))
+#+END_SRC
+
+# Add a visual inidcator when switching to a different window
+#
+# #+BEGIN_SRC emacs-lisp
+#   (use-package beacon
+#     :ensure t
+#     :config
+#     (beacon-mode 1))
+# #+END_SRC
+
+* Development configuration
+** General
+Some general configuration for development that is agnostic of
+language.
+
+Use parens highlighting to make reading the code a little simpler
+
+#+BEGIN_SRC emacs-lisp
+  (use-package rainbow-delimiters
+    :ensure t
+    :config
+    (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
+    (add-hook 'TeX-update-style-hook #'rainbow-delimiters-mode)
+    (set-face-attribute 'rainbow-delimiters-unmatched-face nil
+                        :foreground "red"
+                        :inherit 'error
+                        :box t)
+    )
+#+END_SRC
+
+
+# Let emacs try to help with keeping parentheses balanced.
+#
+# #+BEGIN_SRC emacs-lisp
+#   (use-package smartparens
+#     :diminish smartparens-mode
+#     :config
+#     (add-hook 'prog-mode-hook 'smartparens-mode))
+# #+END_SRC
+
+Completion service using =company-mode=
+
+#+BEGIN_SRC emacs-lisp
+ (use-package company
+   :ensure t
+   :config (global-company-mode t))
+#+END_SRC
+
+=Flycheck= to allow for the checking of code
+
+#+BEGIN_SRC emacs-lisp
+ (use-package flycheck
+   ;; :diminish flycheck-mode
+   :demand t
+   :ensure t
+   :init
+   (setq flycheck-check-syntax-automatically '(mode-enabled save))
+   (setq flycheck-checker-error-threshold 2000)
+   :config
+   (mapc (lambda (mode)
+           (add-hook mode 'flycheck-mode))
+         '(elm-mode-hook
+           emacs-lisp-mode-hook
+           haskell-mode-hook
+           ))
+   (add-hook 'sh-mode-hook
+             (lambda ()
+               (flycheck-select-checker 'sh-shellcheck)))
+   (add-hook 'elm-mode-hook
+             (lambda ()
+               (flycheck-elm-setup))))
+#+END_SRC
+
+
+Project management using projectile
+
+#+BEGIN_SRC emacs-lisp
+ (use-package projectile
+   :ensure t
+   :config
+   (projectile-mode)
+   (setq projectile-enable-caching t))
+#+END_SRC
+
+
+Snippet support
+
+#+BEGIN_SRC emacs-lisp
+  (use-package yasnippet
+    :ensure t
+    :config
+    (use-package yasnippet-snippets
+      :ensure t)
+    (yas-reload-all))
+
+  (add-hook 'prog-mode-hook 'yas-minor-mode)
+#+END_SRC
+
+Simple window navigation - This is not really used, should be removed?
+
+#+BEGIN_SRC emacs-lisp
+ (use-package dumb-jump
+   :ensure t
+   :bind (("M-g o" . dumb-jump-go-other-window)
+          ("M-g j" . dumb-jump-go)
+          ("M-g i" . dumb-jump-go-prompt)
+          ("M-g x" . dumb-jump-go-prefer-external)
+          ("M-g z" . dumb-jump-go-prefer-external-other-window))
+   :config
+   (progn
+     (setq dumb-jump-selector 'ivy)))
+#+END_SRC
+
+Highlight TODO / FIXME strings in buffers
+
+#+BEGIN_SRC emacs-lisp
+ (use-package fic-mode
+   :ensure t
+   :config
+   (add-hook 'prog-mode-hook 'fic-mode))
+#+END_SRC
+
+** Elm
+
+Allow for the searching of locally installed Elm binaries, perhaps in
+the horrble `node_modules`.
+
+#+BEGIN_SRC emacs-lisp
+ (defun bin-from-node-modules (executable)
+   ;; If there is a directory with "package.json" in it, we take that
+   ;; as the location from which to search for the passed in executable
+   (let* ((package-root (locate-dominating-file
+                         default-directory
+ 			"package.json"))
+ 	 (path
+ 	  (and package-root
+ 	       (expand-file-name (concat "node_modules/.bin/" executable)
+ 				 (expand-file-name package-root)))))
+     (if (and path
+ 	     (file-exists-p path))
+ 	path
+       executable
+       ))
+   )
+#+END_SRC
+
+Add =elm-mode= and =flycheck= configuration for editing of elm
+buffers.
+
+#+BEGIN_SRC emacs-lisp
+ (use-package elm-mode
+   :ensure t
+   :defer t
+   :mode "\\.elm\\'"
+   :config
+   (company-mode)
+   (setq elm-format-on-save t)
+   (add-hook 'after-init-hook #'global-flycheck-mode)
+   (custom-set-variables
+    '(elm-compile-command (bin-from-node-modules "elm-make"))
+    '(elm-interactive-command (bin-from-node-modules "elm-repl"))
+    '(elm-reactor-command (bin-from-node-modules "elm-reactor"))
+    '(elm-package-command (bin-from-node-modules "elm-package"))
+    '(elm-oracle-command (bin-from-node-modules "elm-oracle")))
+   :init
+   (add-hook 'elm-mode #'elm-oracle-setup-completion)
+   (add-hook 'elm-mode 'global-company-mode)
+   (add-to-list 'company-backends 'company-elm))
+
+
+ (use-package flycheck-elm
+   :ensure t
+   :config
+   (with-eval-after-load 'flycheck
+     '(add-hook 'flycheck-mode-hook #'flycheck-elm-setup)))
+#+END_SRC
+
+** Haskell
+
+Some _very_ basic Haskell config
+
+#+BEGIN_SRC emacs-lisp
+  (defun fix-imports ()
+    "Fixes imports."
+    (interactive)
+    (sort-lines nil (region-beginning) (region-end))
+    (align-regexp (region-beginning) (region-end) "\\(\\s-*\\)#-"))
+
+  (use-package haskell-mode
+    :ensure t
+    :defer t
+    :mode "\\.hs\\'")
+#+END_SRC
+
+** LaTeX
+
+Setup AUCTex for some nice LaTeX support in emacs
+
+#+BEGIN_SRC emacs-lisp
+  (use-package auctex
+    :defer t
+    :mode ("\\.tex\\'" . latex-mode)
+    :ensure auctex
+    :commands (latex-mode LaTeX-mode plain-tex-mode)
+    :init
+    (progn
+      (add-hook 'LaTeX-mode-hook #'LaTeX-preview-setup)
+      (add-hook 'LaTeX-mode-hook #'flyspell-mode)
+      (add-hook 'LaTeX-mode-hook #'turn-on-reftex)
+      (setq TeX-auto-save t
+            TeX-parse-self t
+            TeX-save-query nil
+            TeX-PDF-mode t
+            LaTeX-csquotes-close-quote "}"
+            LaTeX-csquotes-open-quote "\\enquote{")
+      (setq-default TeX-master nil)))
+#+END_SRC
+** Scala
+
+Use =scala-mode= for scala files
+
+#+BEGIN_SRC emacs-lisp
+(use-package scala-mode
+  :ensure t
+  :defer t
+  :mode "\\.scala\\'")
+#+END_SRC
+** Terminal
+ #+BEGIN_SRC emacs-lisp
+   (defvar my-term-shell "/usr/local/bin/fish")
+   (defadvice ansi-term (before force-bash)
+     (interactive (list my-term-shell)))
+   (ad-activate 'ansi-term)
+
+   (global-set-key (kbd "<M-return>") 'ansi-term)
+ #+END_SRC
+
+* Org
+** General
+
+Define org-mode related keybinds:
+
+#+BEGIN_SRC emacs-lisp
+  (define-key global-map (kbd "C-c l") 'org-store-link)
+  (define-key global-map (kbd "C-c a") 'org-agenda)
+  (define-key global-map (kbd "C-c c") 'org-capture)
+  (setq org-log-done t)
+#+END_SRC
+
+Define the locations of the different org files:
+
+#+BEGIN_SRC emacs-lisp
+(setq org-agenda-files (list "~/org/gtd.org"
+                             "~/org/work.org"
+                             "~/org/home.org"
+                             "~/org/cilib.org"))
+#+END_SRC
+
+Nicer indenting in =org-mode= files
+
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'org-mode-hook 'org-indent-mode)
+#+END_SRC
+
+
+Capture templates:
+
+#+BEGIN_SRC emacs-lisp
+  (setq org-capture-templates
+   '(("t" "Todo" entry (file+headline "~/org/gtd.org" "Tasks")
+      "* TODO %?\n  %i\n  %a")
+     ("w" "Work Todo" entry (file+headline "~/org/work.org" "Tasks")
+      "* TODO %?\n  %i\n  %a")))
+#+END_SRC
+
+** Appearance
+
+# Improve the appearance of bullet points in Emacs:
+#+BEGIN_SRC emacs-lisp
+;;  (use-package org-bullets
+;;    :config
+;;    (setq org-bullets-bullet-list '("∙"))
+;;    (add-hook 'org-mode-hook 'org-bullets-mode))
+#+END_SRC
+
+Set colours for priorities
+
+#+BEGIN_SRC emacs-lisp
+(setq org-priority-faces '((?A . (:foreground "#F0DFAF" :weight bold))
+                           (?B . (:foreground "LightSteelBlue"))
+                           (?C . (:foreground "OliveDrab"))))
+#+END_SRC
+
+* Extras
+** Writing
+
+=writegood-mode= highlights bad words, weasels etc. Also has functions
+to calculate readability of writing.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package writegood-mode
+    :bind ("C-c g" . writegood-mode)
+    :init
+    (add-hook 'TeX-update-style-hook #'writegood-mode)
+    :config
+    (add-to-list 'writegood-weasel-words "actionable"))
+#+END_SRC
