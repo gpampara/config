@@ -63,6 +63,12 @@ insert special characters like easily.
         mac-option-modifier 'none)
 #+END_SRC
 
+Disable passing various commands to the underlying  system:
+
+#+BEGIN_SRC emacs-lisp
+  (setq mac-pass-command-to-system nil)
+#+END_SRC
+
 Some fancy  composition, particularly when using FiraCode fonts.
 
 #+BEGIN_SRC emacs-lisp
@@ -100,37 +106,37 @@ most of my work will be in a repository anyway.
 
 *** Font settings
 #+BEGIN_SRC emacs-lisp
-(when (window-system)
-   (set-frame-font "Fira Code"))
- (let ((alist '((33 . ".\\(?:\\(?:==\\|!!\\)\\|[!=]\\)")
-                (35 . ".\\(?:###\\|##\\|_(\\|[#(?[_{]\\)")
-                (36 . ".\\(?:>\\)")
-                (37 . ".\\(?:\\(?:%%\\)\\|%\\)")
-                (38 . ".\\(?:\\(?:&&\\)\\|&\\)")
-                (42 . ".\\(?:\\(?:\\*\\*/\\)\\|\\(?:\\*[*/]\\)\\|[*/>]\\)")
-                (43 . ".\\(?:\\(?:\\+\\+\\)\\|[+>]\\)")
-                (45 . ".\\(?:\\(?:-[>-]\\|<<\\|>>\\)\\|[<>}~-]\\)")
-                (46 . ".\\(?:\\(?:\\.[.<]\\)\\|[.=-]\\)")
-                (47 . ".\\(?:\\(?:\\*\\*\\|//\\|==\\)\\|[*/=>]\\)")
-                (48 . ".\\(?:x[a-zA-Z]\\)")
-                (58 . ".\\(?:::\\|[:=]\\)")
-                (59 . ".\\(?:;;\\|;\\)")
-                (60 . ".\\(?:\\(?:!--\\)\\|\\(?:~~\\|->\\|\\$>\\|\\*>\\|\\+>\\|--\\|<[<=-]\\|=[<=>]\\||>\\)\\|[*$+~/<=>|-]\\)")
-                (61 . ".\\(?:\\(?:/=\\|:=\\|<<\\|=[=>]\\|>>\\)\\|[<=>~]\\)")
-                (62 . ".\\(?:\\(?:=>\\|>[=>-]\\)\\|[=>-]\\)")
-                (63 . ".\\(?:\\(\\?\\?\\)\\|[:=?]\\)")
-                (91 . ".\\(?:]\\)")
-                (92 . ".\\(?:\\(?:\\\\\\\\\\)\\|\\\\\\)")
-                (94 . ".\\(?:=\\)")
-                (119 . ".\\(?:ww\\)")
-                (123 . ".\\(?:-\\)")
-                (124 . ".\\(?:\\(?:|[=|]\\)\\|[=>|]\\)")
-                (126 . ".\\(?:~>\\|~~\\|[>=@~-]\\)")
-                )
-              ))
-   (dolist (char-regexp alist)
-     (set-char-table-range composition-function-table (car char-regexp)
-                           `([,(cdr char-regexp) 0 font-shape-gstring]))))
+  (when (window-system)
+    (set-frame-font "Fira Code"))
+  (let ((alist '((33 . ".\\(?:\\(?:==\\|!!\\)\\|[!=]\\)")
+                 (35 . ".\\(?:###\\|##\\|_(\\|[#(?[_{]\\)")
+                 (36 . ".\\(?:>\\)")
+                 (37 . ".\\(?:\\(?:%%\\)\\|%\\)")
+                 (38 . ".\\(?:\\(?:&&\\)\\|&\\)")
+                 (42 . ".\\(?:\\(?:\\*\\*/\\)\\|\\(?:\\*[*/]\\)\\|[*/>]\\)")
+                 (43 . ".\\(?:\\(?:\\+\\+\\)\\|[+>]\\)")
+                 (45 . ".\\(?:\\(?:-[>-]\\|<<\\|>>\\)\\|[<>}~-]\\)")
+                 (46 . ".\\(?:\\(?:\\.[.<]\\)\\|[.=-]\\)")
+                 (47 . ".\\(?:\\(?:\\*\\*\\|//\\|==\\)\\|[*/=>]\\)")
+                 (48 . ".\\(?:x[a-zA-Z]\\)")
+                 (58 . ".\\(?:::\\|[:=]\\)")
+                 (59 . ".\\(?:;;\\|;\\)")
+                 (60 . ".\\(?:\\(?:!--\\)\\|\\(?:~~\\|->\\|\\$>\\|\\*>\\|\\+>\\|--\\|<[<=-]\\|=[<=>]\\||>\\)\\|[*$+~/<=>|-]\\)")
+                 (61 . ".\\(?:\\(?:/=\\|:=\\|<<\\|=[=>]\\|>>\\)\\|[<=>~]\\)")
+                 (62 . ".\\(?:\\(?:=>\\|>[=>-]\\)\\|[=>-]\\)")
+                 (63 . ".\\(?:\\(\\?\\?\\)\\|[:=?]\\)")
+                 (91 . ".\\(?:]\\)")
+                 (92 . ".\\(?:\\(?:\\\\\\\\\\)\\|\\\\\\)")
+                 (94 . ".\\(?:=\\)")
+                 (119 . ".\\(?:ww\\)")
+                 (123 . ".\\(?:-\\)")
+                 (124 . ".\\(?:\\(?:|[=|]\\)\\|[=>|]\\)")
+                 (126 . ".\\(?:~>\\|~~\\|[>=@~-]\\)")
+                 )
+               ))
+    (dolist (char-regexp alist)
+      (set-char-table-range composition-function-table (car char-regexp)
+                            `([,(cdr char-regexp) 0 font-shape-gstring]))))
 #+END_SRC
 
 
@@ -169,7 +175,7 @@ Add expand-region
 
 #+END_SRC
 
- Include magit
+Include magit
 
 #+BEGIN_SRC emacs-lisp
  (use-package magit
@@ -237,13 +243,14 @@ Prefer the use of =ibuffer= instead of the default buffer list
 
 Display a simple dashboard at startup
 #+BEGIN_SRC emacs-lisp
-  (use-package dashboard
-    :ensure t
-    :config
-    (dashboard-setup-startup-hook)
-    (setq show-week-agenda-p t)
-    (setq dashboard-items '((recents . 10)
-                            (agenda . 5))))
+    (use-package dashboard
+      :ensure t
+      :config
+      (dashboard-setup-startup-hook)
+      (setq show-week-agenda-p t)
+      (setq dashboard-items '((agenda . 10)
+                              (recents  . 10)
+                              (projects . 5))))
 #+END_SRC
 
 Faster switching between windows, via =ace-window=
@@ -259,6 +266,23 @@ Simpler interactions with the kill-ring
   (use-package popup-kill-ring
     :ensure t
     :bind ("M-y" . popup-kill-ring))
+#+END_SRC
+
+Automatically delete whitespace in a sensible way with "smart" hungry delete
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package smart-hungry-delete
+  ;;   :ensure t
+  ;;   :bind (("<backspace>" . smart-hungry-delete-backward-char)
+  ;;                  ("C-d" . smart-hungry-delete-forward-char))
+  ;;   :defer nil ;; dont defer so we can add our functions to hooks
+  ;;   :config
+  ;;   (add-hook 'prog-mode-hook 'smart-hungry-delete-default-prog-mode-hook)
+  ;;   )
+
+  (use-package hungry-delete
+    :ensure t
+    :config
+    (global-hungry-delete-mode))
 #+END_SRC
 
 ** Appearance
@@ -528,7 +552,7 @@ Setup AUCTex for some nice LaTeX support in emacs
 #+END_SRC
 ** Scala
 
-Use =scala-mode= for scala files
+Use =scala-mode= for scala syntax highlighting
 
 #+BEGIN_SRC emacs-lisp
 (use-package scala-mode
@@ -536,6 +560,7 @@ Use =scala-mode= for scala files
   :defer t
   :mode "\\.scala\\'")
 #+END_SRC
+
 ** Terminal
  #+BEGIN_SRC emacs-lisp
    (defvar my-term-shell "/usr/local/bin/fish")
@@ -543,7 +568,7 @@ Use =scala-mode= for scala files
      (interactive (list my-term-shell)))
    (ad-activate 'ansi-term)
 
-   (global-set-key (kbd "<M-return>") 'ansi-term)
+   ;;(global-set-key (kbd "<M-return>") 'ansi-term)
  #+END_SRC
 
 * Org
@@ -561,10 +586,8 @@ Define org-mode related keybinds:
 Define the locations of the different org files:
 
 #+BEGIN_SRC emacs-lisp
-(setq org-agenda-files (list "~/org/gtd.org"
-                             "~/org/work.org"
-                             "~/org/home.org"
-                             "~/org/cilib.org"))
+  (setq org-agenda-files (list "~/org/gtd.org"
+                               "~/org/projects.org"))
 #+END_SRC
 
 Nicer indenting in =org-mode= files
@@ -573,14 +596,13 @@ Nicer indenting in =org-mode= files
   (add-hook 'org-mode-hook 'org-indent-mode)
 #+END_SRC
 
-
 Capture templates:
 
 #+BEGIN_SRC emacs-lisp
   (setq org-capture-templates
    '(("t" "Todo" entry (file+headline "~/org/gtd.org" "Tasks")
       "* TODO %?\n  %i\n  %a")
-     ("w" "Work Todo" entry (file+headline "~/org/work.org" "Tasks")
+     ("p" "Project Todo" entry (file+headline "~/org/projects.org" "Tasks")
       "* TODO %?\n  %i\n  %a")))
 #+END_SRC
 
