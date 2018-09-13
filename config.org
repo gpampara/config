@@ -41,6 +41,16 @@ possible.
 # (add-hook 'after-init-hook
 #   (lambda () (message "loaded in %s" (emacs-init-time))))
 # #+END_SRC
+** Custom config functions
+
+Evaluate an expression when the system is the defined value
+#+BEGIN_SRC emacs-lisp
+  (defmacro with-system (type &rest body)
+    "Evaluate BODY if `system-type' equals TYPE."
+    (declare (indent defun))
+    `(when (eq system-type ',type)
+       ,@body))
+#+END_SRC
 ** Load custom settings
 #+BEGIN_SRC emacs-lisp
 (setq custom-file "~/.emacs.d/custom-settings.el")
@@ -59,20 +69,23 @@ On  I use ⌘ as =meta= and prefer ⌥ to do nothing so I can still
 insert special characters like easily.
 
 #+BEGIN_SRC emacs-lisp
-  (setq mac-command-modifier 'meta
-        mac-option-modifier 'none)
+  (with-system darwin
+    (setq mac-command-modifier 'meta
+          mac-option-modifier 'none))
 #+END_SRC
 
 Disable passing various commands to the underlying  system:
 
 #+BEGIN_SRC emacs-lisp
-  (setq mac-pass-command-to-system nil)
+  (with-system darwin
+    (setq mac-pass-command-to-system nil))
 #+END_SRC
 
 Some fancy  composition, particularly when using FiraCode fonts.
 
 #+BEGIN_SRC emacs-lisp
-  (mac-auto-operator-composition-mode)
+  (with-system darwin
+    (mac-auto-operator-composition-mode))
 #+END_SRC
 
 Turn off unwanted window decoration.
