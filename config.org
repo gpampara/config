@@ -51,10 +51,41 @@ Evaluate an expression when the system is the defined value
     `(when (eq system-type ',type)
        ,@body))
 #+END_SRC
+
+Open / visit the configuration file
+
+#+BEGIN_SRC emacs-lisp
+  (defun config-visit ()
+    (interactive)
+    (find-file "~/.emacs.d/config.org"))
+  (global-set-key (kbd "C-c e") 'config-visit)
+#+END_SRC
+
+Reload the configuration
+
+#+BEGIN_SRC emacs-lisp
+  (defun config-reload ()
+    (interactive)
+    (org-babel-load-file (expand-file-name "~/.emacs.d/config.org")))
+  (global-set-key (kbd "C-c r") 'config-reload)
+#+END_SRC
+
 ** Load custom settings
 #+BEGIN_SRC emacs-lisp
 (setq custom-file "~/.emacs.d/custom-settings.el")
 (load custom-file t)
+#+END_SRC
+** Load secrets
+#+BEGIN_SRC emacs-lisp
+  (load "~/.emacs.d/emacs.secrets" t)
+#+END_SRC
+
+** Adjust shell variables
+
+Adjust shell environment variables, if needed
+
+#+BEGIN_SRC emacs-lisp
+  (setenv "LANG" "en_US.UTF-8")
 #+END_SRC
 
 ** Preferences
@@ -113,8 +144,8 @@ I'm not a fan of the backup and autosave functionality of emacs as
 most of my work will be in a repository anyway.
 
 #+BEGIN_SRC emacs-lisp
-(setq make-backup-file nil)
-(setq auto-save-default nil)
+  (setq make-backup-files nil)
+  (setq auto-save-default nil)
 #+END_SRC
 
 *** Font settings
@@ -468,6 +499,21 @@ Highlight TODO / FIXME strings in buffers
    (add-hook 'prog-mode-hook 'fic-mode))
 #+END_SRC
 
+*** Dumb-jump
+
+#+BEGIN_SRC emacs-lisp
+  (use-package dumb-jump
+    :ensure t
+    ;; :bind (("M-g o" . dumb-jump-go-other-window)
+    ;;        ("M-g j" . dumb-jump-go)
+    ;;        ("M-g x" . dumb-jump-go-prefer-external)
+    ;;        ("M-g z" . dumb-jump-go-prefer-external-other-window))
+    ;;  :config
+    ;; (setq dumb-jump-selector 'ivy) ;; (setq dumb-jump-selector 'helm)
+    :init
+    (dumb-jump-mode))
+#+END_SRC
+
 ** Elm
 
 Allow for the searching of locally installed Elm binaries, perhaps in
@@ -545,23 +591,80 @@ Some _very_ basic Haskell config
 Setup AUCTex for some nice LaTeX support in emacs
 
 #+BEGIN_SRC emacs-lisp
-  (use-package auctex
-    :defer t
-    :mode ("\\.tex\\'" . latex-mode)
+  ;; (defun latexmkrc-compile ()
+  ;;   (interactive)
+  ;;   (let ((default-directory (locate-dominating-file "." ".latexmkrc")))
+  ;;     (compile "latexmk")))
+
+  ;; (defun my-TeX-run-TeX (name command file)
+  ;;   (let ((default-directory (locate-dominating-file "." ".latexmkrc")))
+  ;;     (message (concat "name: " name))
+  ;;     (message (concat "command: " command))
+  ;;     (message (concat "fiole: " file))
+  ;;     (TeX-run-TeX name command "thesis.tex")))
+
+  ;; This may need some work, but the idea is to get the _single_ entry in @default_files
+  (defun extract-default-files ()
+    (let* ((default-directory (locate-dominating-file "." ".latexmkrc"))
+           (target-file (concat default-directory ".latexmkrc")))
+      (with-current-buffer (find-file-noselect target-file)
+        (save-excursion ;; Don't change location of point.
+          (goto-char (point-min)) ;; From the beginning...
+          (when (re-search-forward "default_files.*('\\(.*\\)'")
+            (concat default-directory (match-string 1))))
+        )))
+
+  (defun setup-custom-latexmk-cmd()
+    "Set custom Latexmk command."
+    ;;(interactive)
+    (let* ((default-directory (locate-dominating-file "." ".latexmkrc")))
+      (add-to-list 'TeX-expand-list (list "%(TeX-build-directory)" '(lambda () TeX-build-directory)))
+      (add-to-list 'TeX-expand-list (list "%(buffer-name)" '(lambda () (buffer-name))))
+      (add-to-list 'TeX-expand-list (list "%(default-directory)" '(lambda nil default-directory)))
+      (add-to-list 'TeX-expand-list (list "%(project-root-dir)" '(lambda nil default-directory)))
+      (add-to-list 'TeX-expand-list (list "%(output-file)" '(lambda () (concat TeX-master "." TeX-output-extension))))
+      (add-to-list 'TeX-expand-list (list "%(aux-dir)" '(lambda ()  (if (equal "" TeX-build-directory) "" (format "-aux-directory=%s" "build")))))
+      (add-to-list 'TeX-expand-list (list "%(out-dir)" '(lambda ()  (if (equal "" TeX-build-directory) "" (format "-output-directory=%s" "build")))))
+      (add-to-list 'TeX-expand-list (list "%(-PDF)" '(lambda ()  (if (or TeX-PDF-mode TeX-DVI-via-PDFTeX) "-pdf" ""))))
+      (add-to-list 'TeX-expand-list (list "%(default-dir)" '(lambda nil default-directory)))
+      (add-to-list 'TeX-expand-list (list "%(pdflatex-args)"
+                                          '(lambda () (if (or TeX-PDF-mode TeX-DVI-via-PDFTeX)
+                                                          "-pdflatex='pdflatex -synctex=1 -file-line-error -shell-escape'"))))
+      ;;(add-to-list 'TeX-expand-list (list "%(misc-args)" '(lambda () "")))
+      ;; This is needed to make sure that we are in the correct working directory for releative path lookups
+      (add-to-list 'TeX-expand-list (list "%(extraopts)" '(lambda () "-cd")))
+      (add-to-list 'TeX-expand-list (list "%t" '(lambda () (extract-default-files))))
+      ))
+
+  (use-package tex
     :ensure auctex
+    :mode ("\\.tex\\'" . latex-mode)
     :commands (latex-mode LaTeX-mode plain-tex-mode)
     :init
-    (progn
-      (add-hook 'LaTeX-mode-hook #'LaTeX-preview-setup)
-      (add-hook 'LaTeX-mode-hook #'flyspell-mode)
-      (add-hook 'LaTeX-mode-hook #'turn-on-reftex)
-      (setq TeX-auto-save t
-            TeX-parse-self t
-            TeX-save-query nil
-            TeX-PDF-mode t
-            LaTeX-csquotes-close-quote "}"
-            LaTeX-csquotes-open-quote "\\enquote{")
-      (setq-default TeX-master nil)))
+    (add-hook 'LaTeX-mode-hook 'LaTeX-preview-setup)
+    (add-hook 'LaTeX-mode-hook 'flyspell-mode)
+    (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
+    (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
+    (add-hook 'LaTeX-mode-hook 'visual-line-mode)
+    :config
+    (setq TeX-auto-save t)
+    (setq TeX-parse-self t)
+    (setq TeX-save-query nil)
+    (setq TeX-PDF-mode t)
+    (setq reftex-plug-into-AUCTeX t)
+    (setq LaTeX-csquotes-close-quote "}")
+    (setq LaTeX-csquotes-open-quote "\\enquote{")
+    (setq-default TeX-master nil)
+    ;; Make reftex try play nicer with biblatex
+    (setq reftex-bibliography-commands '("bibliography" "nobibliography" "addbibresource")))
+
+
+  (use-package auctex-latexmk
+    :ensure t
+    :after tex
+    :config
+    (auctex-latexmk-setup)
+    (setup-custom-latexmk-cmd))
 #+END_SRC
 ** Scala
 
@@ -584,40 +687,8 @@ Use =scala-mode= for scala syntax highlighting
    ;;(global-set-key (kbd "<M-return>") 'ansi-term)
  #+END_SRC
 
+
 * Org
-** General
-
-Define org-mode related keybinds:
-
-#+BEGIN_SRC emacs-lisp
-  (define-key global-map (kbd "C-c l") 'org-store-link)
-  (define-key global-map (kbd "C-c a") 'org-agenda)
-  (define-key global-map (kbd "C-c c") 'org-capture)
-  (setq org-log-done t)
-#+END_SRC
-
-Define the locations of the different org files:
-
-#+BEGIN_SRC emacs-lisp
-  (setq org-agenda-files (list "~/org/gtd.org"
-                               "~/org/projects.org"))
-#+END_SRC
-
-Nicer indenting in =org-mode= files
-
-#+BEGIN_SRC emacs-lisp
-  (add-hook 'org-mode-hook 'org-indent-mode)
-#+END_SRC
-
-Capture templates:
-
-#+BEGIN_SRC emacs-lisp
-  (setq org-capture-templates
-   '(("t" "Todo" entry (file+headline "~/org/gtd.org" "Tasks")
-      "* TODO %?\n  %i\n  %a")
-     ("p" "Project Todo" entry (file+headline "~/org/projects.org" "Tasks")
-      "* TODO %?\n  %i\n  %a")))
-#+END_SRC
 
 ** Appearance
 
@@ -635,6 +706,83 @@ Set colours for priorities
 (setq org-priority-faces '((?A . (:foreground "#F0DFAF" :weight bold))
                            (?B . (:foreground "LightSteelBlue"))
                            (?C . (:foreground "OliveDrab"))))
+#+END_SRC
+
+** Keybinds
+
+Define org-mode related keybinds:
+
+#+BEGIN_SRC emacs-lisp
+  (define-key global-map (kbd "C-c l") 'org-store-link)
+  (define-key global-map (kbd "C-c a") 'org-agenda)
+  (define-key global-map (kbd "C-c c") 'org-capture)
+  (setq org-log-done t)
+#+END_SRC
+
+** File locations
+
+Define the locations of the different org files:
+
+#+BEGIN_SRC emacs-lisp
+  (setq org-agenda-files (list "~/org/gtd.org"
+                               "~/org/projects.org"
+                               "~/org/calendar.org"))
+#+END_SRC
+
+Nicer indenting in =org-mode= files
+
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'org-mode-hook 'org-indent-mode)
+#+END_SRC
+
+** Alerts
+
+Add =org-alert= to display some alerts on the desktop
+
+#+BEGIN_SRC emacs-lisp
+  (use-package org-alert
+    :ensure t
+    :config
+    (with-system darwin
+                 (setq alert-default-style 'notifier))
+    (with-system gnu/linux
+                 (setq alert-default-style 'libnotify)))
+
+#+END_SRC
+
+** Capture templates
+
+#+BEGIN_SRC emacs-lisp
+  (setq org-capture-templates
+   '(("t" "Todo" entry (file+headline "~/org/gtd.org" "Tasks")
+      "* TODO %?\n  %i\n  %a")
+     ("p" "Project Todo" entry (file+headline "~/org/projects.org" "Tasks")
+      "* TODO %?\n  %i\n  %a")))
+#+END_SRC
+
+** Google calendar integration
+
+#+BEGIN_SRC emacs-lisp
+  (defvar org-gcal-last-synced nil
+    "The last time a org-gcal-sync was run")
+
+  (use-package org-gcal
+    :ensure t
+    :config
+    (setq org-gcal-file-alist '(("gpampara@gmail.com" . "~/org/calendar.org")))
+
+    (if org-gcal-last-synced
+        (unless (string-equal 'org-gcal-last-synced (format-time-string "%Y-%m-%d"))
+          (org-gcal-sync)
+          (setq org-gcal-last-synced (format-time-string"%Y-%m-%d")))))
+
+  ;;      (setq org-gcal-last-synced (format-time-string "%Y-%m-%d"))))
+
+      ;; Create a timer to run the gcal-hook periodically for us, every hour
+      ;;(run-at-time t 3600 'org-gcal-sync))
+      ;(add-hook 'org-agenda-mode-hook (lambda () (org-gcal-sync)))
+      ;(add-hook 'org-capture-after-finalize-hook (lambda () (org-gcal-sync))))
+
 #+END_SRC
 
 * Extras
