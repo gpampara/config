@@ -329,6 +329,13 @@ Automatically delete whitespace in a sensible way with "smart" hungry delete
     (global-hungry-delete-mode))
 #+END_SRC
 
+Some utility packages - is this actually required?
+
+#+BEGIN_SRC emacs-lisp
+  (use-package f
+    :ensure t)
+#+END_SRC
+
 ** Appearance
 
 At the moment the zenburn-theme is treating me well.
@@ -356,8 +363,9 @@ Improve look and feel of titlebar on Macos. Set =ns-appearance= to
 =dark= for white title text and =nil= for black title text.
 
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-  (add-to-list 'default-frame-alist '(ns-appearance . dark))
+  (with-system darwin
+    (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+    (add-to-list 'default-frame-alist '(ns-appearance . dark)))
 #+END_SRC
 
 Add telephone-line as the mode line
@@ -475,21 +483,6 @@ Snippet support
   (add-hook 'prog-mode-hook 'yas-minor-mode)
 #+END_SRC
 
-Simple window navigation - This is not really used, should be removed?
-
-#+BEGIN_SRC emacs-lisp
- (use-package dumb-jump
-   :ensure t
-   :bind (("M-g o" . dumb-jump-go-other-window)
-          ("M-g j" . dumb-jump-go)
-          ("M-g i" . dumb-jump-go-prompt)
-          ("M-g x" . dumb-jump-go-prefer-external)
-          ("M-g z" . dumb-jump-go-prefer-external-other-window))
-   :config
-   (progn
-     (setq dumb-jump-selector 'ivy)))
-#+END_SRC
-
 Highlight TODO / FIXME strings in buffers
 
 #+BEGIN_SRC emacs-lisp
@@ -588,21 +581,16 @@ Some _very_ basic Haskell config
 
 ** LaTeX
 
-Setup AUCTex for some nice LaTeX support in emacs
+Setup AUCTex for some nice LaTeX support in emacs. This workflow is
+centered around using =latexmk= as the build tool and that the LaTeX
+project is version controlled in git.
+
+From the project specific =.latexmkrc= we can then determine relative
+pathing for files to correctly allow for the automatic setting of the
+=TeX-master= variable, removing the need to spoil the source files
+themselves with local config comment strings.
 
 #+BEGIN_SRC emacs-lisp
-  ;; (defun latexmkrc-compile ()
-  ;;   (interactive)
-  ;;   (let ((default-directory (locate-dominating-file "." ".latexmkrc")))
-  ;;     (compile "latexmk")))
-
-  ;; (defun my-TeX-run-TeX (name command file)
-  ;;   (let ((default-directory (locate-dominating-file "." ".latexmkrc")))
-  ;;     (message (concat "name: " name))
-  ;;     (message (concat "command: " command))
-  ;;     (message (concat "fiole: " file))
-  ;;     (TeX-run-TeX name command "thesis.tex")))
-
   ;; This may need some work, but the idea is to get the _single_ entry in @default_files
   (defun extract-default-files ()
     (let* ((default-directory (locate-dominating-file "." ".latexmkrc"))
@@ -616,7 +604,6 @@ Setup AUCTex for some nice LaTeX support in emacs
 
   (defun setup-custom-latexmk-cmd()
     "Set custom Latexmk command."
-    ;;(interactive)
     (let* ((default-directory (locate-dominating-file "." ".latexmkrc")))
       (add-to-list 'TeX-expand-list (list "%(TeX-build-directory)" '(lambda () TeX-build-directory)))
       (add-to-list 'TeX-expand-list (list "%(buffer-name)" '(lambda () (buffer-name))))
@@ -636,6 +623,34 @@ Setup AUCTex for some nice LaTeX support in emacs
       (add-to-list 'TeX-expand-list (list "%t" '(lambda () (extract-default-files))))
       ))
 
+  ;; https://www.emacswiki.org/emacs/AUCTeX
+  ;; Automagic detection of master file
+  ;; (defun guess-TeX-master (filename)
+  ;;   "Guess the master file for FILENAME from currently open .tex files."
+  ;;   (let ((candidate nil)
+  ;;         (filename (file-name-nondirectory filename)))
+  ;;     (message "riunning the guess tex master function")
+  ;;     (save-excursion
+  ;;       (dolist (buffer (buffer-list))
+  ;;         (with-current-buffer buffer
+  ;;           (let ((name (buffer-name))
+  ;;                 (file buffer-file-name))
+  ;;             (if (and file (string-match "\\.tex$" file))
+  ;;                 (progn
+  ;;                   (goto-char (point-min))
+  ;;                   (if (re-search-forward (concat "\\\\input{" filename "}") nil t)
+  ;;                       (setq candidate file))
+  ;;                   (if (re-search-forward (concat "\\\\include{" (file-name-sans-extension filename) "}") nil t)
+  ;;                       (setq candidate file))))))))
+  ;;     (if candidate
+  ;;         (message "TeX master document: %s" (file-name-nondirectory candidate)))
+  ;;     candidate))
+
+  (defun relative-master (path)
+    "Determine the relative path to the master file, calcuated by extract-default-files"
+    (let ((master-file (extract-default-files)))
+      (f-relative master-file (f-dirname path))))
+
   (use-package tex
     :ensure auctex
     :mode ("\\.tex\\'" . latex-mode)
@@ -644,20 +659,24 @@ Setup AUCTex for some nice LaTeX support in emacs
     (add-hook 'LaTeX-mode-hook 'LaTeX-preview-setup)
     (add-hook 'LaTeX-mode-hook 'flyspell-mode)
     (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
+    (add-hook 'latex-mode-hook 'turn-on-reftex)
     (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
     (add-hook 'LaTeX-mode-hook 'visual-line-mode)
+    (add-hook 'LaTeX-mode-hook '(lambda ()
+                                  (setq TeX-master (relative-master (buffer-file-name)))))
     :config
+    (message (concat "loading the tex stuff for " (buffer-file-name)))
     (setq TeX-auto-save t)
     (setq TeX-parse-self t)
     (setq TeX-save-query nil)
     (setq TeX-PDF-mode t)
     (setq reftex-plug-into-AUCTeX t)
+    (setq reftex-use-external-file-finders t)
     (setq LaTeX-csquotes-close-quote "}")
     (setq LaTeX-csquotes-open-quote "\\enquote{")
-    (setq-default TeX-master nil)
     ;; Make reftex try play nicer with biblatex
-    (setq reftex-bibliography-commands '("bibliography" "nobibliography" "addbibresource")))
-
+    ;;(setq reftex-bibliography-commands '("bibliography" "nobibliography" "addbibresource"))
+    )
 
   (use-package auctex-latexmk
     :ensure t
