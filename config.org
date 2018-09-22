@@ -20,9 +20,9 @@ possible.
 #+END_SRC
 ** Configure package sources
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'package-archives
- 	     '("melpa" . "https://melpa.org/packages/"))
-(setq package-enable-at-startup nil)
+  (add-to-list 'package-archives
+               '("melpa" . "https://melpa.org/packages/"))
+  (setq package-enable-at-startup nil)
 #+END_SRC
 
 
@@ -85,9 +85,22 @@ Reload the configuration
 Adjust shell environment variables, if needed
 
 #+BEGIN_SRC emacs-lisp
+  (setenv "SHELL" "/bin/bash")
   (setenv "LANG" "en_US.UTF-8")
 #+END_SRC
 
+#+BEGIN_SRC emacs-lisp
+(with-system darwin
+  (exec-path-from-shell-initialize))
+
+#+END_SRC
+
+Nix-shell related?
+
+#+BEGIN_SRC emacs-lisp
+  (use-package direnv)
+
+#+END_SRC
 ** Preferences
 
 Don't display the help screen
@@ -282,7 +295,26 @@ Use the ivy enhanced version of =isearch=
 
 Prefer the use of =ibuffer= instead of the default buffer list
 #+BEGIN_SRC emacs-lisp
-  (global-set-key (kbd "C-c C-b") 'ibuffer)
+  (global-set-key (kbd "C-x C-b") 'ibuffer)
+  (setq ibuffer-saved-filter-groups
+        '(("default"
+           ("emacs-config" (or (filename . ".emacs.d")
+                               (filename . "emacs-config")))
+           ("Org" (or (mode . org-mode)
+                      (filename . "OrgMode")))
+           ("Magit" (name . "\*magit\*"))
+           ("Help" (or (name . "\*Help\*")
+                       (name . "\*Apropos\*")
+                       (name . "\*info\*"))))))
+
+  (add-hook 'ibuffer-mode-hook
+            (lambda ()
+              (ibuffer-auto-mode 1)
+              (ibuffer-switch-to-saved-filter-groups "default")))
+
+  (setq ibuffer-show-empty-filter-groups nil)
+
+  (setq ibuffer-expert t)
 #+END_SRC
 
 Display a simple dashboard at startup
@@ -495,16 +527,42 @@ Highlight TODO / FIXME strings in buffers
 *** Dumb-jump
 
 #+BEGIN_SRC emacs-lisp
-  (use-package dumb-jump
-    :ensure t
-    ;; :bind (("M-g o" . dumb-jump-go-other-window)
-    ;;        ("M-g j" . dumb-jump-go)
-    ;;        ("M-g x" . dumb-jump-go-prefer-external)
-    ;;        ("M-g z" . dumb-jump-go-prefer-external-other-window))
-    ;;  :config
-    ;; (setq dumb-jump-selector 'ivy) ;; (setq dumb-jump-selector 'helm)
-    :init
-    (dumb-jump-mode))
+    (use-package dumb-jump
+      :ensure t
+      ;; :bind (("M-g o" . dumb-jump-go-other-window)
+      ;;        ("M-g j" . dumb-jump-go)
+      ;;        ("M-g x" . dumb-jump-go-prefer-external)
+      ;;        ("M-g z" . dumb-jump-go-prefer-external-other-window))
+      :init
+      (dumb-jump-mode)
+      :config
+      (setq dumb-jump-selector 'ivy)
+      ;; Add some config for elm files
+      (nconc dumb-jump-language-file-exts
+             '((:language "elm" :ext "elm" :agtype "elm" :rgtype "elm")))
+      (nconc dumb-jump-language-comments
+             '((:comment "--" :language "elm")))
+      (nconc dumb-jump-find-rules
+             ;; Rules, based off the haskell syntax
+             '((:type "module" :supports ("ag" "rg") :language "elm"
+                      :regex "^module\\s+JJJ\\s+"
+                      :tests ("model Test exposing (exportA, exportB)"))
+
+               (:type "type" :supports ("ag" "rg" "grep" "git-grep") :language "elm"
+                      :regex "^type\\s+JJJ\\b"
+                      :tests ("type Test"))
+               (:type "type" :supports ("ag" "rg" "grep" "git-grep") :language "elm"
+                      :regex "^type\\s+alias\\s+JJJ\\b"
+                      :tests ("type alias Test" "type alias Model ="))
+               (:type "function" :supports ("ag" "rg" "grep" "git-grep") :language "elm"
+                      :regex "^port\\s+JJJ\\b\\s*:[^:]"
+                      :tests ("port requestPopup :"))
+               (:type "function" :supports ("ag" "rg" "grep" "git-grep") :language "elm"
+                      :regex "^\\s*JJJ\\s*:[^:].*->.*"
+                      :tests ("foo : Int -> Int"))
+               ))
+      ;;--regex-Elm=/^ *([[:lower:]][[:alnum:]_]+)[[:blank:]]*:[^:][^-]+$/\1/c,constant,constants/
+      )
 #+END_SRC
 
 ** Elm
