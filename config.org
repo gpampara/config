@@ -415,14 +415,14 @@ Inline display of colours
     (add-hook 'prog-mode-hook 'rainbow-mode))
 #+END_SRC
 
-# Add a visual inidcator when switching to a different window
-#
-# #+BEGIN_SRC emacs-lisp
-#   (use-package beacon
-#     :ensure t
-#     :config
-#     (beacon-mode 1))
-# #+END_SRC
+Add a visual inidcator when switching to a different window
+
+#+BEGIN_SRC emacs-lisp
+  (use-package beacon
+    :ensure t
+    :config
+    (beacon-mode 1))
+#+END_SRC
 
 Use the "forward" uniquify scheme for buffer disambiguation
 
@@ -726,6 +726,22 @@ themselves with local config comment strings.
     (let ((master-file (extract-default-files)))
       (f-relative master-file (f-dirname path))))
 
+
+  (defun latex-make-on-save ()
+    (interactive)
+    (let ((TeX-save-query nil)
+          (TeX-process-asynchronous nil)
+          (master-file (TeX-master-file)))
+      (TeX-save-document "")
+      (TeX-command-menu "Make")
+
+      (dolist ($buf (buffer-list (current-buffer)))
+        (with-current-buffer $buf
+          (when (eq (buffer-local-value 'major-mode $buf) 'pdf-view-mode)
+            (message "Reloading PDF: %s" (buffer-name $buf))
+            (revert-buffer t t))))))
+
+
   (use-package tex
     :ensure auctex
     :mode (("\\.tex\\'" . latex-mode)
@@ -740,6 +756,7 @@ themselves with local config comment strings.
     (add-hook 'LaTeX-mode-hook 'visual-line-mode)
     (add-hook 'LaTeX-mode-hook '(lambda ()
                                   (setq TeX-master (relative-master (buffer-file-name)))))
+    (add-hook 'after-save-hook 'latex-make-on-save)
     :config
     (message (concat "loading the tex stuff for " (buffer-file-name)))
     (setq TeX-auto-save t)
