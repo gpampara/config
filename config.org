@@ -129,7 +129,8 @@ Some fancy  composition, particularly when using FiraCode fonts.
 
 #+BEGIN_SRC emacs-lisp
   (with-system darwin
-    (mac-auto-operator-composition-mode))
+    (if (fboundp 'mac-auto-operator-composition-mode)
+        (mac-auto-operator-composition-mode t)))
 #+END_SRC
 
 Turn off unwanted window decoration.
@@ -159,41 +160,37 @@ most of my work will be in a repository anyway.
 #+BEGIN_SRC emacs-lisp
   (setq make-backup-files nil)
   (setq auto-save-default nil)
+
+  (setq save-interprogram-paste-before-kill t
+        apropos-do-all t
+        mouse-yank-at-point t
+        require-final-newline t
+        visible-bell t
+        load-prefer-newer t
+        ediff-window-setup-function 'ediff-setup-windows-plain
+        save-place-file (concat user-emacs-directory "places")
+        backup-directory-alist `(("." . ,(concat user-emacs-directory
+                                                 "backups"))))
+#+END_SRC
+
+*** Input settings
+
+To force the change in usage, just completely disable any sort of
+mouse event within Emacs.
+
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package disable-mouse
+  ;;   :ensure t
+  ;;   :config
+  ;;   (global-disable-mouse-mode))
 #+END_SRC
 
 *** Font settings
 #+BEGIN_SRC emacs-lisp
   (when (window-system)
     (set-frame-font "Fira Code"))
-  (let ((alist '((33 . ".\\(?:\\(?:==\\|!!\\)\\|[!=]\\)")
-                 (35 . ".\\(?:###\\|##\\|_(\\|[#(?[_{]\\)")
-                 (36 . ".\\(?:>\\)")
-                 (37 . ".\\(?:\\(?:%%\\)\\|%\\)")
-                 (38 . ".\\(?:\\(?:&&\\)\\|&\\)")
-                 (42 . ".\\(?:\\(?:\\*\\*/\\)\\|\\(?:\\*[*/]\\)\\|[*/>]\\)")
-                 (43 . ".\\(?:\\(?:\\+\\+\\)\\|[+>]\\)")
-                 (45 . ".\\(?:\\(?:-[>-]\\|<<\\|>>\\)\\|[<>}~-]\\)")
-                 (46 . ".\\(?:\\(?:\\.[.<]\\)\\|[.=-]\\)")
-                 (47 . ".\\(?:\\(?:\\*\\*\\|//\\|==\\)\\|[*/=>]\\)")
-                 (48 . ".\\(?:x[a-zA-Z]\\)")
-                 (58 . ".\\(?:::\\|[:=]\\)")
-                 (59 . ".\\(?:;;\\|;\\)")
-                 (60 . ".\\(?:\\(?:!--\\)\\|\\(?:~~\\|->\\|\\$>\\|\\*>\\|\\+>\\|--\\|<[<=-]\\|=[<=>]\\||>\\)\\|[*$+~/<=>|-]\\)")
-                 (61 . ".\\(?:\\(?:/=\\|:=\\|<<\\|=[=>]\\|>>\\)\\|[<=>~]\\)")
-                 (62 . ".\\(?:\\(?:=>\\|>[=>-]\\)\\|[=>-]\\)")
-                 (63 . ".\\(?:\\(\\?\\?\\)\\|[:=?]\\)")
-                 (91 . ".\\(?:]\\)")
-                 (92 . ".\\(?:\\(?:\\\\\\\\\\)\\|\\\\\\)")
-                 (94 . ".\\(?:=\\)")
-                 (119 . ".\\(?:ww\\)")
-                 (123 . ".\\(?:-\\)")
-                 (124 . ".\\(?:\\(?:|[=|]\\)\\|[=>|]\\)")
-                 (126 . ".\\(?:~>\\|~~\\|[>=@~-]\\)")
-                 )
-               ))
-    (dolist (char-regexp alist)
-      (set-char-table-range composition-function-table (car char-regexp)
-                            `([,(cdr char-regexp) 0 font-shape-gstring]))))
+  (set-language-environment "UTF-8")
+  (set-default-coding-systems 'utf-8)
 #+END_SRC
 
 
@@ -426,6 +423,26 @@ Inline display of colours
 #     :config
 #     (beacon-mode 1))
 # #+END_SRC
+
+Use the "forward" uniquify scheme for buffer disambiguation
+
+#+BEGIN_SRC emacs-lisp
+(setq uniquify-buffer-name-style 'forward)
+#+END_SRC
+
+** Keybinds
+
+*** Hippie-expand
+
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "M-/") 'hippie-expand)
+  (setq hippie-expand-try-functions-list
+        '(try-expand-dabbrev
+          try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill
+          try-complete-file-name-partially try-complete-file-name
+          try-expand-all-abbrevs try-expand-list try-expand-line
+          try-complete-lisp-symbol-partially try-complete-lisp-symbol))
+#+END_SRC
 
 * Development configuration
 ** General
@@ -711,7 +728,8 @@ themselves with local config comment strings.
 
   (use-package tex
     :ensure auctex
-    :mode ("\\.tex\\'" . latex-mode)
+    :mode (("\\.tex\\'" . latex-mode)
+           ("\\.Rnw\\'" . latex-mode))
     :commands (latex-mode LaTeX-mode plain-tex-mode)
     :init
     (add-hook 'LaTeX-mode-hook 'LaTeX-preview-setup)
@@ -733,15 +751,33 @@ themselves with local config comment strings.
     (setq LaTeX-csquotes-close-quote "}")
     (setq LaTeX-csquotes-open-quote "\\enquote{")
     ;; Make reftex try play nicer with biblatex
-    ;;(setq reftex-bibliography-commands '("bibliography" "nobibliography" "addbibresource"))
+    (setq reftex-bibliography-commands '("bibliography" "nobibliography" "addbibresource"))
+    (add-to-list 'TeX-command-list '("Make" "make" TeX-run-TeX nil t))
     )
 
-  (use-package auctex-latexmk
-    :ensure t
-    :after tex
+  ;; (use-package auctex-latexmk
+  ;;   :ensure t
+  ;;   :after tex
+  ;;   :config
+  ;;   (auctex-latexmk-setup)
+  ;;   (setup-custom-latexmk-cmd))
+#+END_SRC
+
+Now add pdf-tools for nicer PDF interactions
+
+#+BEGIN_SRC emacs-lisp
+  (use-package pdf-tools
+    :pin manual ;; manually update
     :config
-    (auctex-latexmk-setup)
-    (setup-custom-latexmk-cmd))
+    ;; initialise
+    (pdf-tools-install)
+    ;; open pdfs scaled to fit page
+    (setq-default pdf-view-display-size 'fit-page)
+    ;; automatically annotate highlights
+    (setq pdf-annot-activate-created-annotations t)
+    ;; use normal isearch
+    (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward))
+
 #+END_SRC
 ** Scala
 
@@ -803,7 +839,8 @@ Define the locations of the different org files:
 #+BEGIN_SRC emacs-lisp
   (setq org-agenda-files (list "~/org/gtd.org"
                                "~/org/projects.org"
-                               "~/org/calendar.org"))
+                               "~/org/calendar.org"
+                               "~/org/call.org"))
 #+END_SRC
 
 Nicer indenting in =org-mode= files
@@ -831,10 +868,16 @@ Add =org-alert= to display some alerts on the desktop
 
 #+BEGIN_SRC emacs-lisp
   (setq org-capture-templates
-   '(("t" "Todo" entry (file+headline "~/org/gtd.org" "Tasks")
-      "* TODO %?\n  %i\n  %a")
-     ("p" "Project Todo" entry (file+headline "~/org/projects.org" "Tasks")
-      "* TODO %?\n  %i\n  %a")))
+        '(("t" "Todo" entry
+           (file+headline "~/org/gtd.org" "Tasks")
+           "* TODO %?\n  %i\n  %a")
+          ("p" "Project Todo" entry
+           (file+headline "~/org/projects.org" "Tasks")
+           "* TODO %?\n  %i\n  %a")
+          ("c" "Call someone" entry
+           (file+headline "~/org/call.org" "To call")
+           "* TODO %?\n  %i\n")
+          ))
 #+END_SRC
 
 ** Google calendar integration
