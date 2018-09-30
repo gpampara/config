@@ -193,7 +193,11 @@ mouse event within Emacs.
   (set-default-coding-systems 'utf-8)
 #+END_SRC
 
-
+** Async support
+#+BEGIN_SRC emacs-lisp
+  (use-package async
+    :ensure t)
+#+END_SRC
 * Interface
 ** General
 
@@ -668,6 +672,7 @@ themselves with local config comment strings.
 #+BEGIN_SRC emacs-lisp
   ;; This may need some work, but the idea is to get the _single_ entry in @default_files
   (defun extract-default-files ()
+    "Extract latex project main file."
     (let* ((default-directory (locate-dominating-file "." ".latexmkrc"))
            (target-file (concat default-directory ".latexmkrc")))
       (with-current-buffer (find-file-noselect target-file)
@@ -722,30 +727,32 @@ themselves with local config comment strings.
   ;;     candidate))
 
   (defun relative-master (path)
-    "Determine the relative path to the master file, calcuated by extract-default-files"
+    "Determine the relative path to the master file, calcuated by extract-default-files."
     (let ((master-file (extract-default-files)))
       (f-relative master-file (f-dirname path))))
 
-
   (defun latex-make-on-save ()
+    "Run make on the project makefile, reloading pdf-view-mode buffers."
     (interactive)
+    ;;(async-start
+    ;;'(lambda ()
     (let ((TeX-save-query nil)
           (TeX-process-asynchronous nil)
           (master-file (TeX-master-file)))
-      (TeX-save-document "")
+      ;;(TeX-save-document "")
       (TeX-command-menu "Make")
-
       (dolist ($buf (buffer-list (current-buffer)))
         (with-current-buffer $buf
           (when (eq (buffer-local-value 'major-mode $buf) 'pdf-view-mode)
             (message "Reloading PDF: %s" (buffer-name $buf))
             (revert-buffer t t))))))
+  ;;   'ignore))
 
 
   (use-package tex
     :ensure auctex
-    :mode (("\\.tex\\'" . latex-mode)
-           ("\\.Rnw\\'" . latex-mode))
+    :mode (("\\.tex\\'" . LaTeX-mode)
+           ("\\.Rnw\\'" . LaTeX-mode))
     :commands (latex-mode LaTeX-mode plain-tex-mode)
     :init
     (add-hook 'LaTeX-mode-hook 'LaTeX-preview-setup)
@@ -756,7 +763,9 @@ themselves with local config comment strings.
     (add-hook 'LaTeX-mode-hook 'visual-line-mode)
     (add-hook 'LaTeX-mode-hook '(lambda ()
                                   (setq TeX-master (relative-master (buffer-file-name)))))
-    (add-hook 'after-save-hook 'latex-make-on-save)
+    (add-hook 'LaTeX-mode-hook (lambda ()
+                                 (add-to-list 'TeX-command-list '("Make" "make" TeX-run-TeX nil t))
+                                 (add-hook 'after-save-hook 'latex-make-on-save nil t))))
     :config
     (message (concat "loading the tex stuff for " (buffer-file-name)))
     (setq TeX-auto-save t)
@@ -769,8 +778,6 @@ themselves with local config comment strings.
     (setq LaTeX-csquotes-open-quote "\\enquote{")
     ;; Make reftex try play nicer with biblatex
     (setq reftex-bibliography-commands '("bibliography" "nobibliography" "addbibresource"))
-    (add-to-list 'TeX-command-list '("Make" "make" TeX-run-TeX nil t))
-    )
 
   ;; (use-package auctex-latexmk
   ;;   :ensure t
