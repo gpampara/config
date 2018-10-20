@@ -592,53 +592,47 @@ Allow for the searching of locally installed Elm binaries, perhaps in
 the horrble `node_modules`.
 
 #+BEGIN_SRC emacs-lisp
- (defun bin-from-node-modules (executable)
-   ;; If there is a directory with "package.json" in it, we take that
-   ;; as the location from which to search for the passed in executable
-   (let* ((package-root (locate-dominating-file
-                         default-directory
- 			"package.json"))
- 	 (path
- 	  (and package-root
- 	       (expand-file-name (concat "node_modules/.bin/" executable)
- 				 (expand-file-name package-root)))))
-     (if (and path
- 	     (file-exists-p path))
- 	path
-       executable
-       ))
-   )
+  (defun bin-from-node-modules (variable executable)
+    (let ((root (locate-dominating-file
+                 (or (buffer-file-name) default-directory)
+                 (lambda (dir)
+                   (let ((target (expand-file-name (concat "node_modules/.bin/" executable) dir)))
+                     (and target (file-executable-p target)))))))
+      (when root
+        (let ((target (expand-file-name (concat "node_modules/.bin/" executable) root)))
+          ;;(message "Setting value %s to vraible %s" target variable)
+          (set variable target)))))
 #+END_SRC
 
 Add =elm-mode= and =flycheck= configuration for editing of elm
 buffers.
 
 #+BEGIN_SRC emacs-lisp
- (use-package elm-mode
-   :ensure t
-   :defer t
-   :mode "\\.elm\\'"
-   :config
-   (company-mode)
-   (setq elm-format-on-save t)
-   (add-hook 'after-init-hook #'global-flycheck-mode)
-   (custom-set-variables
-    '(elm-compile-command (bin-from-node-modules "elm-make"))
-    '(elm-interactive-command (bin-from-node-modules "elm-repl"))
-    '(elm-reactor-command (bin-from-node-modules "elm-reactor"))
-    '(elm-package-command (bin-from-node-modules "elm-package"))
-    '(elm-oracle-command (bin-from-node-modules "elm-oracle")))
-   :init
-   (add-hook 'elm-mode #'elm-oracle-setup-completion)
-   (add-hook 'elm-mode 'global-company-mode)
-   (add-to-list 'company-backends 'company-elm))
+  (use-package elm-mode
+    :ensure t
+    :defer t
+    :mode "\\.elm\\'"
+    :init
+    (add-to-list 'company-backends 'company-elm)
+    (add-hook 'elm-mode #'elm-oracle-setup-completion)
+    (add-hook 'elm-mode 'global-company-mode)
+    :config
+    (company-mode)
+    (setq elm-format-on-save t)
+    (add-hook 'after-init-hook #'global-flycheck-mode)
+    (add-hook 'elm-mode-hook (lambda ()
+                          (message "Setting local values for elm-mode")
+                          (bin-from-node-modules 'elm-compile-command "elm-make")
+                          (bin-from-node-modules 'elm-interactive-command "elm-repl")
+                          (bin-from-node-modules 'elm-reactor-command "elm-reactor")
+                          (bin-from-node-modules 'elm-package-command "elm-package")
+                          (bin-from-node-modules 'elm-oracle-command "elm-oracle"))))
 
-
- (use-package flycheck-elm
-   :ensure t
-   :config
-   (with-eval-after-load 'flycheck
-     '(add-hook 'flycheck-mode-hook #'flycheck-elm-setup)))
+  (use-package flycheck-elm
+    :ensure t
+    :config
+    (with-eval-after-load 'flycheck
+      '(add-hook 'flycheck-mode-hook #'flycheck-elm-setup)))
 #+END_SRC
 
 ** Haskell
@@ -865,18 +859,17 @@ Use =scala-mode= for scala syntax highlighting
 
    ;;(global-set-key (kbd "<M-return>") 'ansi-term)
  #+END_SRC
-
-
 * Org
 
 ** Appearance
 
-# Improve the appearance of bullet points in Emacs:
+Improve the appearance of bullet points in Emacs:
+
 #+BEGIN_SRC emacs-lisp
-;;  (use-package org-bullets
-;;    :config
-;;    (setq org-bullets-bullet-list '("∙"))
-;;    (add-hook 'org-mode-hook 'org-bullets-mode))
+  (use-package org-bullets
+    :config
+    (setq org-bullets-bullet-list '("∙"))
+    (add-hook 'org-mode-hook 'org-bullets-mode))
 #+END_SRC
 
 Set colours for priorities
