@@ -6,23 +6,28 @@ This is the my emacs config as an =org-mode= configuration. The idea of
 using this literate style is to keep the config as organized as
 possible.
 
-** Bootstrap use-package
-
-#+BEGIN_SRC emacs-lisp
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
-#+END_SRC
-
-
-#+BEGIN_SRC emacs-lisp
-(setq use-package-always-ensure t)
-#+END_SRC
+* General
 ** Configure package sources
+
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'package-archives
-               '("melpa" . "https://melpa.org/packages/"))
+    ;; (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
+    ;;                     (not (gnutls-available-p))))
+    ;;        (proto (if no-ssl "http" "https")))
+    ;;   ;; Comment/uncomment these two lines to enable/disable MELPA and MELPA Stable as desired
+    ;;   (add-to-list 'package-archives (cons "melpa" (concat proto "://melpa.org/packages/")) t)
+    ;;   ;;(add-to-list 'package-archives (cons "melpa-stable" (concat proto "://stable.melpa.org/packages/")) t)
+    ;;   (when (< emacs-major-version 24)
+    ;;     ;; For important compatibility libraries like cl-lib
+    ;;     (add-to-list 'package-archives '("gnu" . (concat proto "://elpa.gnu.org/packages/")))))
+  ;;  (package-initialize)
+
+    ;; (setq package-archives
+    ;;       '(("gnu" . "https://elpa.gnu.org/packages/")
+    ;;         ("melpa" . "https://melpa.org/packages/")))
+
   (setq package-enable-at-startup nil)
+  (add-to-list 'package-archives
+               '("melpa" . "http://melpa.org/packages/"))
 #+END_SRC
 
 
@@ -41,6 +46,28 @@ possible.
 # (add-hook 'after-init-hook
 #   (lambda () (message "loaded in %s" (emacs-init-time))))
 # #+END_SRC
+** Bootstrap use-package
+
+#+BEGIN_SRC emacs-lisp
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(setq use-package-always-ensure t)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package auto-package-update
+     :ensure t
+     :config
+     (setq auto-package-update-delete-old-versions t
+           auto-package-update-interval 7
+           auto-package-update-prompt-before-update t)
+     (auto-package-update-maybe))
+#+END_SRC
+
 ** Custom config functions
 
 Evaluate an expression when the system is the defined value
@@ -90,9 +117,13 @@ Adjust shell environment variables, if needed
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-(with-system darwin
-  (exec-path-from-shell-initialize))
+  (use-package exec-path-from-shell
+    :ensure t)
+#+END_SRC
 
+#+BEGIN_SRC emacs-lisp
+  (with-system darwin
+    (exec-path-from-shell-initialize))
 #+END_SRC
 
 Nix-shell related?
@@ -173,6 +204,10 @@ most of my work will be in a repository anyway.
                                                  "backups"))))
 #+END_SRC
 
+#+BEGIN_SRC emacs-lisp
+(setq auto-window-vscroll nil)
+#+END_SRC
+
 *** Input settings
 
 To force the change in usage, just completely disable any sort of
@@ -229,16 +264,19 @@ Add expand-region
 #+BEGIN_SRC emacs-lisp
   (use-package expand-region
     :ensure t
-    :bind ("C-=" . er/expand-region))
-
+    :bind
+    ("C-=" . er/expand-region)
+    ("C-+" . er/contract-region))
 #+END_SRC
 
 Include magit
 
 #+BEGIN_SRC emacs-lisp
- (use-package magit
-   :ensure t
-   :bind ("C-x g" . magit-status))
+  (use-package magit
+    :ensure t
+    :bind ("C-x g" . magit-status)
+    :config
+    (add-hook 'git-commit-setup-hook 'git-commit-turn-on-flyspell))
 #+END_SRC
 
 Which key to show a list of keys that follow a speicific key-chord
@@ -267,7 +305,7 @@ Use the ivy completion frontend, and the set of ivy-enhanced emacs commands
    ;(global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
    ;(global-set-key (kbd "<f2> u") 'counsel-unicode-char)
    ;(global-set-key (kbd "C-c g") 'counsel-git)
-   ;(global-set-key (kbd "C-c j") 'counsel-git-grep)
+   (global-set-key (kbd "C-c j") 'counsel-git-grep)
    ;(global-set-key (kbd "C-c k") 'counsel-ag)
    ;(global-set-key (kbd "C-x l") 'counsel-locate)
    ;(global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
@@ -320,14 +358,14 @@ Prefer the use of =ibuffer= instead of the default buffer list
 
 Display a simple dashboard at startup
 #+BEGIN_SRC emacs-lisp
-    (use-package dashboard
-      :ensure t
-      :config
-      (dashboard-setup-startup-hook)
-      (setq show-week-agenda-p t)
-      (setq dashboard-items '((agenda . 10)
-                              (recents  . 10)
-                              (projects . 5))))
+  (use-package dashboard
+    :ensure t
+    :config
+    (dashboard-setup-startup-hook)
+    (setq show-week-agenda-p t)
+    (setq dashboard-items '((recents  . 10)
+                            (projects . 5)
+                            (agenda . 10))))
 #+END_SRC
 
 Faster switching between windows, via =ace-window=
@@ -369,12 +407,21 @@ Some utility packages - is this actually required?
     :ensure t)
 #+END_SRC
 
+Use a plainer syntax for regexp
+
+#+BEGIN_SRC emacs-lisp
+  (use-package pcre2el
+    :ensure t
+    :config
+    (pcre-mode))
+#+END_SRC
+
 ** Appearance
 
 At the moment the zenburn-theme is treating me well.
 
 #+BEGIN_SRC emacs-lisp
- (use-package zenburn-theme
+ (use-package hc-zenburn-theme ;;zenburn-theme
    :ensure t
    :config
    ;; (setq zenburn-override-colors-alist
@@ -382,7 +429,7 @@ At the moment the zenburn-theme is treating me well.
    ;;       ("zenburn-bg+1"  . "#2F2F2F")
    ;;       ("zenburn-bg+2"  . "#3F3F3F")
    ;;       ("zenburn-bg+3"  . "#4F4F4F")))
-   (load-theme 'zenburn t)
+   (load-theme 'hc-zenburn t)
    )
 #+END_SRC
 
@@ -390,6 +437,8 @@ Highlight the current line.
 
 #+BEGIN_SRC emacs-lisp
   (global-hl-line-mode 1)
+  ;; Set the colour for the marked region to something lighter
+  (set-face-attribute 'region nil :background "#666")
 #+END_SRC
 
 Improve look and feel of titlebar on Macos. Set =ns-appearance= to
@@ -515,11 +564,12 @@ Completion service using =company-mode=
 Project management using projectile
 
 #+BEGIN_SRC emacs-lisp
- (use-package projectile
-   :ensure t
-   :config
-   (projectile-mode)
-   (setq projectile-enable-caching t))
+  (use-package projectile
+    :ensure t
+    :bind-keymap (("C-c p" . projectile-command-map))
+    :config
+    (projectile-global-mode)
+    (setq projectile-enable-caching t))
 #+END_SRC
 
 
@@ -602,6 +652,21 @@ the horrble `node_modules`.
         (let ((target (expand-file-name (concat "node_modules/.bin/" executable) root)))
           ;;(message "Setting value %s to vraible %s" target variable)
           (set variable target)))))
+
+  (defun switch-elm-version ()
+    (let ((root (locate-dominating-file
+                (or (buffer-file-name) default-directory)
+                "elm.json")))
+      (when root
+        (message "Setting local values for elm-mode")
+        (setq elm-interactive-command '("elm" "repl"))
+        (setq elm-reactor-command '("elm" "reactor"))
+        (setq elm-reactor-arguments '("--port" "8000"))
+        (setq elm-compile-command '("elm" "make"))
+        (setq elm-compile-arguments '("--output=elm.js" "--debug"))
+        (setq elm-package-command '("elm" "install"))
+        (setq elm-package-json "elm.json")
+        (setq elm-format-elm-version "0.19"))))
 #+END_SRC
 
 Add =elm-mode= and =flycheck= configuration for editing of elm
@@ -620,13 +685,7 @@ buffers.
     (company-mode)
     (setq elm-format-on-save t)
     (add-hook 'after-init-hook #'global-flycheck-mode)
-    (add-hook 'elm-mode-hook (lambda ()
-                          (message "Setting local values for elm-mode")
-                          (bin-from-node-modules 'elm-compile-command "elm-make")
-                          (bin-from-node-modules 'elm-interactive-command "elm-repl")
-                          (bin-from-node-modules 'elm-reactor-command "elm-reactor")
-                          (bin-from-node-modules 'elm-package-command "elm-package")
-                          (bin-from-node-modules 'elm-oracle-command "elm-oracle"))))
+    (add-hook 'elm-mode-hook #'switch-elm-version))
 
   (use-package flycheck-elm
     :ensure t
@@ -652,6 +711,17 @@ Some _very_ basic Haskell config
     :mode "\\.hs\\'")
 #+END_SRC
 
+** Polymode
+
+Define polymode to allow multiple modes in a single buffer. Handy for
+=knitr= and friends
+
+#+BEGIN_SRC emacs-lisp
+  (use-package polymode
+    :ensure t
+    :mode
+    ("\\.Rnw" . poly-noweb+r-mode))
+#+END_SRC
 ** LaTeX
 
 Setup AUCTex for some nice LaTeX support in emacs. This workflow is
@@ -667,12 +737,12 @@ themselves with local config comment strings.
   ;; This may need some work, but the idea is to get the _single_ entry in @default_files
   (defun extract-default-files ()
     "Extract latex project main file."
-    (let* ((default-directory (locate-dominating-file "." ".latexmkrc"))
-           (target-file (concat default-directory ".latexmkrc")))
+    (let* ((default-directory (locate-dominating-file "." "Makefile"))
+           (target-file (concat default-directory "Makefile")))
       (with-current-buffer (find-file-noselect target-file)
         (save-excursion ;; Don't change location of point.
           (goto-char (point-min)) ;; From the beginning...
-          (when (re-search-forward "default_files.*('\\(.*\\)'")
+          (when (re-search-forward "MAINFILE\s+:=\s+\\(.*\\)\s*")
             (concat default-directory (match-string 1))))
         )))
 
@@ -726,7 +796,9 @@ themselves with local config comment strings.
       (f-relative master-file (f-dirname path))))
 
   (defun reload-after-TeX-complete (process msg)
+    "Reload any associated PDFView buffers, after compilation succeeds."
     (TeX-command-sentinel process msg)
+    ;; Now update the produced synctex file to cater for the case of Sweave/knitr interactions
     (dolist ($buf (buffer-list (current-buffer)))
       (with-current-buffer $buf
         (when (eq (buffer-local-value 'major-mode $buf) 'pdf-view-mode)
@@ -785,8 +857,7 @@ themselves with local config comment strings.
 
   (use-package tex
     :ensure auctex
-    :mode (("\\.tex\\'" . LaTeX-mode)
-           ("\\.Rnw\\'" . LaTeX-mode))
+    :mode (("\\.tex\\'" . LaTeX-mode))
     :commands (latex-mode LaTeX-mode plain-tex-mode)
     :init
     (add-hook 'LaTeX-mode-hook 'LaTeX-preview-setup)
@@ -800,8 +871,11 @@ themselves with local config comment strings.
     (add-hook 'LaTeX-mode-hook (lambda ()
                                  (add-to-list 'TeX-command-list '("Make" "make" TeX-run-TeX nil t))
                                  (add-hook 'after-save-hook 'latex-make-on-save nil t))))
+    ;; (TeX-add-style-hook "natbib"
+    ;;     (lambda ()
+    ;;       (if (fboundp 'reftex-set-cite-format)
+    ;;           (reftex-set-cite-format 'natbib))))
     :config
-    (message (concat "loading the tex stuff for " (buffer-file-name)))
     (setq TeX-auto-save t)
     (setq TeX-parse-self t)
     (setq TeX-save-query nil)
@@ -812,13 +886,16 @@ themselves with local config comment strings.
     (setq LaTeX-csquotes-open-quote "\\enquote{")
     ;; Make reftex try play nicer with biblatex
     (setq reftex-bibliography-commands '("bibliography" "nobibliography" "addbibresource"))
+    (setq reftex-cite-format 'natbib)
 #+END_SRC
 
 Now add pdf-tools for nicer PDF interactions
 
 #+BEGIN_SRC emacs-lisp
   (use-package pdf-tools
-    :pin manual ;; manually update
+    :ensure t
+    :defer t
+    :mode "\\.pdf\\'"
     :config
     ;; initialise
     (pdf-tools-install)
@@ -828,10 +905,14 @@ Now add pdf-tools for nicer PDF interactions
     (setq pdf-annot-activate-created-annotations t)
     ;; use normal isearch
     (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward))
-
 #+END_SRC
 
 ** R
+
+#+BEGIN_SRC emacs-lisp
+  (use-package poly-R
+    :ensure t)
+#+END_SRC
 
 #+BEGIN_SRC emacs-lisp
   (use-package ess
@@ -860,7 +941,6 @@ Use =scala-mode= for scala syntax highlighting
    ;;(global-set-key (kbd "<M-return>") 'ansi-term)
  #+END_SRC
 * Org
-
 ** Appearance
 
 Improve the appearance of bullet points in Emacs:
@@ -967,6 +1047,27 @@ Add =org-alert= to display some alerts on the desktop
 * Extras
 ** Writing
 
+Upgrade the dictionary used to a more up-to-date, recent version.
+
+#+BEGIN_SRC emacs-lisp
+  (cond
+   ;; try hunspell at first
+   ;; if hunspell does NOT exist, use aspell
+   ((executable-find "hunspell")
+    (setq ispell-program-name "hunspell")
+    (setq ispell-local-dictionary "en_US")
+    (setq ispell-local-dictionary-alist
+          ;; Please note the list `("-d" "en_US")` contains ACTUAL parameters passed to hunspell
+          ;; You could use `("-d" "en_US,en_US-med")` to check with multiple dictionaries
+          '(("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_US") nil utf-8)
+            )))
+
+   ((executable-find "aspell")
+    (setq ispell-program-name "aspell")
+    ;; Please note ispell-extra-args contains ACTUAL parameters passed to aspell
+    (setq ispell-extra-args '("--sug-mode=ultra" "--lang=en_US"))))
+#+END_SRC
+
 =writegood-mode= highlights bad words, weasels etc. Also has functions
 to calculate readability of writing.
 
@@ -977,4 +1078,12 @@ to calculate readability of writing.
     (add-hook 'TeX-update-style-hook #'writegood-mode)
     :config
     (add-to-list 'writegood-weasel-words "actionable"))
+#+END_SRC
+
+Add =langtool= as an additional tool to use
+
+#+BEGIN_SRC emacs-lisp
+  (use-package langtool
+    :ensure t
+    :config (setq langtool-language-tool-jar "/usr/local/Cellar/languagetool/4.3/libexec/languagetool-commandline.jar"))
 #+END_SRC
