@@ -200,7 +200,8 @@ most of my work will be in a repository anyway.
         load-prefer-newer t
         ediff-window-setup-function 'ediff-setup-windows-plain
         save-place-file (concat user-emacs-directory "places")
-        backup-directory-alist `(("." . ,(concat user-emacs-directory
+        create-lockfiles nil
+        backup-directory-alist `(("." . (concat user-emacs-directory
                                                  "backups"))))
 #+END_SRC
 
@@ -418,20 +419,26 @@ Use a plainer syntax for regexp
 
 ** Appearance
 
-At the moment the zenburn-theme is treating me well.
-
 #+BEGIN_SRC emacs-lisp
- (use-package hc-zenburn-theme ;;zenburn-theme
-   :ensure t
-   :config
-   ;; (setq zenburn-override-colors-alist
-   ;;     '(("zenburn-bg+05" . "#282828")
-   ;;       ("zenburn-bg+1"  . "#2F2F2F")
-   ;;       ("zenburn-bg+2"  . "#3F3F3F")
-   ;;       ("zenburn-bg+3"  . "#4F4F4F")))
-   (load-theme 'hc-zenburn t)
-   )
+  (use-package all-the-icons)
+
+  (use-package doom-modeline
+        :ensure t
+        :hook (after-init . doom-modeline-mode))
+
+  (use-package doom-themes
+    :ensure t
+    :config
+    (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t  ; if nil, italics is universally disabled
+
+        ;; doom-one specific settings
+        doom-one-brighter-modeline nil
+        doom-one-brighter-comments nil)
+
+    (load-theme 'doom-one t))
 #+END_SRC
+
 
 Highlight the current line.
 
@@ -450,14 +457,6 @@ Improve look and feel of titlebar on Macos. Set =ns-appearance= to
     (add-to-list 'default-frame-alist '(ns-appearance . dark)))
 #+END_SRC
 
-Add telephone-line as the mode line
-
-#+BEGIN_SRC emacs-lisp
-(use-package telephone-line
-  :ensure t
-  :config
-  (telephone-line-mode 1))
-#+END_SRC
 
 Inline display of colours
 
@@ -636,6 +635,28 @@ Highlight TODO / FIXME strings in buffers
       )
 #+END_SRC
 
+** Javascript and friends
+
+Some additional modes for Javascript (rubbish language)
+
+#+BEGIN_SRC emacs-lisp
+  (use-package coffee-mode
+      :ensure t
+      :defer t
+      :mode "\\.coffee\\'")
+#+END_SRC
+
+Highlighting for pug/jade templates
+
+#+BEGIN_SRC emacs-lisp
+  (use-package pug-mode
+    :ensure t
+    :defer t
+    :mode ("\\.pug\\'" "\\.jade\\'")
+    :config
+    (setq pug-tab-width 4))
+#+END_SRC
+
 ** Elm
 
 Allow for the searching of locally installed Elm binaries, perhaps in
@@ -654,6 +675,7 @@ the horrble `node_modules`.
           (set variable target)))))
 
   (defun switch-elm-version ()
+    (message "Running 'switch-elm-version'")
     (let ((root (locate-dominating-file
                 (or (buffer-file-name) default-directory)
                 "elm.json")))
@@ -734,7 +756,6 @@ pathing for files to correctly allow for the automatic setting of the
 themselves with local config comment strings.
 
 #+BEGIN_SRC emacs-lisp
-  ;; This may need some work, but the idea is to get the _single_ entry in @default_files
   (defun extract-default-files ()
     "Extract latex project main file."
     (let* ((default-directory (locate-dominating-file "." "Makefile"))
@@ -745,27 +766,6 @@ themselves with local config comment strings.
           (when (re-search-forward "MAINFILE\s+:=\s+\\(.*\\)\s*")
             (concat default-directory (match-string 1))))
         )))
-
-  (defun setup-custom-latexmk-cmd()
-    "Set custom Latexmk command."
-    (let* ((default-directory (locate-dominating-file "." ".latexmkrc")))
-      (add-to-list 'TeX-expand-list (list "%(TeX-build-directory)" '(lambda () TeX-build-directory)))
-      (add-to-list 'TeX-expand-list (list "%(buffer-name)" '(lambda () (buffer-name))))
-      (add-to-list 'TeX-expand-list (list "%(default-directory)" '(lambda nil default-directory)))
-      (add-to-list 'TeX-expand-list (list "%(project-root-dir)" '(lambda nil default-directory)))
-      (add-to-list 'TeX-expand-list (list "%(output-file)" '(lambda () (concat TeX-master "." TeX-output-extension))))
-      (add-to-list 'TeX-expand-list (list "%(aux-dir)" '(lambda ()  (if (equal "" TeX-build-directory) "" (format "-aux-directory=%s" "build")))))
-      (add-to-list 'TeX-expand-list (list "%(out-dir)" '(lambda ()  (if (equal "" TeX-build-directory) "" (format "-output-directory=%s" "build")))))
-      (add-to-list 'TeX-expand-list (list "%(-PDF)" '(lambda ()  (if (or TeX-PDF-mode TeX-DVI-via-PDFTeX) "-pdf" ""))))
-      (add-to-list 'TeX-expand-list (list "%(default-dir)" '(lambda nil default-directory)))
-      (add-to-list 'TeX-expand-list (list "%(pdflatex-args)"
-                                          '(lambda () (if (or TeX-PDF-mode TeX-DVI-via-PDFTeX)
-                                                          "-pdflatex='pdflatex -synctex=1 -file-line-error -shell-escape'"))))
-      ;;(add-to-list 'TeX-expand-list (list "%(misc-args)" '(lambda () "")))
-      ;; This is needed to make sure that we are in the correct working directory for releative path lookups
-      (add-to-list 'TeX-expand-list (list "%(extraopts)" '(lambda () "-cd")))
-      (add-to-list 'TeX-expand-list (list "%t" '(lambda () (extract-default-files))))
-      ))
 
   ;; https://www.emacswiki.org/emacs/AUCTeX
   ;; Automagic detection of master file
@@ -895,7 +895,7 @@ Now add pdf-tools for nicer PDF interactions
   (use-package pdf-tools
     :ensure t
     :defer t
-    :mode "\\.pdf\\'"
+    :magic ("%PDF" . pdf-view-mode)
     :config
     ;; initialise
     (pdf-tools-install)
@@ -931,6 +931,15 @@ Use =scala-mode= for scala syntax highlighting
   :mode "\\.scala\\'")
 #+END_SRC
 
+** Nix and nixpkg
+
+#+BEGIN_SRC emacs-lisp
+  (use-package nix-mode
+    :ensure t
+    :defer t
+    :mode "\\.nix\\'")
+
+#+END_SRC
 ** Terminal
  #+BEGIN_SRC emacs-lisp
    (defvar my-term-shell "/usr/local/bin/fish")
@@ -997,7 +1006,7 @@ Add =org-alert= to display some alerts on the desktop
     :ensure t
     :config
     (with-system darwin
-                 (setq alert-default-style 'notifier))
+                 (setq alert-default-style 'message))
     (with-system gnu/linux
                  (setq alert-default-style 'libnotify)))
 
