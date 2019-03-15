@@ -889,7 +889,7 @@ themselves with local config comment strings.
     (setq reftex-cite-format 'natbib)
 #+END_SRC
 
-Now add pdf-tools for nicer PDF interactions
+Now add =pdf-tools= for nicer PDF interactions
 
 #+BEGIN_SRC emacs-lisp
   (use-package pdf-tools
