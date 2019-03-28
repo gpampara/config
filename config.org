@@ -897,6 +897,8 @@ Now add =pdf-tools= for nicer PDF interactions
     :defer t
     :magic ("%PDF" . pdf-view-mode)
     :config
+    ;; https://github.com/politza/pdf-tools/issues/480#issuecomment-473707355
+    (setenv "PKG_CONFIG_PATH" "/usr/local/lib/pkgconfig:/usr/local/Cellar/libffi/3.2.1/lib/pkgconfig")
     ;; initialise
     (pdf-tools-install)
     ;; open pdfs scaled to fit page
@@ -1052,6 +1054,7 @@ Add =org-alert= to display some alerts on the desktop
       ;(add-hook 'org-capture-after-finalize-hook (lambda () (org-gcal-sync))))
 
 #+END_SRC
+
 
 * Extras
 ** Writing
