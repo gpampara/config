@@ -897,8 +897,9 @@ Now add =pdf-tools= for nicer PDF interactions
     :defer t
     :magic ("%PDF" . pdf-view-mode)
     :config
-    ;; https://github.com/politza/pdf-tools/issues/480#issuecomment-473707355
-    (setenv "PKG_CONFIG_PATH" "/usr/local/lib/pkgconfig:/usr/local/Cellar/libffi/3.2.1/lib/pkgconfig")
+    (with-system darwin
+      ;; https://github.com/politza/pdf-tools/issues/480#issuecomment-473707355
+      (setenv "PKG_CONFIG_PATH" "/usr/local/lib/pkgconfig:/usr/local/Cellar/libffi/3.2.1/lib/pkgconfig"))
     ;; initialise
     (pdf-tools-install)
     ;; open pdfs scaled to fit page
