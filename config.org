@@ -7,23 +7,24 @@ using this literate style is to keep the config as organized as
 possible.
 
 * General
+
 ** Configure package sources
 
 #+BEGIN_SRC emacs-lisp
-    ;; (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
-    ;;                     (not (gnutls-available-p))))
-    ;;        (proto (if no-ssl "http" "https")))
-    ;;   ;; Comment/uncomment these two lines to enable/disable MELPA and MELPA Stable as desired
-    ;;   (add-to-list 'package-archives (cons "melpa" (concat proto "://melpa.org/packages/")) t)
-    ;;   ;;(add-to-list 'package-archives (cons "melpa-stable" (concat proto "://stable.melpa.org/packages/")) t)
-    ;;   (when (< emacs-major-version 24)
-    ;;     ;; For important compatibility libraries like cl-lib
-    ;;     (add-to-list 'package-archives '("gnu" . (concat proto "://elpa.gnu.org/packages/")))))
-  ;;  (package-initialize)
+  (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
+                      (not (gnutls-available-p))))
+         (proto (if no-ssl "http" "https")))
+    ;; Comment/uncomment these two lines to enable/disable MELPA and MELPA Stable as desired
+    (add-to-list 'package-archives (cons "melpa" (concat proto "://melpa.org/packages/")) t)
+    ;;(add-to-list 'package-archives (cons "melpa-stable" (concat proto "://stable.melpa.org/packages/")) t)
+    (when (< emacs-major-version 24)
+      ;; For important compatibility libraries like cl-lib
+      (add-to-list 'package-archives '("gnu" . (concat proto "://elpa.gnu.org/packages/")))))
+  (package-initialize)
 
-    ;; (setq package-archives
-    ;;       '(("gnu" . "https://elpa.gnu.org/packages/")
-    ;;         ("melpa" . "https://melpa.org/packages/")))
+  (setq package-archives
+        '(("gnu" . "https://elpa.gnu.org/packages/")
+          ("melpa" . "https://melpa.org/packages/")))
 
   (setq package-enable-at-startup nil)
   (add-to-list 'package-archives
@@ -49,23 +50,29 @@ possible.
 ** Bootstrap use-package
 
 #+BEGIN_SRC emacs-lisp
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
+  (unless (package-installed-p 'use-package)
+    (package-refresh-contents)
+    (package-install 'use-package))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-(setq use-package-always-ensure t)
+  (setq use-package-always-ensure t)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-  (use-package auto-package-update
-     :ensure t
-     :config
-     (setq auto-package-update-delete-old-versions t
-           auto-package-update-interval 7
-           auto-package-update-prompt-before-update t)
-     (auto-package-update-maybe))
+  ;; (use-package auto-package-update
+  ;;    :ensure t
+  ;;    :config
+  ;;    (setq auto-package-update-delete-old-versions t
+  ;;          auto-package-update-interval 7
+  ;;          auto-package-update-prompt-before-update t)
+  ;;    (auto-package-update-maybe))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  ;;(straight-use-package 'use-package)
+
+  ;;(setq straight-use-package-by-default t)
 #+END_SRC
 
 ** Custom config functions
@@ -112,25 +119,23 @@ Reload the configuration
 Adjust shell environment variables, if needed
 
 #+BEGIN_SRC emacs-lisp
-  (setenv "SHELL" "/bin/bash")
-  (setenv "LANG" "en_US.UTF-8")
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
   (use-package exec-path-from-shell
-    :ensure t)
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-  (with-system darwin
+    :ensure t
+    :if (memq window-system '(mac ns x))
+    :config
+    (message "Running the exec-path-from-shell")
+    (setq exec-path-from-shell-variables '("PATH" "LANG" "LC_ALL" "LC_TYPE" "SHELL"))
+    (setq exec-path-from-shell-arguments '("-l"))
     (exec-path-from-shell-initialize))
 #+END_SRC
 
 Nix-shell related?
 
 #+BEGIN_SRC emacs-lisp
-  (use-package direnv)
-
+  (use-package direnv
+    :ensure t
+    :config
+    (direnv-mode))
 #+END_SRC
 ** Preferences
 
@@ -342,10 +347,10 @@ Prefer the use of =ibuffer= instead of the default buffer list
                                (filename . "emacs-config")))
            ("Org" (or (mode . org-mode)
                       (filename . "OrgMode")))
-           ("Magit" (name . "\*magit\*"))
-           ("Help" (or (name . "\*Help\*")
-                       (name . "\*Apropos\*")
-                       (name . "\*info\*"))))))
+           ("Magit" (name . "magit.*"))
+           ("Help" (or (name . ".*Help.*")
+                       (name . ".*Apropos.*")
+                       (name . ".*info.*"))))))
 
   (add-hook 'ibuffer-mode-hook
             (lambda ()
@@ -537,26 +542,24 @@ Completion service using =company-mode=
 =Flycheck= to allow for the checking of code
 
 #+BEGIN_SRC emacs-lisp
- (use-package flycheck
-   ;; :diminish flycheck-mode
-   :demand t
-   :ensure t
-   :init
-   (setq flycheck-check-syntax-automatically '(mode-enabled save))
-   (setq flycheck-checker-error-threshold 2000)
-   :config
-   (mapc (lambda (mode)
-           (add-hook mode 'flycheck-mode))
-         '(elm-mode-hook
-           emacs-lisp-mode-hook
-           haskell-mode-hook
-           ))
-   (add-hook 'sh-mode-hook
-             (lambda ()
-               (flycheck-select-checker 'sh-shellcheck)))
-   (add-hook 'elm-mode-hook
-             (lambda ()
-               (flycheck-elm-setup))))
+  (use-package flycheck
+    ;; :diminish flycheck-mode
+    :demand t
+    :ensure t
+    :init
+    (setq flycheck-check-syntax-automatically '(mode-enabled save)
+          flycheck-checker-error-threshold 2000)
+    :config
+    (mapc (lambda (mode)
+            (add-hook mode 'flycheck-mode))
+          '(elm-mode-hook
+            emacs-lisp-mode-hook
+            haskell-mode-hook
+            ))
+    (add-hook 'sh-mode-hook
+              (lambda ()
+                (flycheck-select-checker 'sh-shellcheck)))
+    )
 #+END_SRC
 
 
@@ -695,6 +698,12 @@ Add =elm-mode= and =flycheck= configuration for editing of elm
 buffers.
 
 #+BEGIN_SRC emacs-lisp
+  (use-package flycheck-elm
+    :ensure t
+    :config
+    (eval-after-load 'flycheck
+      '(add-hook 'flycheck-mode-hook 'flycheck-elm-setup)))
+
   (use-package elm-mode
     :ensure t
     :defer t
@@ -705,15 +714,11 @@ buffers.
     (add-hook 'elm-mode 'global-company-mode)
     :config
     (company-mode)
-    (setq elm-format-on-save t)
+    (setq elm-format-command "/usr/local/bin/elm-format")
     (add-hook 'after-init-hook #'global-flycheck-mode)
-    (add-hook 'elm-mode-hook #'switch-elm-version))
-
-  (use-package flycheck-elm
-    :ensure t
-    :config
-    (with-eval-after-load 'flycheck
-      '(add-hook 'flycheck-mode-hook #'flycheck-elm-setup)))
+    (add-hook 'elm-mode-hook #'switch-elm-version)
+    (add-hook 'elm-mode-hook #'elm-format-on-save-mode)
+    )
 #+END_SRC
 
 ** Haskell
@@ -855,7 +860,11 @@ themselves with local config comment strings.
   ;;              (setq TeX-texify-sentinel (process-sentinel proc))
   ;;              (set-process-sentinel proc 'TeX-texify-sentinel))))))
 
-  (use-package tex
+  (use-package latex-extra
+    :ensure latex-extra
+    :hook (LaTeX-mode . latex-extra-mode))
+
+  (use-package tex-site
     :ensure auctex
     :mode (("\\.tex\\'" . LaTeX-mode))
     :commands (latex-mode LaTeX-mode plain-tex-mode)
@@ -870,23 +879,23 @@ themselves with local config comment strings.
                                   (setq TeX-master (relative-master (buffer-file-name)))))
     (add-hook 'LaTeX-mode-hook (lambda ()
                                  (add-to-list 'TeX-command-list '("Make" "make" TeX-run-TeX nil t))
-                                 (add-hook 'after-save-hook 'latex-make-on-save nil t))))
-    ;; (TeX-add-style-hook "natbib"
-    ;;     (lambda ()
-    ;;       (if (fboundp 'reftex-set-cite-format)
-    ;;           (reftex-set-cite-format 'natbib))))
-    :config
-    (setq TeX-auto-save t)
-    (setq TeX-parse-self t)
-    (setq TeX-save-query nil)
-    (setq TeX-PDF-mode t)
-    (setq reftex-plug-into-AUCTeX t)
-    (setq reftex-use-external-file-finders t)
-    (setq LaTeX-csquotes-close-quote "}")
-    (setq LaTeX-csquotes-open-quote "\\enquote{")
-    ;; Make reftex try play nicer with biblatex
-    (setq reftex-bibliography-commands '("bibliography" "nobibliography" "addbibresource"))
-    (setq reftex-cite-format 'natbib)
+                                 (add-hook 'after-save-hook 'latex-make-on-save nil t)))
+  ;; (TeX-add-style-hook "natbib"
+  ;;     (lambda ()
+  ;;       (if (fboundp 'reftex-set-cite-format)
+  ;;           (reftex-set-cite-format 'natbib))))
+  :config
+  (setq TeX-auto-save t
+        TeX-parse-self t
+        TeX-save-query nil
+        TeX-PDF-mode t
+        reftex-plug-into-AUCTeX t
+        reftex-use-external-file-finders t
+        LaTeX-csquotes-close-quote "}"
+        LaTeX-csquotes-open-quote "\\enquote{"
+        ;; Make reftex try play nicer with biblatex
+        reftex-bibliography-commands '("bibliography" "nobibliography" "addbibresource")
+        reftex-cite-format 'natbib))
 #+END_SRC
 
 Now add =pdf-tools= for nicer PDF interactions
@@ -952,6 +961,7 @@ Use =scala-mode= for scala syntax highlighting
 
    ;;(global-set-key (kbd "<M-return>") 'ansi-term)
  #+END_SRC
+
 * Org
 ** Appearance
 
@@ -959,6 +969,8 @@ Improve the appearance of bullet points in Emacs:
 
 #+BEGIN_SRC emacs-lisp
   (use-package org-bullets
+    :ensure t
+    :defer t
     :config
     (setq org-bullets-bullet-list '("∙"))
     (add-hook 'org-mode-hook 'org-bullets-mode))
@@ -1086,6 +1098,8 @@ to calculate readability of writing.
 
 #+BEGIN_SRC emacs-lisp
   (use-package writegood-mode
+    :ensure t
+    :defer t
     :bind ("C-c g" . writegood-mode)
     :init
     (add-hook 'TeX-update-style-hook #'writegood-mode)
@@ -1098,5 +1112,6 @@ Add =langtool= as an additional tool to use
 #+BEGIN_SRC emacs-lisp
   (use-package langtool
     :ensure t
-    :config (setq langtool-language-tool-jar "/usr/local/Cellar/languagetool/4.3/libexec/languagetool-commandline.jar"))
+    :config
+    (setq langtool-language-tool-jar "/usr/local/Cellar/languagetool/4.3/libexec/languagetool-commandline.jar"))
 #+END_SRC
