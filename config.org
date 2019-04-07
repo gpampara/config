@@ -119,14 +119,16 @@ Reload the configuration
 Adjust shell environment variables, if needed
 
 #+BEGIN_SRC emacs-lisp
-  (use-package exec-path-from-shell
-    :ensure t
-    :if (memq window-system '(mac ns x))
-    :config
-    (message "Running the exec-path-from-shell")
-    (setq exec-path-from-shell-variables '("PATH" "LANG" "LC_ALL" "LC_TYPE" "SHELL"))
-    (setq exec-path-from-shell-arguments '("-l"))
-    (exec-path-from-shell-initialize))
+    (use-package exec-path-from-shell
+      :ensure t
+      :if (memq window-system '(mac ns x))
+      :config
+      (message "Running the exec-path-from-shell")
+      (setq exec-path-from-shell-variables '("PATH" "SHELL")) ;;"LANG" "LC_ALL" "LC_TYPE" "SHELL"))
+      (setq exec-path-from-shell-arguments '("-l"))
+      (exec-path-from-shell-initialize)
+      (setenv "LANG" "en_US")
+  )
 #+END_SRC
 
 Nix-shell related?
