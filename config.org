@@ -60,19 +60,13 @@ possible.
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-  ;; (use-package auto-package-update
-  ;;    :ensure t
-  ;;    :config
-  ;;    (setq auto-package-update-delete-old-versions t
-  ;;          auto-package-update-interval 7
-  ;;          auto-package-update-prompt-before-update t)
-  ;;    (auto-package-update-maybe))
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-  ;;(straight-use-package 'use-package)
-
-  ;;(setq straight-use-package-by-default t)
+  (use-package auto-package-update
+    :ensure t
+    :config
+    (setq auto-package-update-delete-old-versions t
+          auto-package-update-interval 7
+          auto-package-update-prompt-before-update t)
+    (auto-package-update-maybe))
 #+END_SRC
 
 ** Custom config functions
@@ -424,6 +418,23 @@ Use a plainer syntax for regexp
     (pcre-mode))
 #+END_SRC
 
+Narrowing and widening a little faster?
+
+#+BEGIN_SRC emacs-lisp
+  (use-package recursive-narrow
+    :ensure t
+    :config
+    (add-hook 'post-command-hook 'my-narrowed-fringe-status)
+
+    (defun my-narrowed-fringe-status ()
+      "Make the fringe background reflect the buffer's narrowing status."
+      (set-face-attribute
+       'fringe nil :background (if (buffer-narrowed-p)
+                                   "#999999" ;;my-fringe-narrow-bg
+                                 nil)))
+    )
+#+END_SRC
+
 ** Appearance
 
 #+BEGIN_SRC emacs-lisp
@@ -570,10 +581,12 @@ Project management using projectile
 #+BEGIN_SRC emacs-lisp
   (use-package projectile
     :ensure t
-    :bind-keymap (("C-c p" . projectile-command-map))
+    :init
+    (setq projectile-keymap-prefix (kbd "C-c p"))
     :config
-    (projectile-global-mode)
-    (setq projectile-enable-caching t))
+    (projectile-mode 1)
+    (setq projectile-enable-caching t)
+    (setq projectile-completion-system 'ivy))
 #+END_SRC
 
 
@@ -880,24 +893,20 @@ themselves with local config comment strings.
     (add-hook 'LaTeX-mode-hook '(lambda ()
                                   (setq TeX-master (relative-master (buffer-file-name)))))
     (add-hook 'LaTeX-mode-hook (lambda ()
-                                 (add-to-list 'TeX-command-list '("Make" "make" TeX-run-TeX nil t))
-                                 (add-hook 'after-save-hook 'latex-make-on-save nil t)))
-  ;; (TeX-add-style-hook "natbib"
-  ;;     (lambda ()
-  ;;       (if (fboundp 'reftex-set-cite-format)
-  ;;           (reftex-set-cite-format 'natbib))))
-  :config
-  (setq TeX-auto-save t
-        TeX-parse-self t
-        TeX-save-query nil
-        TeX-PDF-mode t
-        reftex-plug-into-AUCTeX t
-        reftex-use-external-file-finders t
-        LaTeX-csquotes-close-quote "}"
-        LaTeX-csquotes-open-quote "\\enquote{"
-        ;; Make reftex try play nicer with biblatex
-        reftex-bibliography-commands '("bibliography" "nobibliography" "addbibresource")
-        reftex-cite-format 'natbib))
+                                 (add-to-list 'TeX-command-list '("Make" "make" TeX-run-TeX nil t))))
+  ;;                               (add-hook 'after-save-hook 'latex-make-on-save nil t)))
+    :config
+    (setq TeX-auto-save t
+          TeX-parse-self t
+          TeX-save-query nil
+          TeX-PDF-mode t
+          reftex-plug-into-AUCTeX t
+          reftex-use-external-file-finders t
+          LaTeX-csquotes-close-quote "}"
+          LaTeX-csquotes-open-quote "\\enquote{"
+          ;; Make reftex try play nicer with biblatex
+          reftex-bibliography-commands '("bibliography" "nobibliography" "addbibresource")
+          reftex-cite-format 'natbib))
 #+END_SRC
 
 Now add =pdf-tools= for nicer PDF interactions
