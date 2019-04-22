@@ -782,17 +782,6 @@ pathing for files to correctly allow for the automatic setting of the
 themselves with local config comment strings.
 
 #+BEGIN_SRC emacs-lisp
-  (defun extract-default-files ()
-    "Extract latex project main file."
-    (let* ((default-directory (locate-dominating-file "." "Makefile"))
-           (target-file (concat default-directory "Makefile")))
-      (with-current-buffer (find-file-noselect target-file)
-        (save-excursion ;; Don't change location of point.
-          (goto-char (point-min)) ;; From the beginning...
-          (when (re-search-forward "MAINFILE\s+:=\s+\\(.*\\)\s*")
-            (concat default-directory (match-string 1))))
-        )))
-
   ;; https://www.emacswiki.org/emacs/AUCTeX
   ;; Automagic detection of master file
   ;; (defun guess-TeX-master (filename)
@@ -815,11 +804,6 @@ themselves with local config comment strings.
   ;;     (if candidate
   ;;         (message "TeX master document: %s" (file-name-nondirectory candidate)))
   ;;     candidate))
-
-  (defun relative-master (path)
-    "Determine the relative path to the master file, calcuated by extract-default-files."
-    (let ((master-file (extract-default-files)))
-      (f-relative master-file (f-dirname path))))
 
   ;; (defun TeX-texify-sentinel (&optional proc sentinel)
   ;;   "Non-interactive! Call the standard-sentinel of the current LaTeX-process.
@@ -857,6 +841,34 @@ themselves with local config comment strings.
   ;;              (setq TeX-texify-sentinel (process-sentinel proc))
   ;;              (set-process-sentinel proc 'TeX-texify-sentinel))))))
 
+  (defun extract-default-files ()
+    "Extract latex project main file."
+    (let* ((default-directory (locate-dominating-file "." "Makefile"))
+           (target-file (concat default-directory "Makefile")))
+      (with-current-buffer (find-file-noselect target-file)
+        (save-excursion ;; Don't change location of point.
+          (goto-char (point-min)) ;; From the beginning...
+          (when (re-search-forward "MAINFILE\s+:=\s+\\(.*\\)\s*")
+            (concat default-directory (match-string 1))))
+        )))
+
+  (defun relative-master (path)
+    "Determine the relative path to the master file, calcuated by extract-default-files."
+    (let ((master-file (extract-default-files)))
+      (f-relative master-file (f-dirname path))))
+
+  (defun reload-after-TeX-complete (process msg)
+    "Reload any associated PDFView buffers, after compilation succeeds."
+    (TeX-command-sentinel process msg)
+
+    ;; Now update the produced synctex file to cater for the case of Sweave/knitr interactions
+    (dolist ($buf (buffer-list (current-buffer)))
+      (with-current-buffer $buf
+        (when (eq (buffer-local-value 'major-mode $buf) 'pdf-view-mode)
+          (message "Reloading PDF: %s" (buffer-name $buf))
+          (pdf-view-revert-buffer :ignore-auto :noconfirm))))
+    )
+
   (use-package latex-extra
     :ensure latex-extra
     :hook (LaTeX-mode . latex-extra-mode))
@@ -872,7 +884,15 @@ themselves with local config comment strings.
     (add-hook 'latex-mode-hook 'turn-on-reftex)
     (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
     (add-hook 'LaTeX-mode-hook 'visual-line-mode)
-    (add-hook 'pdf-view-mode-hook 'auto-revert-mode) ;; Auto revert when pdf file changes
+
+    ;; to use pdfview with auctex
+    (add-hook 'LaTeX-mode-hook 'pdf-tools-install)
+
+    ;; to use pdfview with auctex
+    (setq TeX-view-program-selection '((output-pdf "pdf-tools"))
+          TeX-source-correlate-start-server t)
+    (setq TeX-view-program-list '(("pdf-tools" "TeX-pdf-tools-sync-view")))
+
     (add-hook 'LaTeX-mode-hook '(lambda ()
                                   (setq TeX-master (relative-master (buffer-file-name)))))
     (add-hook 'LaTeX-mode-hook (lambda ()
@@ -887,9 +907,7 @@ themselves with local config comment strings.
                                                         (TeX-error-overview-open-after-TeX-run t)
                                                         (master-file (TeX-master-file))
                                                         (process (TeX-command-menu "Make")))
-                                                    ;;(TeX-save-document "")
-                                                    ;;(TeX-command-menu "Make")
-                                                    (set-process-sentinel process 'TeX-command-sentinel)))
+                                                    (set-process-sentinel process 'reload-after-TeX-complete)))
                                                 nil t)
                                               )
                                  ))
