@@ -224,8 +224,8 @@ mouse event within Emacs.
 
 *** Font settings
 #+BEGIN_SRC emacs-lisp
-  (when (window-system)
-    (set-frame-font "Fira Code"))
+  ;; (when (window-system)
+  ;;   (set-frame-font "Fira Code"))
   (set-language-environment "UTF-8")
   (set-default-coding-systems 'utf-8)
 #+END_SRC
@@ -441,18 +441,24 @@ Narrowing and widening a little faster?
   (use-package all-the-icons)
 
   (use-package doom-modeline
-        :ensure t
-        :hook (after-init . doom-modeline-mode))
+    :ensure t
+    :init
+    (setq doom-modeline-buffer-file-name-style 'relative-from-project)
+    ;;(setq doom-modeline-icon nil)
+    ;;(setq doom-modeline-major-mode-icon nil)
+    ;;(setq doom-modeline-minor-modes t)
+    :hook (after-init . doom-modeline-init))
 
   (use-package doom-themes
     :ensure t
     :config
     (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-        doom-themes-enable-italic t  ; if nil, italics is universally disabled
+          doom-themes-enable-italic t  ; if nil, italics is universally disabled
 
-        ;; doom-one specific settings
-        doom-one-brighter-modeline nil
-        doom-one-brighter-comments nil)
+          ;; doom-one specific settings
+          ;;doom-one-brighter-modeline nil
+          ;;doom-one-brighter-comments nil
+          )
 
     (load-theme 'doom-one t))
 #+END_SRC
@@ -815,30 +821,6 @@ themselves with local config comment strings.
     (let ((master-file (extract-default-files)))
       (f-relative master-file (f-dirname path))))
 
-  (defun reload-after-TeX-complete (process msg)
-    "Reload any associated PDFView buffers, after compilation succeeds."
-    (TeX-command-sentinel process msg)
-    ;; Now update the produced synctex file to cater for the case of Sweave/knitr interactions
-    (dolist ($buf (buffer-list (current-buffer)))
-      (with-current-buffer $buf
-        (when (eq (buffer-local-value 'major-mode $buf) 'pdf-view-mode)
-          (message "Reloading PDF: %s" (buffer-name $buf))
-          (revert-buffer t t))))
-    )
-
-  (defun latex-make-on-save ()
-    "Run make on the project makefile, reloading pdf-view-mode buffers."
-    (interactive)
-    (message "runnning save command")
-    (let ((TeX-save-query nil)
-          (TeX-process-asynchronous t)
-          (TeX-error-overview-open-after-TeX-run t)
-          (master-file (TeX-master-file))
-          (process (TeX-command-menu "Make")))
-      ;;(TeX-save-document "")
-      ;;(TeX-command-menu "Make")
-      (set-process-sentinel process 'reload-after-TeX-complete)))
-
   ;; (defun TeX-texify-sentinel (&optional proc sentinel)
   ;;   "Non-interactive! Call the standard-sentinel of the current LaTeX-process.
   ;; If there is still something left do do start the next latex-command."
@@ -890,15 +872,32 @@ themselves with local config comment strings.
     (add-hook 'latex-mode-hook 'turn-on-reftex)
     (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
     (add-hook 'LaTeX-mode-hook 'visual-line-mode)
+    (add-hook 'pdf-view-mode-hook 'auto-revert-mode) ;; Auto revert when pdf file changes
     (add-hook 'LaTeX-mode-hook '(lambda ()
                                   (setq TeX-master (relative-master (buffer-file-name)))))
     (add-hook 'LaTeX-mode-hook (lambda ()
                                  (add-to-list 'TeX-command-list '("Make" "make" TeX-run-TeX nil t))))
-  ;;                               (add-hook 'after-save-hook 'latex-make-on-save nil t)))
+    (add-hook 'LaTeX-mode-hook (lambda ()
+                                 (add-to-list 'TeX-command-list
+                                              '("custom" "something"
+                                                (lambda (name command file)
+                                                  (message name command file)
+                                                  (let ((TeX-save-query nil)
+                                                        (TeX-process-asynchronous t)
+                                                        (TeX-error-overview-open-after-TeX-run t)
+                                                        (master-file (TeX-master-file))
+                                                        (process (TeX-command-menu "Make")))
+                                                    ;;(TeX-save-document "")
+                                                    ;;(TeX-command-menu "Make")
+                                                    (set-process-sentinel process 'TeX-command-sentinel)))
+                                                nil t)
+                                              )
+                                 ))
     :config
     (setq TeX-auto-save t
           TeX-parse-self t
           TeX-save-query nil
+          TeX-command-force "Custom"
           TeX-PDF-mode t
           reftex-plug-into-AUCTeX t
           reftex-use-external-file-finders t
@@ -906,7 +905,8 @@ themselves with local config comment strings.
           LaTeX-csquotes-open-quote "\\enquote{"
           ;; Make reftex try play nicer with biblatex
           reftex-bibliography-commands '("bibliography" "nobibliography" "addbibresource")
-          reftex-cite-format 'natbib))
+          reftex-cite-format 'natbib)
+    )
 #+END_SRC
 
 Now add =pdf-tools= for nicer PDF interactions
@@ -1013,6 +1013,7 @@ Define the locations of the different org files:
 #+BEGIN_SRC emacs-lisp
   (setq org-agenda-files (list "~/org/gtd.org"
                                "~/org/projects.org"
+                               "~/org/work.org"
                                "~/org/calendar.org"
                                "~/org/call.org"))
 #+END_SRC
