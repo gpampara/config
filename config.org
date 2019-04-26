@@ -323,7 +323,7 @@ Use the ivy enhanced version of =isearch=
 #+BEGIN_SRC emacs-lisp
  (use-package swiper
    :ensure t
-   :bind (("\C-s" . swiper))
+   :bind (("\C-s" . swiper-isearch))
    :config
    (progn
      (ivy-mode 1)
@@ -365,9 +365,9 @@ Display a simple dashboard at startup
     :config
     (dashboard-setup-startup-hook)
     (setq show-week-agenda-p t)
-    (setq dashboard-items '((recents  . 10)
-                            (projects . 5)
-                            (agenda . 10))))
+    (setq dashboard-items '((projects . 5)
+                            (agenda . 10)
+                            (recents  . 10))))
 #+END_SRC
 
 Faster switching between windows, via =ace-window=
@@ -869,9 +869,6 @@ themselves with local config comment strings.
           (pdf-view-revert-buffer :ignore-auto :noconfirm))))
     )
 
-  (use-package latex-extra
-    :ensure latex-extra
-    :hook (LaTeX-mode . latex-extra-mode))
 
   (use-package tex-site
     :ensure auctex
@@ -880,7 +877,6 @@ themselves with local config comment strings.
     :init
     (add-hook 'LaTeX-mode-hook 'LaTeX-preview-setup)
     (add-hook 'LaTeX-mode-hook 'flyspell-mode)
-    (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
     (add-hook 'latex-mode-hook 'turn-on-reftex)
     (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
     (add-hook 'LaTeX-mode-hook 'visual-line-mode)
