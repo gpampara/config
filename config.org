@@ -147,7 +147,7 @@ insert special characters like easily.
 #+BEGIN_SRC emacs-lisp
   (with-system darwin
     (setq mac-command-modifier 'meta
-          mac-option-modifier 'none))
+          mac-option-modifier 'super))
 #+END_SRC
 
 Disable passing various commands to the underlying  system:
@@ -220,6 +220,18 @@ mouse event within Emacs.
   ;;   :ensure t
   ;;   :config
   ;;   (global-disable-mouse-mode))
+#+END_SRC
+
+Simplified window movement
+
+#+BEGIN_SRC emacs-lisp
+  (use-package windmove
+    :config
+    (global-set-key (kbd "<s-left>")  'windmove-left)  ;; Ctrl+Cmd+left go to left window
+    (global-set-key (kbd "<s-right>") 'windmove-right) ;; Ctrl+Cmd+right go to right window
+    (global-set-key (kbd "<s-up>")    'windmove-up)    ;; Ctrl+Cmd+up go to upper window
+    (global-set-key (kbd "<s-down>")  'windmove-down)  ;; Ctrl+Cmd+down go to down window
+  )
 #+END_SRC
 
 *** Font settings
