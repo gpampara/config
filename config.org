@@ -6,9 +6,7 @@ This is the my emacs config as an =org-mode= configuration. The idea of
 using this literate style is to keep the config as organized as
 possible.
 
-* General
-
-** Configure package sources
+* Configure package sources
 
 #+BEGIN_SRC emacs-lisp
   (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
@@ -47,7 +45,7 @@ possible.
 # (add-hook 'after-init-hook
 #   (lambda () (message "loaded in %s" (emacs-init-time))))
 # #+END_SRC
-** Bootstrap use-package
+* Bootstrap use-package
 
 #+BEGIN_SRC emacs-lisp
   (unless (package-installed-p 'use-package)
@@ -69,7 +67,7 @@ possible.
     (auto-package-update-maybe))
 #+END_SRC
 
-** Custom config functions
+* Custom config functions
 
 Evaluate an expression when the system is the defined value
 #+BEGIN_SRC emacs-lisp
@@ -98,17 +96,17 @@ Reload the configuration
   (global-set-key (kbd "C-c r") 'config-reload)
 #+END_SRC
 
-** Load custom settings
+* Load custom settings
 #+BEGIN_SRC emacs-lisp
 (setq custom-file "~/.emacs.d/custom-settings.el")
 (load custom-file t)
 #+END_SRC
-** Load secrets
+* Load secrets
 #+BEGIN_SRC emacs-lisp
   (load "~/.emacs.d/emacs.secrets" t)
 #+END_SRC
 
-** Adjust shell variables
+* Adjust shell variables
 
 Adjust shell environment variables, if needed
 
@@ -125,7 +123,7 @@ Adjust shell environment variables, if needed
   )
 #+END_SRC
 
-Nix-shell related?
+* Direnv
 
 #+BEGIN_SRC emacs-lisp
   (use-package direnv
@@ -133,7 +131,7 @@ Nix-shell related?
     :config
     (direnv-mode))
 #+END_SRC
-** Preferences
+* Preferences
 
 Don't display the help screen
 
@@ -206,11 +204,7 @@ most of my work will be in a repository anyway.
                                                  "backups"))))
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp
-(setq auto-window-vscroll nil)
-#+END_SRC
-
-*** Input settings
+* Navigation
 
 To force the change in usage, just completely disable any sort of
 mouse event within Emacs.
@@ -242,27 +236,29 @@ Simplified window movement
   (set-default-coding-systems 'utf-8)
 #+END_SRC
 
-** Async support
+* Async support
 #+BEGIN_SRC emacs-lisp
   (use-package async
     :ensure t)
 #+END_SRC
-* Interface
-** General
 
- I *never* want whitespace at the end of lines. Remove it on save.
+* Kill whitespace
 
- #+BEGIN_SRC emacs-lisp
-   (add-hook 'before-save-hook 'delete-trailing-whitespace)
- #+END_SRC
+I *never* want whitespace at the end of lines. Remove it on save.
 
- Also, having a newline at the end of the file is a "good" thing:
+#+BEGIN_SRC emacs-lisp
+ (add-hook 'before-save-hook 'delete-trailing-whitespace)
+#+END_SRC
+
+Also, having a newline at the end of the file is a "good" thing:
 
  #+BEGIN_SRC emacs-lisp
    (setq require-final-newline t)
  #+END_SRC
 
- Add multiple cursor support.
+* Multiple cursors
+
+Add multiple cursor support.
 
  #+BEGIN_SRC emacs-lisp
  (use-package multiple-cursors
@@ -273,6 +269,7 @@ Simplified window movement
           ("C-c C-<" . mc/mark-all-like-this)))
  #+END_SRC
 
+* Expand region
 Add expand-region
 
 #+BEGIN_SRC emacs-lisp
@@ -282,6 +279,8 @@ Add expand-region
     ("C-=" . er/expand-region)
     ("C-+" . er/contract-region))
 #+END_SRC
+
+* Magit
 
 Include magit
 
@@ -293,6 +292,8 @@ Include magit
     (add-hook 'git-commit-setup-hook 'git-commit-turn-on-flyspell))
 #+END_SRC
 
+* Which-key
+
 Which key to show a list of keys that follow a speicific key-chord
 #+BEGIN_SRC emacs-lisp
  (use-package which-key
@@ -300,6 +301,7 @@ Which key to show a list of keys that follow a speicific key-chord
    :config (which-key-mode))
 #+END_SRC
 
+* Ivy completion
 Use the ivy completion frontend, and the set of ivy-enhanced emacs commands
 
 #+BEGIN_SRC emacs-lisp
@@ -346,6 +348,8 @@ Use the ivy enhanced version of =isearch=
      ))
  #+END_SRC
 
+* ibuffer
+
 Prefer the use of =ibuffer= instead of the default buffer list
 #+BEGIN_SRC emacs-lisp
   (global-set-key (kbd "C-x C-b") 'ibuffer)
@@ -370,6 +374,8 @@ Prefer the use of =ibuffer= instead of the default buffer list
   (setq ibuffer-expert t)
 #+END_SRC
 
+* Dashboard
+
 Display a simple dashboard at startup
 #+BEGIN_SRC emacs-lisp
   (use-package dashboard
@@ -377,11 +383,12 @@ Display a simple dashboard at startup
     :config
     (dashboard-setup-startup-hook)
     (setq show-week-agenda-p t)
-    (setq dashboard-items '((projects . 5)
+    (setq dashboard-items '((projects . 10)
                             (agenda . 10)
                             (recents  . 10))))
 #+END_SRC
 
+* Ace-window
 Faster switching between windows, via =ace-window=
 #+BEGIN_SRC emacs-lisp
   (use-package ace-window
@@ -397,17 +404,10 @@ Simpler interactions with the kill-ring
     :bind ("M-y" . popup-kill-ring))
 #+END_SRC
 
+* Hungry delete
+
 Automatically delete whitespace in a sensible way with "smart" hungry delete
 #+BEGIN_SRC emacs-lisp
-  ;; (use-package smart-hungry-delete
-  ;;   :ensure t
-  ;;   :bind (("<backspace>" . smart-hungry-delete-backward-char)
-  ;;                  ("C-d" . smart-hungry-delete-forward-char))
-  ;;   :defer nil ;; dont defer so we can add our functions to hooks
-  ;;   :config
-  ;;   (add-hook 'prog-mode-hook 'smart-hungry-delete-default-prog-mode-hook)
-  ;;   )
-
   (use-package hungry-delete
     :ensure t
     :config
@@ -430,6 +430,8 @@ Use a plainer syntax for regexp
     (pcre-mode))
 #+END_SRC
 
+* Narrowing
+
 Narrowing and widening a little faster?
 
 #+BEGIN_SRC emacs-lisp
@@ -447,7 +449,7 @@ Narrowing and widening a little faster?
     )
 #+END_SRC
 
-** Appearance
+* Appearance
 
 #+BEGIN_SRC emacs-lisp
   (use-package all-the-icons)
@@ -481,7 +483,7 @@ Highlight the current line.
 #+BEGIN_SRC emacs-lisp
   (global-hl-line-mode 1)
   ;; Set the colour for the marked region to something lighter
-  (set-face-attribute 'region nil :background "#666")
+  (set-face-background 'hl-line "#030333")
 #+END_SRC
 
 Improve look and feel of titlebar on Macos. Set =ns-appearance= to
@@ -518,9 +520,7 @@ Use the "forward" uniquify scheme for buffer disambiguation
 (setq uniquify-buffer-name-style 'forward)
 #+END_SRC
 
-** Keybinds
-
-*** Hippie-expand
+* Hippie-expand
 
 #+BEGIN_SRC emacs-lisp
   (global-set-key (kbd "M-/") 'hippie-expand)
@@ -533,7 +533,7 @@ Use the "forward" uniquify scheme for buffer disambiguation
 #+END_SRC
 
 * Development configuration
-** General
+** Rainbow delimeters
 Some general configuration for development that is agnostic of
 language.
 
@@ -552,16 +552,7 @@ Use parens highlighting to make reading the code a little simpler
     )
 #+END_SRC
 
-
-# Let emacs try to help with keeping parentheses balanced.
-#
-# #+BEGIN_SRC emacs-lisp
-#   (use-package smartparens
-#     :diminish smartparens-mode
-#     :config
-#     (add-hook 'prog-mode-hook 'smartparens-mode))
-# #+END_SRC
-
+** Autocomplete
 Completion service using =company-mode=
 
 #+BEGIN_SRC emacs-lisp
@@ -593,6 +584,7 @@ Completion service using =company-mode=
     )
 #+END_SRC
 
+** Projectile
 
 Project management using projectile
 
@@ -607,6 +599,7 @@ Project management using projectile
     (setq projectile-completion-system 'ivy))
 #+END_SRC
 
+** yasnippet
 
 Snippet support
 
@@ -630,7 +623,7 @@ Highlight TODO / FIXME strings in buffers
    (add-hook 'prog-mode-hook 'fic-mode))
 #+END_SRC
 
-*** Dumb-jump
+** Dumb-jump
 
 #+BEGIN_SRC emacs-lisp
     (use-package dumb-jump
@@ -906,6 +899,9 @@ themselves with local config comment strings.
           (pdf-view-revert-buffer :ignore-auto :noconfirm))))
     )
 
+  (use-package outline-magic
+    :ensure t)
+
 
   (use-package tex-site
     :ensure auctex
@@ -1135,8 +1131,6 @@ Add =org-alert= to display some alerts on the desktop
       ;(add-hook 'org-capture-after-finalize-hook (lambda () (org-gcal-sync))))
 
 #+END_SRC
-
-
 * Extras
 ** Writing
 
