@@ -1,1 +1,17 @@
+.*el
+.last-package-update-day
 *secrets
+config*
+.DS_Store
+recentf*
+abbrev*
+auto-save*
+init*
+custom-settings*
+projectile*
+bookmarks
+elpa
+eshell
+org-gcal
+transient
+smex*

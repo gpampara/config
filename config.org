@@ -105,33 +105,7 @@ Reload the configuration
 #+BEGIN_SRC emacs-lisp
   (load "~/.emacs.d/emacs.secrets" t)
 #+END_SRC
-
-* Adjust shell variables
-
-Adjust shell environment variables, if needed
-
-#+BEGIN_SRC emacs-lisp
-    (use-package exec-path-from-shell
-      :ensure t
-      :if (memq window-system '(mac ns x))
-      :config
-      (message "Running the exec-path-from-shell")
-      (setq exec-path-from-shell-variables '("PATH" "SHELL")) ;;"LANG" "LC_ALL" "LC_TYPE" "SHELL"))
-      (setq exec-path-from-shell-arguments '("-l"))
-      (exec-path-from-shell-initialize)
-      (setenv "LANG" "en_US")
-  )
-#+END_SRC
-
-* Direnv
-
-#+BEGIN_SRC emacs-lisp
-  (use-package direnv
-    :ensure t
-    :config
-    (direnv-mode))
-#+END_SRC
-* Preferences
+* Interface / Frame changes
 
 Don't display the help screen
 
@@ -202,6 +176,48 @@ most of my work will be in a repository anyway.
         create-lockfiles nil
         backup-directory-alist `(("." . (concat user-emacs-directory
                                                  "backups"))))
+#+END_SRC
+
+Some utility packages - is this actually required?
+
+#+BEGIN_SRC emacs-lisp
+  (use-package f
+    :ensure t)
+#+END_SRC
+
+Use a plainer syntax for regexp
+
+#+BEGIN_SRC emacs-lisp
+  (use-package pcre2el
+    :ensure t
+    :config
+    (pcre-mode))
+#+END_SRC
+
+* Adjust shell variables
+
+Adjust shell environment variables, if needed
+
+#+BEGIN_SRC emacs-lisp
+    (use-package exec-path-from-shell
+      :ensure t
+      :if (memq window-system '(mac ns x))
+      :config
+      (message "Running the exec-path-from-shell")
+      (setq exec-path-from-shell-variables '("PATH" "SHELL")) ;;"LANG" "LC_ALL" "LC_TYPE" "SHELL"))
+      (setq exec-path-from-shell-arguments '("-l"))
+      (exec-path-from-shell-initialize)
+      (setenv "LANG" "en_US")
+  )
+#+END_SRC
+
+* Direnv
+
+#+BEGIN_SRC emacs-lisp
+  (use-package direnv
+    :ensure t
+    :config
+    (direnv-mode))
 #+END_SRC
 
 * Navigation
@@ -414,22 +430,6 @@ Automatically delete whitespace in a sensible way with "smart" hungry delete
     (global-hungry-delete-mode))
 #+END_SRC
 
-Some utility packages - is this actually required?
-
-#+BEGIN_SRC emacs-lisp
-  (use-package f
-    :ensure t)
-#+END_SRC
-
-Use a plainer syntax for regexp
-
-#+BEGIN_SRC emacs-lisp
-  (use-package pcre2el
-    :ensure t
-    :config
-    (pcre-mode))
-#+END_SRC
-
 * Narrowing
 
 Narrowing and widening a little faster?
@@ -531,9 +531,7 @@ Use the "forward" uniquify scheme for buffer disambiguation
           try-expand-all-abbrevs try-expand-list try-expand-line
           try-complete-lisp-symbol-partially try-complete-lisp-symbol))
 #+END_SRC
-
-* Development configuration
-** Rainbow delimeters
+* Rainbow delimeters
 Some general configuration for development that is agnostic of
 language.
 
@@ -552,7 +550,7 @@ Use parens highlighting to make reading the code a little simpler
     )
 #+END_SRC
 
-** Autocomplete
+* Autocomplete
 Completion service using =company-mode=
 
 #+BEGIN_SRC emacs-lisp
@@ -584,7 +582,7 @@ Completion service using =company-mode=
     )
 #+END_SRC
 
-** Projectile
+* Projectile
 
 Project management using projectile
 
@@ -599,7 +597,7 @@ Project management using projectile
     (setq projectile-completion-system 'ivy))
 #+END_SRC
 
-** yasnippet
+* yasnippet
 
 Snippet support
 
@@ -623,7 +621,7 @@ Highlight TODO / FIXME strings in buffers
    (add-hook 'prog-mode-hook 'fic-mode))
 #+END_SRC
 
-** Dumb-jump
+* Dumb-jump
 
 #+BEGIN_SRC emacs-lisp
     (use-package dumb-jump
@@ -664,7 +662,7 @@ Highlight TODO / FIXME strings in buffers
       )
 #+END_SRC
 
-** Javascript and friends
+* Javascript and "friends"
 
 Some additional modes for Javascript (rubbish language)
 
@@ -686,7 +684,7 @@ Highlighting for pug/jade templates
     (setq pug-tab-width 4))
 #+END_SRC
 
-** Elm
+* Elm
 
 Allow for the searching of locally installed Elm binaries, perhaps in
 the horrble `node_modules`.
@@ -747,7 +745,7 @@ buffers.
     )
 #+END_SRC
 
-** Haskell
+* Haskell
 
 Some _very_ basic Haskell config
 
@@ -764,7 +762,7 @@ Some _very_ basic Haskell config
     :mode "\\.hs\\'")
 #+END_SRC
 
-** Polymode
+* Polymode
 
 Define polymode to allow multiple modes in a single buffer. Handy for
 =knitr= and friends
@@ -775,7 +773,7 @@ Define polymode to allow multiple modes in a single buffer. Handy for
     :mode
     ("\\.Rnw" . poly-noweb+r-mode))
 #+END_SRC
-** LaTeX
+* LaTeX
 
 Setup AUCTex for some nice LaTeX support in emacs. This workflow is
 centered around using =latexmk= as the build tool and that the LaTeX
@@ -982,7 +980,7 @@ Now add =pdf-tools= for nicer PDF interactions
     (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward))
 #+END_SRC
 
-** R
+* R
 
 #+BEGIN_SRC emacs-lisp
   (use-package poly-R
@@ -995,7 +993,7 @@ Now add =pdf-tools= for nicer PDF interactions
     :init (require 'ess-site))
 #+END_SRC
 
-** Scala
+* Scala
 
 Use =scala-mode= for scala syntax highlighting
 
@@ -1006,7 +1004,7 @@ Use =scala-mode= for scala syntax highlighting
   :mode "\\.scala\\'")
 #+END_SRC
 
-** Nix and nixpkg
+* Nix and nixpkg
 
 #+BEGIN_SRC emacs-lisp
   (use-package nix-mode
@@ -1015,7 +1013,7 @@ Use =scala-mode= for scala syntax highlighting
     :mode "\\.nix\\'")
 
 #+END_SRC
-** Terminal
+* Terminal
  #+BEGIN_SRC emacs-lisp
    (defvar my-term-shell "/usr/local/bin/fish")
    (defadvice ansi-term (before force-bash)
@@ -1025,7 +1023,7 @@ Use =scala-mode= for scala syntax highlighting
    ;;(global-set-key (kbd "<M-return>") 'ansi-term)
  #+END_SRC
 
-* Org
+* org-mode settings
 ** Appearance
 
 Improve the appearance of bullet points in Emacs:
@@ -1131,8 +1129,7 @@ Add =org-alert= to display some alerts on the desktop
       ;(add-hook 'org-capture-after-finalize-hook (lambda () (org-gcal-sync))))
 
 #+END_SRC
-* Extras
-** Writing
+* Writing
 
 Upgrade the dictionary used to a more up-to-date, recent version.
 
