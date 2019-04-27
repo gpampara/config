@@ -317,7 +317,7 @@ Which key to show a list of keys that follow a speicific key-chord
    :config (which-key-mode))
 #+END_SRC
 
-* Ivy completion
+* Ivy/Counsel/Swiper
 Use the ivy completion frontend, and the set of ivy-enhanced emacs commands
 
 #+BEGIN_SRC emacs-lisp
