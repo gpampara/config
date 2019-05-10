@@ -330,15 +330,15 @@ Use the ivy completion frontend, and the set of ivy-enhanced emacs commands
    :ensure t
    :config
    (global-set-key (kbd "M-x") 'counsel-M-x)
-   ;(global-set-key (kbd "C-x C-f") 'counsel-find-file)
+   (global-set-key (kbd "C-x C-f") 'counsel-find-file)
    ;(global-set-key (kbd "<f1> f") 'counsel-describe-function)
    ;(global-set-key (kbd "<f1> v") 'counsel-describe-variable)
    ;(global-set-key (kbd "<f1> l") 'counsel-find-library)
    ;(global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
    ;(global-set-key (kbd "<f2> u") 'counsel-unicode-char)
-   ;(global-set-key (kbd "C-c g") 'counsel-git)
+   (global-set-key (kbd "C-c g") 'counsel-git)
    (global-set-key (kbd "C-c j") 'counsel-git-grep)
-   ;(global-set-key (kbd "C-c k") 'counsel-ag)
+   (global-set-key (kbd "C-c k") 'counsel-ag)
    ;(global-set-key (kbd "C-x l") 'counsel-locate)
    ;(global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
    ;(define-key read-expression-map (kbd "C-r") 'counsel-expression-history)
@@ -351,17 +351,17 @@ Use the ivy completion frontend, and the set of ivy-enhanced emacs commands
 Use the ivy enhanced version of =isearch=
 
 #+BEGIN_SRC emacs-lisp
- (use-package swiper
-   :ensure t
-   :bind (("\C-s" . swiper-isearch))
-   :config
-   (progn
-     (ivy-mode 1)
-     (setq ivy-use-virtual-buffers t)
-     (setq enable-recursive-minibuffers t)
-     ;(global-set-key (kbd "C-c C-r") 'ivy-resume)
-     ;(global-set-key (kbd "<f6>") 'ivy-resume)
-     ))
+  (use-package swiper
+    :ensure t
+    :bind (("\C-s" . swiper-isearch))
+    :config
+    (progn
+      (ivy-mode 1)
+      (setq ivy-use-virtual-buffers t)
+      (setq enable-recursive-minibuffers t)
+      ;(global-set-key (kbd "C-c C-r") 'ivy-resume)
+      ;(global-set-key (kbd "<f6>") 'ivy-resume)
+      ))
  #+END_SRC
 
 * ibuffer
@@ -505,13 +505,13 @@ Inline display of colours
     (add-hook 'prog-mode-hook 'rainbow-mode))
 #+END_SRC
 
-Add a visual inidcator when switching to a different window
+# Add a visual inidcator when switching to a different window
 
 #+BEGIN_SRC emacs-lisp
-  (use-package beacon
-    :ensure t
-    :config
-    (beacon-mode 1))
+  ;; (use-package beacon
+  ;;   :ensure t
+  ;;   :config
+  ;;   (beacon-mode 1))
 #+END_SRC
 
 Use the "forward" uniquify scheme for buffer disambiguation
@@ -660,348 +660,6 @@ Highlight TODO / FIXME strings in buffers
                ))
       ;;--regex-Elm=/^ *([[:lower:]][[:alnum:]_]+)[[:blank:]]*:[^:][^-]+$/\1/c,constant,constants/
       )
-#+END_SRC
-
-* Javascript and "friends"
-
-Some additional modes for Javascript (rubbish language)
-
-#+BEGIN_SRC emacs-lisp
-  (use-package coffee-mode
-      :ensure t
-      :defer t
-      :mode "\\.coffee\\'")
-#+END_SRC
-
-Highlighting for pug/jade templates
-
-#+BEGIN_SRC emacs-lisp
-  (use-package pug-mode
-    :ensure t
-    :defer t
-    :mode ("\\.pug\\'" "\\.jade\\'")
-    :config
-    (setq pug-tab-width 4))
-#+END_SRC
-
-* Elm
-
-Allow for the searching of locally installed Elm binaries, perhaps in
-the horrble `node_modules`.
-
-#+BEGIN_SRC emacs-lisp
-  (defun bin-from-node-modules (variable executable)
-    (let ((root (locate-dominating-file
-                 (or (buffer-file-name) default-directory)
-                 (lambda (dir)
-                   (let ((target (expand-file-name (concat "node_modules/.bin/" executable) dir)))
-                     (and target (file-executable-p target)))))))
-      (when root
-        (let ((target (expand-file-name (concat "node_modules/.bin/" executable) root)))
-          ;;(message "Setting value %s to vraible %s" target variable)
-          (set variable target)))))
-
-  (defun switch-elm-version ()
-    (message "Running 'switch-elm-version'")
-    (let ((root (locate-dominating-file
-                (or (buffer-file-name) default-directory)
-                "elm.json")))
-      (when root
-        (message "Setting local values for elm-mode")
-        (setq elm-interactive-command '("elm" "repl"))
-        (setq elm-reactor-command '("elm" "reactor"))
-        (setq elm-reactor-arguments '("--port" "8000"))
-        (setq elm-compile-command '("elm" "make"))
-        (setq elm-compile-arguments '("--output=elm.js" "--debug"))
-        (setq elm-package-command '("elm" "install"))
-        (setq elm-package-json "elm.json")
-        (setq elm-format-elm-version "0.19"))))
-#+END_SRC
-
-Add =elm-mode= and =flycheck= configuration for editing of elm
-buffers.
-
-#+BEGIN_SRC emacs-lisp
-  (use-package flycheck-elm
-    :ensure t
-    :config
-    (eval-after-load 'flycheck
-      '(add-hook 'flycheck-mode-hook 'flycheck-elm-setup)))
-
-  (use-package elm-mode
-    :ensure t
-    :defer t
-    :mode "\\.elm\\'"
-    :init
-    (add-to-list 'company-backends 'company-elm)
-    (add-hook 'elm-mode #'elm-oracle-setup-completion)
-    (add-hook 'elm-mode 'global-company-mode)
-    :config
-    (company-mode)
-    (setq elm-format-command "/usr/local/bin/elm-format")
-    (add-hook 'after-init-hook #'global-flycheck-mode)
-    (add-hook 'elm-mode-hook #'switch-elm-version)
-    (add-hook 'elm-mode-hook #'elm-format-on-save-mode)
-    )
-#+END_SRC
-
-* Haskell
-
-Some _very_ basic Haskell config
-
-#+BEGIN_SRC emacs-lisp
-  (defun fix-imports ()
-    "Fixes imports."
-    (interactive)
-    (sort-lines nil (region-beginning) (region-end))
-    (align-regexp (region-beginning) (region-end) "\\(\\s-*\\)#-"))
-
-  (use-package haskell-mode
-    :ensure t
-    :defer t
-    :mode "\\.hs\\'")
-#+END_SRC
-
-* Polymode
-
-Define polymode to allow multiple modes in a single buffer. Handy for
-=knitr= and friends
-
-#+BEGIN_SRC emacs-lisp
-  (use-package polymode
-    :ensure t
-    :mode
-    ("\\.Rnw" . poly-noweb+r-mode))
-#+END_SRC
-* LaTeX
-
-Setup AUCTex for some nice LaTeX support in emacs. This workflow is
-centered around using =latexmk= as the build tool and that the LaTeX
-project is version controlled in git.
-
-From the project specific =.latexmkrc= we can then determine relative
-pathing for files to correctly allow for the automatic setting of the
-=TeX-master= variable, removing the need to spoil the source files
-themselves with local config comment strings.
-
-#+BEGIN_SRC emacs-lisp
-  ;; https://www.emacswiki.org/emacs/AUCTeX
-  ;; Automagic detection of master file
-  ;; (defun guess-TeX-master (filename)
-  ;;   "Guess the master file for FILENAME from currently open .tex files."
-  ;;   (let ((candidate nil)
-  ;;         (filename (file-name-nondirectory filename)))
-  ;;     (message "riunning the guess tex master function")
-  ;;     (save-excursion
-  ;;       (dolist (buffer (buffer-list))
-  ;;         (with-current-buffer buffer
-  ;;           (let ((name (buffer-name))
-  ;;                 (file buffer-file-name))
-  ;;             (if (and file (string-match "\\.tex$" file))
-  ;;                 (progn
-  ;;                   (goto-char (point-min))
-  ;;                   (if (re-search-forward (concat "\\\\input{" filename "}") nil t)
-  ;;                       (setq candidate file))
-  ;;                   (if (re-search-forward (concat "\\\\include{" (file-name-sans-extension filename) "}") nil t)
-  ;;                       (setq candidate file))))))))
-  ;;     (if candidate
-  ;;         (message "TeX master document: %s" (file-name-nondirectory candidate)))
-  ;;     candidate))
-
-  ;; (defun TeX-texify-sentinel (&optional proc sentinel)
-  ;;   "Non-interactive! Call the standard-sentinel of the current LaTeX-process.
-  ;; If there is still something left do do start the next latex-command."
-  ;;   (set-buffer (process-buffer proc))
-  ;;   (funcall TeX-texify-sentinel proc sentinel)
-  ;;   (let ((case-fold-search nil))
-  ;;     (when (string-match "\\(finished\\|exited\\)" sentinel)
-  ;;       (set-buffer TeX-command-buffer)
-  ;;       (unless (plist-get TeX-error-report-switches (intern (TeX-master-file)))
-  ;;         (TeX-texify)))))
-
-  ;; (defun TeX-texify ()
-  ;;   "Get everything done."
-  ;;   (interactive)
-  ;;   (let ((nextCmd (TeX-command-default (TeX-master-file)))
-  ;;         proc)
-  ;;     (if (and (null TeX-texify-Show)
-  ;;              (equal nextCmd TeX-command-Show))
-  ;;         (when  (called-interactively-p 'any)
-  ;;           (message "TeX-texify: Nothing to be done."))
-  ;;       (TeX-command nextCmd 'TeX-master-file)
-  ;;       (when (or (called-interactively-p 'any)
-  ;;                 (null (boundp 'TeX-texify-count-same-command))
-  ;;                 (null (boundp 'TeX-texify-last-command))
-  ;;                 (null (equal nextCmd TeX-texify-last-command)))
-  ;;         (mapc 'make-local-variable '(TeX-texify-sentinel TeX-texify-count-same-command TeX-texify-last-command))
-  ;;         (setq TeX-texify-count-same-command 1))
-  ;;       (if (>= TeX-texify-count-same-command TeX-texify-max-runs-same-command)
-  ;;           (message "TeX-texify: Did %S already %d times. Don't want to do it anymore." TeX-texify-last-command TeX-texify-count-same-command)
-  ;;         (setq TeX-texify-count-same-command (1+ TeX-texify-count-same-command))
-  ;;         (setq TeX-texify-last-command nextCmd)
-  ;;         (and (null (equal nextCmd TeX-command-Show))
-  ;;              (setq proc (get-buffer-process (current-buffer)))
-  ;;              (setq TeX-texify-sentinel (process-sentinel proc))
-  ;;              (set-process-sentinel proc 'TeX-texify-sentinel))))))
-
-  (defun ales/fill-paragraph (&optional P)
-    "When called with prefix argument call `fill-paragraph'.
-  Otherwise split the current paragraph into one sentence per line."
-    (interactive "P")
-    (if (not P)
-        (save-excursion
-          (let ((fill-column 12345678)) ;; relies on dynamic binding
-            (fill-paragraph) ;; this will not work correctly if the paragraph is
-                             ;; longer than 12345678 characters (in which case the
-                             ;; file must be at least 12MB long. This is unlikely.)
-            (let ((end (save-excursion
-                         (forward-paragraph 1)
-                         (backward-sentence)
-                         (point-marker))))  ;; remember where to stop
-              (beginning-of-line)
-              (while (progn (forward-sentence)
-                            (<= (point) (marker-position end)))
-                (just-one-space) ;; leaves only one space, point is after it
-                (delete-char -1) ;; delete the space
-                (newline)        ;; and insert a newline
-                (LaTeX-indent-line) ;; I only use this in combination with late, so this makes sense
-                ))))
-      ;; otherwise do ordinary fill paragraph
-      (fill-paragraph P)))
-
-  (defun extract-default-files ()
-    "Extract latex project main file."
-    (let* ((default-directory (locate-dominating-file "." "Makefile"))
-           (target-file (concat default-directory "Makefile")))
-      (with-current-buffer (find-file-noselect target-file)
-        (save-excursion ;; Don't change location of point.
-          (goto-char (point-min)) ;; From the beginning...
-          (when (re-search-forward "MAINFILE\s+:=\s+\\(.*\\)\s*")
-            (concat default-directory (match-string 1))))
-        )))
-
-  (defun relative-master (path)
-    "Determine the relative path to the master file, calcuated by extract-default-files."
-    (let ((master-file (extract-default-files)))
-      (f-relative master-file (f-dirname path))))
-
-  (defun reload-after-TeX-complete (process msg)
-    "Reload any associated PDFView buffers, after compilation succeeds."
-    (TeX-command-sentinel process msg)
-
-    ;; Now update the produced synctex file to cater for the case of Sweave/knitr interactions
-    (dolist ($buf (buffer-list (current-buffer)))
-      (with-current-buffer $buf
-        (when (eq (buffer-local-value 'major-mode $buf) 'pdf-view-mode)
-          (message "Reloading PDF: %s" (buffer-name $buf))
-          (pdf-view-revert-buffer :ignore-auto :noconfirm))))
-    )
-
-  (use-package outline-magic
-    :ensure t)
-
-
-  (use-package tex-site
-    :ensure auctex
-    :mode (("\\.tex\\'" . LaTeX-mode))
-    :commands (latex-mode LaTeX-mode plain-tex-mode)
-    :init
-    (add-hook 'LaTeX-mode-hook 'LaTeX-preview-setup)
-    (add-hook 'LaTeX-mode-hook 'flyspell-mode)
-    (add-hook 'latex-mode-hook 'turn-on-reftex)
-    (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
-    (add-hook 'LaTeX-mode-hook 'visual-line-mode)
-
-    ;; to use pdfview with auctex
-    (add-hook 'LaTeX-mode-hook 'pdf-tools-install)
-
-    ;; to use pdfview with auctex
-    (setq TeX-view-program-selection '((output-pdf "pdf-tools"))
-          TeX-source-correlate-start-server t)
-    (setq TeX-view-program-list '(("pdf-tools" "TeX-pdf-tools-sync-view")))
-
-    (add-hook 'LaTeX-mode-hook '(lambda ()
-                                  (setq TeX-master (relative-master (buffer-file-name)))))
-    (add-hook 'LaTeX-mode-hook (lambda ()
-                                 (add-to-list 'TeX-command-list '("Make" "make" TeX-run-TeX nil t))))
-    (add-hook 'LaTeX-mode-hook (lambda ()
-                                 (add-to-list 'TeX-command-list
-                                              '("custom" "something"
-                                                (lambda (name command file)
-                                                  (message name command file)
-                                                  (let ((TeX-save-query nil)
-                                                        (TeX-process-asynchronous t)
-                                                        (TeX-error-overview-open-after-TeX-run t)
-                                                        (master-file (TeX-master-file))
-                                                        (process (TeX-command-menu "Make")))
-                                                    (set-process-sentinel process 'reload-after-TeX-complete)))
-                                                nil t)
-                                              )
-                                 ))
-
-    (add-hook 'outline-minor-mode-hook
-              (lambda ()
-                (define-key outline-minor-mode-map ["\C-o"] 'outline-cycle)))
-    :bind (("M-q" . ales/fill-paragraph))
-    :config
-    (setq TeX-auto-save t
-          TeX-parse-self t
-          TeX-save-query nil
-          TeX-command-force "Custom"
-          TeX-PDF-mode t
-          reftex-plug-into-AUCTeX t
-          reftex-use-external-file-finders t
-          LaTeX-csquotes-close-quote "}"
-          LaTeX-csquotes-open-quote "\\enquote{"
-          ;; Make reftex try play nicer with biblatex
-          reftex-bibliography-commands '("bibliography" "nobibliography" "addbibresource")
-          reftex-cite-format 'natbib)
-    )
-#+END_SRC
-
-Now add =pdf-tools= for nicer PDF interactions
-
-#+BEGIN_SRC emacs-lisp
-  (use-package pdf-tools
-    :ensure t
-    :defer t
-    :magic ("%PDF" . pdf-view-mode)
-    :config
-    (with-system darwin
-      ;; https://github.com/politza/pdf-tools/issues/480#issuecomment-473707355
-      (setenv "PKG_CONFIG_PATH" "/usr/local/lib/pkgconfig:/usr/local/Cellar/libffi/3.2.1/lib/pkgconfig"))
-    ;; initialise
-    (pdf-tools-install)
-    ;; open pdfs scaled to fit page
-    (setq-default pdf-view-display-size 'fit-page)
-    ;; automatically annotate highlights
-    (setq pdf-annot-activate-created-annotations t)
-    ;; use normal isearch
-    (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward))
-#+END_SRC
-
-* R
-
-#+BEGIN_SRC emacs-lisp
-  (use-package poly-R
-    :ensure t)
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-  (use-package ess
-    :ensure t
-    :init (require 'ess-site))
-#+END_SRC
-
-* Scala
-
-Use =scala-mode= for scala syntax highlighting
-
-#+BEGIN_SRC emacs-lisp
-(use-package scala-mode
-  :ensure t
-  :defer t
-  :mode "\\.scala\\'")
 #+END_SRC
 
 * Nix and nixpkg
@@ -1173,4 +831,352 @@ Add =langtool= as an additional tool to use
     :ensure t
     :config
     (setq langtool-language-tool-jar "/usr/local/Cellar/languagetool/4.3/libexec/languagetool-commandline.jar"))
+#+END_SRC
+
+* Development
+** Auto-fill comments
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'prog-mode (lambda ()
+                         ((auto-fill-mode 1)
+                          (setq comment-auto-fill-only-comments t))))
+#+END_SRC
+** Javascript and "friends"
+
+Some additional modes for Javascript (rubbish language)
+
+#+BEGIN_SRC emacs-lisp
+  (use-package coffee-mode
+      :ensure t
+      :defer t
+      :mode "\\.coffee\\'")
+#+END_SRC
+
+Highlighting for pug/jade templates
+
+#+BEGIN_SRC emacs-lisp
+  (use-package pug-mode
+    :ensure t
+    :defer t
+    :mode ("\\.pug\\'" "\\.jade\\'")
+    :config
+    (setq pug-tab-width 4))
+#+END_SRC
+
+** Elm
+
+Allow for the searching of locally installed Elm binaries, perhaps in
+the horrble `node_modules`.
+
+#+BEGIN_SRC emacs-lisp
+  (defun bin-from-node-modules (variable executable)
+    (let ((root (locate-dominating-file
+                 (or (buffer-file-name) default-directory)
+                 (lambda (dir)
+                   (let ((target (expand-file-name (concat "node_modules/.bin/" executable) dir)))
+                     (and target (file-executable-p target)))))))
+      (when root
+        (let ((target (expand-file-name (concat "node_modules/.bin/" executable) root)))
+          ;;(message "Setting value %s to vraible %s" target variable)
+          (set variable target)))))
+
+  (defun switch-elm-version ()
+    (message "Running 'switch-elm-version'")
+    (let ((root (locate-dominating-file
+                (or (buffer-file-name) default-directory)
+                "elm.json")))
+      (when root
+        (message "Setting local values for elm-mode")
+        (setq elm-interactive-command '("elm" "repl"))
+        (setq elm-reactor-command '("elm" "reactor"))
+        (setq elm-reactor-arguments '("--port" "8000"))
+        (setq elm-compile-command '("elm" "make"))
+        (setq elm-compile-arguments '("--output=elm.js" "--debug"))
+        (setq elm-package-command '("elm" "install"))
+        (setq elm-package-json "elm.json")
+        (setq elm-format-elm-version "0.19"))))
+#+END_SRC
+
+Add =elm-mode= and =flycheck= configuration for editing of elm
+buffers.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package flycheck-elm
+    :ensure t
+    :config
+    (eval-after-load 'flycheck
+      '(add-hook 'flycheck-mode-hook 'flycheck-elm-setup)))
+
+  (use-package elm-mode
+    :ensure t
+    :defer t
+    :mode "\\.elm\\'"
+    :init
+    (add-to-list 'company-backends 'company-elm)
+    (add-hook 'elm-mode #'elm-oracle-setup-completion)
+    (add-hook 'elm-mode 'global-company-mode)
+    :config
+    (company-mode)
+    (setq elm-format-command "/usr/local/bin/elm-format")
+    (add-hook 'after-init-hook #'global-flycheck-mode)
+    (add-hook 'elm-mode-hook #'switch-elm-version)
+    (add-hook 'elm-mode-hook #'elm-format-on-save-mode)
+    )
+#+END_SRC
+
+** Haskell
+
+Some _very_ basic Haskell config
+
+#+BEGIN_SRC emacs-lisp
+  (defun fix-imports ()
+    "Fixes imports."
+    (interactive)
+    (sort-lines nil (region-beginning) (region-end))
+    (align-regexp (region-beginning) (region-end) "\\(\\s-*\\)#-"))
+
+  (use-package haskell-mode
+    :ensure t
+    :defer t
+    :mode "\\.hs\\'")
+#+END_SRC
+
+** Polymode
+
+Define polymode to allow multiple modes in a single buffer. Handy for
+=knitr= and friends
+
+#+BEGIN_SRC emacs-lisp
+  (use-package polymode
+    :ensure t
+    :mode
+    ("\\.Rnw" . poly-noweb+r-mode))
+#+END_SRC
+** LaTeX
+
+Setup AUCTex for some nice LaTeX support in emacs. This workflow is
+centered around using =latexmk= as the build tool and that the LaTeX
+project is version controlled in git.
+
+From the project specific =.latexmkrc= we can then determine relative
+pathing for files to correctly allow for the automatic setting of the
+=TeX-master= variable, removing the need to spoil the source files
+themselves with local config comment strings.
+
+#+BEGIN_SRC emacs-lisp
+  ;; https://www.emacswiki.org/emacs/AUCTeX
+  ;; Automagic detection of master file
+  ;; (defun guess-TeX-master (filename)
+  ;;   "Guess the master file for FILENAME from currently open .tex files."
+  ;;   (let ((candidate nil)
+  ;;         (filename (file-name-nondirectory filename)))
+  ;;     (message "riunning the guess tex master function")
+  ;;     (save-excursion
+  ;;       (dolist (buffer (buffer-list))
+  ;;         (with-current-buffer buffer
+  ;;           (let ((name (buffer-name))
+  ;;                 (file buffer-file-name))
+  ;;             (if (and file (string-match "\\.tex$" file))
+  ;;                 (progn
+  ;;                   (goto-char (point-min))
+  ;;                   (if (re-search-forward (concat "\\\\input{" filename "}") nil t)
+  ;;                       (setq candidate file))
+  ;;                   (if (re-search-forward (concat "\\\\include{" (file-name-sans-extension filename) "}") nil t)
+  ;;                       (setq candidate file))))))))
+  ;;     (if candidate
+  ;;         (message "TeX master document: %s" (file-name-nondirectory candidate)))
+  ;;     candidate))
+
+  ;; (defun TeX-texify-sentinel (&optional proc sentinel)
+  ;;   "Non-interactive! Call the standard-sentinel of the current LaTeX-process.
+  ;; If there is still something left do do start the next latex-command."
+  ;;   (set-buffer (process-buffer proc))
+  ;;   (funcall TeX-texify-sentinel proc sentinel)
+  ;;   (let ((case-fold-search nil))
+  ;;     (when (string-match "\\(finished\\|exited\\)" sentinel)
+  ;;       (set-buffer TeX-command-buffer)
+  ;;       (unless (plist-get TeX-error-report-switches (intern (TeX-master-file)))
+  ;;         (TeX-texify)))))
+
+  ;; (defun TeX-texify ()
+  ;;   "Get everything done."
+  ;;   (interactive)
+  ;;   (let ((nextCmd (TeX-command-default (TeX-master-file)))
+  ;;         proc)
+  ;;     (if (and (null TeX-texify-Show)
+  ;;              (equal nextCmd TeX-command-Show))
+  ;;         (when  (called-interactively-p 'any)
+  ;;           (message "TeX-texify: Nothing to be done."))
+  ;;       (TeX-command nextCmd 'TeX-master-file)
+  ;;       (when (or (called-interactively-p 'any)
+  ;;                 (null (boundp 'TeX-texify-count-same-command))
+  ;;                 (null (boundp 'TeX-texify-last-command))
+  ;;                 (null (equal nextCmd TeX-texify-last-command)))
+  ;;         (mapc 'make-local-variable '(TeX-texify-sentinel TeX-texify-count-same-command TeX-texify-last-command))
+  ;;         (setq TeX-texify-count-same-command 1))
+  ;;       (if (>= TeX-texify-count-same-command TeX-texify-max-runs-same-command)
+  ;;           (message "TeX-texify: Did %S already %d times. Don't want to do it anymore." TeX-texify-last-command TeX-texify-count-same-command)
+  ;;         (setq TeX-texify-count-same-command (1+ TeX-texify-count-same-command))
+  ;;         (setq TeX-texify-last-command nextCmd)
+  ;;         (and (null (equal nextCmd TeX-command-Show))
+  ;;              (setq proc (get-buffer-process (current-buffer)))
+  ;;              (setq TeX-texify-sentinel (process-sentinel proc))
+  ;;              (set-process-sentinel proc 'TeX-texify-sentinel))))))
+
+  (defun ales/fill-paragraph (&optional P)
+    "When called with prefix argument call `fill-paragraph'.
+  Otherwise split the current paragraph into one sentence per line."
+    (interactive "P")
+    (if (not P)
+        (save-excursion
+          (let ((fill-column 12345678)) ;; relies on dynamic binding
+            (fill-paragraph) ;; this will not work correctly if the paragraph is
+                             ;; longer than 12345678 characters (in which case the
+                             ;; file must be at least 12MB long. This is unlikely.)
+            (let ((end (save-excursion
+                         (forward-paragraph 1)
+                         (backward-sentence)
+                         (point-marker))))  ;; remember where to stop
+              (beginning-of-line)
+              (while (progn (forward-sentence)
+                            (<= (point) (marker-position end)))
+                (just-one-space) ;; leaves only one space, point is after it
+                (delete-char -1) ;; delete the space
+                (newline)        ;; and insert a newline
+                (LaTeX-indent-line) ;; I only use this in combination with late, so this makes sense
+                ))))
+      ;; otherwise do ordinary fill paragraph
+      (fill-paragraph P)))
+
+  (defun extract-default-files ()
+    "Extract latex project main file from the Makefile in a temporary buffer."
+    (let* ((default-directory (locate-dominating-file "." "Makefile"))
+           (target-file (concat default-directory "Makefile")))
+      (with-temp-buffer
+        (insert-file-contents target-file)
+        (goto-char (point-min))
+        (when (re-search-forward "MAINFILE\s+:=\s+\\(.*\\)\s*")
+          (concat default-directory (match-string 1))))
+      ))
+
+  (defun relative-master (path)
+    "Determine the relative path to the master file, calcuated by extract-default-files."
+    (let ((master-file (extract-default-files)))
+      (f-relative master-file (f-dirname path))))
+
+  (defun reload-after-TeX-complete (process msg)
+    "Reload any associated PDFView buffers, after compilation succeeds."
+    (TeX-command-sentinel process msg)
+
+    ;; Now update the produced synctex file to cater for the case of Sweave/knitr interactions
+    (dolist ($buf (buffer-list (current-buffer)))
+      (with-current-buffer $buf
+        (when (eq (buffer-local-value 'major-mode $buf) 'pdf-view-mode)
+          (message "Reloading PDF: %s" (buffer-name $buf))
+          (pdf-view-revert-buffer :ignore-auto :noconfirm))))
+    )
+
+  (use-package outline-magic
+    :ensure t)
+
+
+  (use-package tex-site
+    :ensure auctex
+    :mode (("\\.tex\\'" . LaTeX-mode))
+    :commands (latex-mode LaTeX-mode plain-tex-mode)
+    :init
+    (add-hook 'LaTeX-mode-hook 'LaTeX-preview-setup)
+    (add-hook 'LaTeX-mode-hook 'flyspell-mode)
+    (add-hook 'latex-mode-hook 'turn-on-reftex)
+    (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
+    (add-hook 'LaTeX-mode-hook 'visual-line-mode)
+
+    ;; to use pdfview with auctex
+    (add-hook 'LaTeX-mode-hook 'pdf-tools-install)
+
+    ;; to use pdfview with auctex
+    (setq TeX-view-program-selection '((output-pdf "pdf-tools"))
+          TeX-source-correlate-start-server t)
+    (setq TeX-view-program-list '(("pdf-tools" "TeX-pdf-tools-sync-view")))
+
+    (add-hook 'LaTeX-mode-hook '(lambda ()
+                                  (setq TeX-master (relative-master (buffer-file-name)))))
+    (add-hook 'LaTeX-mode-hook (lambda ()
+                                 (add-to-list 'TeX-command-list '("Make" "make" TeX-run-TeX nil t))))
+    (add-hook 'LaTeX-mode-hook (lambda ()
+                                 (add-to-list 'TeX-command-list
+                                              '("custom" "something"
+                                                (lambda (name command file)
+                                                  (message name command file)
+                                                  (let ((TeX-save-query nil)
+                                                        (TeX-process-asynchronous t)
+                                                        (TeX-error-overview-open-after-TeX-run t)
+                                                        (master-file (TeX-master-file))
+                                                        (process (TeX-command-menu "Make")))
+                                                    (set-process-sentinel process 'reload-after-TeX-complete)))
+                                                nil t)
+                                              )
+                                 ))
+
+    (add-hook 'outline-minor-mode-hook
+              (lambda ()
+                (define-key outline-minor-mode-map ["\C-o"] 'outline-cycle)))
+    :bind (("M-q" . ales/fill-paragraph))
+    :config
+    (setq TeX-auto-save t
+          TeX-parse-self t
+          TeX-save-query nil
+          TeX-command-force "Custom"
+          TeX-PDF-mode t
+          reftex-plug-into-AUCTeX t
+          reftex-use-external-file-finders t
+          LaTeX-csquotes-close-quote "}"
+          LaTeX-csquotes-open-quote "\\enquote{"
+          ;; Make reftex try play nicer with biblatex
+          reftex-bibliography-commands '("bibliography" "nobibliography" "addbibresource")
+          reftex-cite-format 'natbib)
+    )
+#+END_SRC
+
+Now add =pdf-tools= for nicer PDF interactions
+
+#+BEGIN_SRC emacs-lisp
+  (use-package pdf-tools
+    :ensure t
+    :defer t
+    :magic ("%PDF" . pdf-view-mode)
+    :config
+    (with-system darwin
+      ;; https://github.com/politza/pdf-tools/issues/480#issuecomment-473707355
+      (setenv "PKG_CONFIG_PATH" "/usr/local/lib/pkgconfig:/usr/local/Cellar/libffi/3.2.1/lib/pkgconfig"))
+    ;; initialise
+    (pdf-tools-install)
+    ;; open pdfs scaled to fit page
+    (setq-default pdf-view-display-size 'fit-page)
+    ;; automatically annotate highlights
+    (setq pdf-annot-activate-created-annotations t)
+    ;; use normal isearch
+    (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward))
+#+END_SRC
+
+** R
+
+#+BEGIN_SRC emacs-lisp
+  (use-package poly-R
+    :ensure t)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ess
+    :ensure t
+    :init (require 'ess-site))
+#+END_SRC
+** Scala
+
+Use =scala-mode= for scala syntax highlighting
+
+#+BEGIN_SRC emacs-lisp
+(use-package scala-mode
+  :ensure t
+  :defer t
+  :mode "\\.scala\\'")
 #+END_SRC
