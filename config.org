@@ -308,6 +308,13 @@ Include magit
     (add-hook 'git-commit-setup-hook 'git-commit-turn-on-flyspell))
 #+END_SRC
 
+* wgrep
+
+#+BEGIN_SRC emacs-lisp
+  (use-package wgrep
+    :ensure t)
+
+#+END_SRC
 * Which-key
 
 Which key to show a list of keys that follow a speicific key-chord
@@ -833,6 +840,14 @@ Add =langtool= as an additional tool to use
     (setq langtool-language-tool-jar "/usr/local/Cellar/languagetool/4.3/libexec/languagetool-commandline.jar"))
 #+END_SRC
 
+#+BEGIN_SRC emacs-lisp
+  (use-package writeroom-mode
+    :ensure t
+    :config
+    (add-hook 'LaTeX-mode-hook 'writeroom-mode)
+    (setq writeroom-width 120))
+#+END_SRC
+
 * Development
 ** Auto-fill comments
 #+BEGIN_SRC emacs-lisp
@@ -1086,7 +1101,7 @@ themselves with local config comment strings.
     :init
     (add-hook 'LaTeX-mode-hook 'LaTeX-preview-setup)
     (add-hook 'LaTeX-mode-hook 'flyspell-mode)
-    (add-hook 'latex-mode-hook 'turn-on-reftex)
+    (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
     (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
     (add-hook 'LaTeX-mode-hook 'visual-line-mode)
 
