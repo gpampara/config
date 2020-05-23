@@ -6,50 +6,6 @@ This is the my emacs config as an =org-mode= configuration. The idea
 of using this literate style is to keep the config as organized as
 possible.
 
-* Dependencies
-
-#+BEGIN_SRC emacs-lisp
-  (use-package async)
-  (use-package dash)
-  (use-package f)
-  (use-package hl-todo)
-  (use-package s)
-#+END_SRC
-
-* Variables
-
-* Redefinitions
-
-* Helper functions
-
-Evaluate an expression when the system is the defined value
-
-#+BEGIN_SRC emacs-lisp
-  (defmacro with-system (type &rest body)
-    "Evaluate BODY if `system-type' equals TYPE."
-    (declare (indent defun))
-    `(when (eq system-type ',type)
-       ,@body))
-#+END_SRC
-
-Open / visit the configuration file
-
-#+BEGIN_SRC emacs-lisp
-  (defun config-visit ()
-    (interactive)
-    (find-file "~/.emacs.d/config.org"))
-  (global-set-key (kbd "C-c e") 'config-visit)
-#+END_SRC
-
-Reload the configuration
-
-#+BEGIN_SRC emacs-lisp
-  (defun config-reload ()
-    (interactive)
-    (org-babel-load-file (expand-file-name "~/.emacs.d/config.org")))
-  (global-set-key (kbd "C-c r") 'config-reload)
-#+END_SRC
-
 * Configure package sources
 
 #+BEGIN_SRC emacs-lisp
@@ -114,6 +70,55 @@ Always ensure that dependencies are downloaded
           auto-package-update-interval 7
           auto-package-update-prompt-before-update t)
     (auto-package-update-maybe))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package use-package-ensure-system-package
+  ;;   :ensure t)
+#+END_SRC
+
+* Dependencies
+
+#+BEGIN_SRC emacs-lisp
+  (use-package async)
+  (use-package dash)
+  (use-package f)
+  (use-package hl-todo)
+  (use-package s)
+#+END_SRC
+
+* Variables
+
+* Redefinitions
+
+* Helper functions
+
+Evaluate an expression when the system is the defined value
+
+#+BEGIN_SRC emacs-lisp
+  (defmacro with-system (type &rest body)
+    "Evaluate BODY if `system-type' equals TYPE."
+    (declare (indent defun))
+    `(when (eq system-type ',type)
+       ,@body))
+#+END_SRC
+
+Open / visit the configuration file
+
+#+BEGIN_SRC emacs-lisp
+  (defun config-visit ()
+    (interactive)
+    (find-file "~/.emacs.d/config.org"))
+  (global-set-key (kbd "C-c e") 'config-visit)
+#+END_SRC
+
+Reload the configuration
+
+#+BEGIN_SRC emacs-lisp
+  (defun config-reload ()
+    (interactive)
+    (org-babel-load-file (expand-file-name "~/.emacs.d/config.org")))
+  (global-set-key (kbd "C-c r") 'config-reload)
 #+END_SRC
 
 * Load custom settings
@@ -260,7 +265,7 @@ Some system config for encoding
   (set-face-attribute 'default nil :family "Iosevka" :height 130)
 #+END_SRC
 
-* Adjust shell variables
+* Shells + variables
 
 Adjust shell environment variables, if needed
 
@@ -272,6 +277,35 @@ Adjust shell environment variables, if needed
     (setq exec-path-from-shell-arguments '("-l"))
     (exec-path-from-shell-initialize)
     (setenv "LANG" "en_US"))
+#+END_SRC
+
+** eshell
+
+Prevent opening up a file using the system =vi= and instead open it
+
+#+BEGIN_SRC emacs-lisp
+  (defun eshell/vi (arg)
+    "Any accidental attempts to open files using VI are simply opened using emacs instead"
+    (princ "Opening file in emacs buffer")
+    (find-file arg))
+#+END_SRC
+
+Add a helper for long running commands with a lot of output that is not friendly to buffers
+
+#+BEGIN_SRC emacs-lisp
+(defun eshell/in-term (prog &rest args)
+  "Run shell command in term buffer."
+  (switch-to-buffer (apply #'make-term prog prog nil args))
+  (term-mode)
+  (term-char-mode))
+#+END_SRC
+
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'eshell-mode-hook
+  (lambda ()
+    (define-key eshell-mode-map (kbd "<tab>")
+      (lambda () (interactive) (pcomplete-std-complete)))))
 #+END_SRC
 
 * Direnv
@@ -315,22 +349,11 @@ To force the change in usage, just completely disable any sort of
 mouse event within Emacs.
 
 #+BEGIN_SRC emacs-lisp
-  ;; (use-package disable-mouse
-  ;;   :config
-  ;;   (global-disable-mouse-mode))
-#+END_SRC
-
-Simplified window movement
-
-#+BEGIN_SRC emacs-lisp
-  (use-package windmove
+  (use-package disable-mouse
     :config
-    (global-set-key (kbd "<s-left>")  'windmove-left)  ;; Ctrl+Cmd+left go to left window
-    (global-set-key (kbd "<s-right>") 'windmove-right) ;; Ctrl+Cmd+right go to right window
-    (global-set-key (kbd "<s-up>")    'windmove-up)    ;; Ctrl+Cmd+up go to upper window
-    (global-set-key (kbd "<s-down>")  'windmove-down)  ;; Ctrl+Cmd+down go to down window
-  )
+    (global-disable-mouse-mode))
 #+END_SRC
+
 * Multiple cursors
 
 Add multiple cursor support.
@@ -362,20 +385,21 @@ Include magit
   (use-package magit
     :bind ("C-x g" . magit-status)
     :config
+    (setq magit-git-executable "/usr/local/bin/git") ;; https://github.com/magit/magit/issues/2982#issuecomment-598493683
     (add-hook 'git-commit-setup-hook 'git-commit-turn-on-flyspell))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-  (use-package forge
-    :after magit)
+;;  (use-package forge
+;;    :after magit)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-    (use-package magit-todos
-      :ensure t
-      :after magit
-      :config
-      (setq magit-todos-exclude-globs '("node_modules")))
+  (use-package magit-todos
+    :ensure t
+    :after magit
+    :config
+    (setq magit-todos-exclude-globs '("node_modules")))
 #+END_SRC
 
 * wgrep
@@ -389,11 +413,19 @@ Include magit
 Which key to show a list of keys that follow a speicific key-chord
 
 #+BEGIN_SRC emacs-lisp
- (use-package which-key
-   :config (which-key-mode))
+  (use-package which-key
+    :ensure t
+    :config
+    ;; Allow C-h to trigger which-key before it is done automatically
+    (setq which-key-show-early-on-C-h t)
+    ;; make sure which-key doesn't show normally but refreshes quickly after it is
+    ;; triggered.
+    (setq which-key-idle-delay 10000)
+    (setq which-key-idle-secondary-delay 0.05)
+    (which-key-mode))
 #+END_SRC
 
-* Ivy / Counsel / Swiper
+* Ivy / Counsel / Swiper / Avy
 
 Use the ivy completion frontend, and the set of ivy-enhanced emacs commands
 
@@ -404,6 +436,7 @@ Use the ivy completion frontend, and the set of ivy-enhanced emacs commands
 
   (use-package counsel
     :config
+    (setq counsel-ag-base-command "ag --skip-vcs-ignores --vimgrep %s")
     (global-set-key (kbd "M-x") 'counsel-M-x)
     (global-set-key (kbd "C-x C-f") 'counsel-find-file)
     ;(global-set-key (kbd "<f1> f") 'counsel-describe-function)
@@ -412,8 +445,8 @@ Use the ivy completion frontend, and the set of ivy-enhanced emacs commands
     ;(global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
     ;(global-set-key (kbd "<f2> u") 'counsel-unicode-char)
     (global-set-key (kbd "C-c g") 'counsel-git)
-    (global-set-key (kbd "C-c j") 'counsel-git-grep)
-    (global-set-key (kbd "C-c k") 'counsel-ag)
+    (global-set-key (kbd "C-c j") 'counsel-rg)
+    (global-set-key (kbd "C-c k") 'counsel-git-grep)
     ;(global-set-key (kbd "C-x l") 'counsel-locate)
     ;(global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
     ;(define-key read-expression-map (kbd "C-r") 'counsel-expression-history)
@@ -435,7 +468,7 @@ Use the ivy enhanced version of =isearch=
 
 #+BEGIN_SRC emacs-lisp
   (use-package swiper
-    :bind (("\C-s" . swiper-isearch))
+    :bind (("C-s" . swiper-isearch))
     :config
     (progn
       (ivy-mode 1)
@@ -444,7 +477,13 @@ Use the ivy enhanced version of =isearch=
       ;(global-set-key (kbd "C-c C-r") 'ivy-resume)
       ;(global-set-key (kbd "<f6>") 'ivy-resume)
       ))
- #+END_SRC
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package avy
+    :ensure t
+    :bind ("C-:" . avy-goto-char-timer))
+#+END_SRC
 
 Make use of the enriched version of ivy commands to display more information about the tasks etc.
 
@@ -489,18 +528,53 @@ Display a simple dashboard at startup
     :config
     (dashboard-setup-startup-hook)
     (setq show-week-agenda-p t)
-    (setq dashboard-items '((projects . 10)
-                            (agenda . 10)
-                            (recents  . 10))))
+    (setq dashboard-items '((agenda . 10)
+                            (projects . 10)
+                            (recents . 10)))
+    (setq dashboard-set-heading-icons t)
+    (setq dashboard-set-file-icons t))
 #+END_SRC
 
 * Ace-window
+
 Faster switching between windows, via =ace-window=
 #+BEGIN_SRC emacs-lisp
-  (use-package ace-window
-    :config
-    (global-set-key (kbd "M-o") 'ace-window))
+    (use-package ace-window
+      :config
+      (global-set-key (kbd "M-o") 'ace-window)
+      (setq ;;aw-keys '(?a ?s ?d ?f ?j ?k ?l)
+            aw-dispatch-alist
+            '((?x aw-delete-window " Ace - Delete Window")
+              (?m aw-swap-window " Ace - Swap Window")
+              (?n aw-flip-window)
+              (?v aw-split-window-vert " Ace - Split Vert Window")
+              (?h aw-split-window-horz " Ace - Split Horz Window")
+              (?i delete-other-windows " Ace - Maximize Window")
+              (?o delete-other-windows)
+              (?b balance-windows))
+
+      (when (package-installed-p 'hydra)
+        (defhydra hydra-window-size (:color red)
+          "Windows size"
+          ("h" shrink-window-horizontally "shrink horizontal")
+          ("j" shrink-window "shrink vertical")
+          ("k" enlarge-window "enlarge vertical")
+          ("l" enlarge-window-horizontally "enlarge horizontal"))
+        (defhydra hydra-window-frame (:color red)
+          "Frame"
+          ("f" make-frame "new frame")
+          ("x" delete-frame "delete frame"))
+        ;; (defhydra hydra-window-scroll (:color red)
+        ;;   "Scroll other window"
+        ;;   ("n" joe-scroll-other-window "scroll")
+        ;;   ("p" joe-scroll-other-window-down "scroll down"))
+        (add-to-list 'aw-dispatch-alist '(?w hydra-window-size/body) t)
+        (add-to-list 'aw-dispatch-alist '(?o hydra-window-scroll/body) t)
+        (add-to-list 'aw-dispatch-alist '(?\; hydra-window-frame/body) t))
+      (ace-window-display-mode t))
 #+END_SRC
+
+* Popup kill ring
 
 Simpler interactions with the kill-ring
 #+BEGIN_SRC emacs-lisp
@@ -508,13 +582,25 @@ Simpler interactions with the kill-ring
     :bind ("M-y" . popup-kill-ring))
 #+END_SRC
 
+* Hydra
+
+#+BEGIN_SRC emacs-lisp
+(use-package hydra
+  :ensure t)
+#+END_SRC
+
 * Hungry delete
 
 Automatically delete whitespace in a sensible way with "smart" hungry delete
+
 #+BEGIN_SRC emacs-lisp
   (use-package hungry-delete
     :config
     (global-hungry-delete-mode))
+
+  ;; (use-package smart-hungry-delete
+  ;;   :bind (("<backspace>" . smart-hungry-delete-backward-char)
+  ;;          ("C-d" . smart-hungry-delete-forward-char)))
 #+END_SRC
 
 * Narrowing
@@ -538,6 +624,27 @@ Narrowing and widening a little faster?
 * Appearance
 
 #+BEGIN_SRC emacs-lisp
+
+  ;; (use-package modus-vivendi-theme
+  ;;   :ensure t)
+
+  (use-package gruvbox-theme
+    :ensure t)
+
+  (use-package doom-themes
+     :config
+     (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+           doom-themes-enable-italic t  ; if nil, italics is universally disabled
+
+           ;; doom-one specific settings
+           ;;doom-one-brighter-modeline nil
+           doom-one-brighter-comments t
+           )
+
+     ;; Corrects (and improves) org-mode's native fontification.
+     (doom-themes-org-config)
+     (load-theme 'doom-gruvbox t))
+
   (use-package all-the-icons)
 
   (use-package doom-modeline
@@ -548,24 +655,9 @@ Narrowing and widening a little faster?
     ;;(setq doom-modeline-minor-modes t)
     :hook (after-init . doom-modeline-init))
 
+    ;;(load-theme 'modus-vivendi t)
+  ;;(load-theme 'gruvbox-dark-hard t)
 
-  (use-package modus-vivendi-theme
-    :ensure t)
-
-  ;; (use-package doom-themes
-  ;;   :config
-  ;;   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-  ;;         doom-themes-enable-italic t  ; if nil, italics is universally disabled
-  ;;
-  ;;         ;; doom-one specific settings
-  ;;         ;;doom-one-brighter-modeline nil
-  ;;         doom-one-brighter-comments t
-  ;;         )
-  ;;
-  ;;   ;; Corrects (and improves) org-mode's native fontification.
-  ;;   (doom-themes-org-config)
-  ;;
-  ;;   (load-theme 'doom-one t))
 #+END_SRC
 
 
@@ -573,9 +665,6 @@ Highlight the current line.
 
 #+BEGIN_SRC emacs-lisp
   (global-hl-line-mode 1)
-  ;; Set the colour for the marked region to something lighter
-  ;;(set-face-background 'hl-line "#030333")
-  (set-face-background 'hl-line "#111")
 #+END_SRC
 
 # Improve look and feel of titlebar on Macos. Set =ns-appearance= to
@@ -697,6 +786,15 @@ Project management using projectile
     (projectile-global-mode))
 #+END_SRC
 
+#+BEGIN_SRC emacs-lisp
+  (use-package ag
+    :ensure t)
+
+  (use-package rg
+    :ensure-system-package
+    (rg . ripgrep))
+#+END_SRC
+
 * yasnippet
 
 Snippet support
@@ -756,14 +854,6 @@ Highlight TODO / FIXME strings in buffers
     ;;--regex-Elm=/^ *([[:lower:]][[:alnum:]_]+)[[:blank:]]*:[^:][^-]+$/\1/c,constant,constants/
     )
 #+END_SRC
-
-* Outshine mode
-
-#+BEGIN_SRC emacs-lisp
-  (use-package outshine
-    :hook LaTeX-mode)
-#+END_SRC
-
 * Nix and nixpkg
 
 #+BEGIN_SRC emacs-lisp
@@ -789,11 +879,11 @@ Highlight TODO / FIXME strings in buffers
 Improve the appearance of bullet points in Emacs:
 
 #+BEGIN_SRC emacs-lisp
-    (use-package org-bullets
-      :defer t
-      :config
-  ;;    (setq org-bullets-bullet-list '("∙"))
-      (add-hook 'org-mode-hook 'org-bullets-mode))
+  (use-package org-bullets
+    :ensure t
+    :config
+    ;;    (setq org-bullets-bullet-list '("∙"))
+    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 #+END_SRC
 
 Set colours for priorities
@@ -847,7 +937,7 @@ Add =org-alert= to display some alerts on the desktop
 
 #+END_SRC
 
-** Capture templates
+** org-capture templates
 
 #+BEGIN_SRC emacs-lisp
   (setq org-capture-templates
@@ -864,30 +954,6 @@ Add =org-alert= to display some alerts on the desktop
            (file+headline "~/org/call.org" "To call")
            "* TODO %?\n  %i\n")
           ))
-#+END_SRC
-
-** Google calendar integration
-
-#+BEGIN_SRC emacs-lisp
-  (defvar org-gcal-last-synced nil
-    "The last time a org-gcal-sync was run")
-
-  (use-package org-gcal
-    :config
-    (setq org-gcal-file-alist '(("gpampara@gmail.com" . "~/org/calendar.org")))
-
-    (if org-gcal-last-synced
-        (unless (string-equal 'org-gcal-last-synced (format-time-string "%Y-%m-%d"))
-          (org-gcal-sync)
-          (setq org-gcal-last-synced (format-time-string"%Y-%m-%d")))))
-
-  ;;      (setq org-gcal-last-synced (format-time-string "%Y-%m-%d"))))
-
-      ;; Create a timer to run the gcal-hook periodically for us, every hour
-      ;;(run-at-time t 3600 'org-gcal-sync))
-      ;(add-hook 'org-agenda-mode-hook (lambda () (org-gcal-sync)))
-      ;(add-hook 'org-capture-after-finalize-hook (lambda () (org-gcal-sync))))
-
 #+END_SRC
 
 ** org-beamer
@@ -918,6 +984,35 @@ Add =org-alert= to display some alerts on the desktop
     (setq org-noter-default-notes-file-names '("notes.org")
           org-noter-separate-notes-from-heading t))
 #+END_SRC
+
+** org-roam
+
+#+BEGIN_SRC emacs-lisp
+  (use-package org-roam
+    :ensure t
+    :hook
+    (after-init . org-roam-mode)
+    :bind (:map org-roam-mode-map
+                (("C-c n l" . org-roam)
+                 ("C-c n f" . org-roam-find-file)
+                 ("C-c n b" . org-roam-switch-to-buffer)
+                 ("C-c n g" . org-roam-graph))
+                :map org-mode-map
+                (("C-c n i" . org-roam-insert)))
+    :custom
+    (org-roam-directory "~/org/roam/")
+    (org-roam-graph-executable "/usr/local/bin/dot"))
+#+END_SRC
+
+Completion with =company-mode=
+
+#+BEGIN_SRC emacs-lisp
+  (use-package company-org-roam
+    :ensure t
+    :config
+    (push 'company-org-roam company-backends))
+#+END_SRC
+
 * Writing
 
 Upgrade the dictionary used to a more up-to-date, recent version.
@@ -970,11 +1065,12 @@ Add =langtool= as an additional tool to use
     :config
     (add-hook 'LaTeX-mode-hook 'writeroom-mode)
     (add-hook 'LaTeX-mode-hook 'adaptive-wrap-prefix-mode)
+    (add-hook 'LaTeX-mode-hook 'visual-line-mode)
     (setq writeroom-width 120)
     (advice-add 'text-scale-adjust :after #'visual-fill-column-adjust))
 #+END_SRC
 
-** thesaurus / dictionary
+** Thesaurus and dictionary
 
 #+BEGIN_SRC emacs-lisp
   (with-system darwin
@@ -990,9 +1086,9 @@ Add =langtool= as an additional tool to use
     :custom
     (lsp-auto-guess-root nil)
     (lsp-prefer-flymake nil)
-    ;;:hook (;;(scala-mode . lsp-deferred)
-           ;;(elm-mode . lsp-deferred)
-      ;;     )
+    ;; :hook (;;(scala-mode . lsp-deferred)
+    ;;        (elm-mode . lsp-deferred)
+    ;;        )
     )
 
   (use-package lsp-ui
@@ -1044,6 +1140,15 @@ Some additional modes for Javascript (rubbish language)
     :mode "\\.coffee\\'")
 #+END_SRC
 
+# Highlighting of mustache templates
+#
+# #+BEGIN_SRC emacs-lisp
+#   (use-package mustache-mode
+#     :ensure t
+#     :mode
+#     ("\\.mustache\\'" . web-mode))
+# #+END_SRC
+
 Highlighting for pug/jade templates
 
 #+BEGIN_SRC emacs-lisp
@@ -1054,8 +1159,30 @@ Highlighting for pug/jade templates
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-  (use-package json-mode
-    :mode "\\.json\\'")
+  (use-package add-node-modules-path
+    :ensure t)
+
+  (use-package js2-mode
+    :ensure t
+    :after (add-node-modules-path)
+    :interpreter (("node" . js2-mode))
+    :bind (:map js2-mode-map ("C-c C-p" . js2-print-json-path))
+    :mode "\\.\\(js\\|json\\)$"
+    :config
+    (add-hook 'js-mode-hook 'js2-minor-mode)
+    (eval-after-load 'js2-mode '(add-hook 'js2-mode-hook 'add-node-modules-path))
+    (flycheck-add-mode 'javascript-eslint 'js2-mode)
+    (setq js2-basic-offset 2
+          js2-highlight-level 3
+          js2-mode-show-parse-errors nil
+          js2-mode-show-strict-warnings nil))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package prettier-js
+    :ensure t
+    :after (js2-mode add-node-modules-path)
+    :hook (js2-mode . prettier-js-mode))
 #+END_SRC
 
 * Elm
@@ -1066,8 +1193,7 @@ buffers.
 #+BEGIN_SRC emacs-lisp
   (use-package flycheck-elm
     :after flycheck
-    :config
-    '(add-hook 'flycheck-mode-hook 'flycheck-elm-setup))
+    :hook (flycheck-mode . flycheck-elm-setup))
 
   (use-package elm-mode
     :mode "\\.elm\\'"
@@ -1101,7 +1227,8 @@ Define polymode to allow multiple modes in a single buffer. Handy for
 #+BEGIN_SRC emacs-lisp
   (use-package polymode
     :mode
-    ("\\.Rnw" . poly-noweb+r-mode))
+    (("\\.Rnw" . poly-noweb+r-mode)
+     ("\\.Rtex" . poly-noweb+r-mode)))
 #+END_SRC
 
 * LaTeX
@@ -1116,65 +1243,6 @@ pathing for files to correctly allow for the automatic setting of the
 themselves with local config comment strings.
 
 #+BEGIN_SRC emacs-lisp
-  ;; https://www.emacswiki.org/emacs/AUCTeX
-  ;; Automagic detection of master file
-  ;; (defun guess-TeX-master (filename)
-  ;;   "Guess the master file for FILENAME from currently open .tex files."
-  ;;   (let ((candidate nil)
-  ;;         (filename (file-name-nondirectory filename)))
-  ;;     (message "riunning the guess tex master function")
-  ;;     (save-excursion
-  ;;       (dolist (buffer (buffer-list))
-  ;;         (with-current-buffer buffer
-  ;;           (let ((name (buffer-name))
-  ;;                 (file buffer-file-name))
-  ;;             (if (and file (string-match "\\.tex$" file))
-  ;;                 (progn
-  ;;                   (goto-char (point-min))
-  ;;                   (if (re-search-forward (concat "\\\\input{" filename "}") nil t)
-  ;;                       (setq candidate file))
-  ;;                   (if (re-search-forward (concat "\\\\include{" (file-name-sans-extension filename) "}") nil t)
-  ;;                       (setq candidate file))))))))
-  ;;     (if candidate
-  ;;         (message "TeX master document: %s" (file-name-nondirectory candidate)))
-  ;;     candidate))
-
-  ;; (defun TeX-texify-sentinel (&optional proc sentinel)
-  ;;   "Non-interactive! Call the standard-sentinel of the current LaTeX-process.
-  ;; If there is still something left do do start the next latex-command."
-  ;;   (set-buffer (process-buffer proc))
-  ;;   (funcall TeX-texify-sentinel proc sentinel)
-  ;;   (let ((case-fold-search nil))
-  ;;     (when (string-match "\\(finished\\|exited\\)" sentinel)
-  ;;       (set-buffer TeX-command-buffer)
-  ;;       (unless (plist-get TeX-error-report-switches (intern (TeX-master-file)))
-  ;;         (TeX-texify)))))
-
-  ;; (defun TeX-texify ()
-  ;;   "Get everything done."
-  ;;   (interactive)
-  ;;   (let ((nextCmd (TeX-command-default (TeX-master-file)))
-  ;;         proc)
-  ;;     (if (and (null TeX-texify-Show)
-  ;;              (equal nextCmd TeX-command-Show))
-  ;;         (when  (called-interactively-p 'any)
-  ;;           (message "TeX-texify: Nothing to be done."))
-  ;;       (TeX-command nextCmd 'TeX-master-file)
-  ;;       (when (or (called-interactively-p 'any)
-  ;;                 (null (boundp 'TeX-texify-count-same-command))
-  ;;                 (null (boundp 'TeX-texify-last-command))
-  ;;                 (null (equal nextCmd TeX-texify-last-command)))
-  ;;         (mapc 'make-local-variable '(TeX-texify-sentinel TeX-texify-count-same-command TeX-texify-last-command))
-  ;;         (setq TeX-texify-count-same-command 1))
-  ;;       (if (>= TeX-texify-count-same-command TeX-texify-max-runs-same-command)
-  ;;           (message "TeX-texify: Did %S already %d times. Don't want to do it anymore." TeX-texify-last-command TeX-texify-count-same-command)
-  ;;         (setq TeX-texify-count-same-command (1+ TeX-texify-count-same-command))
-  ;;         (setq TeX-texify-last-command nextCmd)
-  ;;         (and (null (equal nextCmd TeX-command-Show))
-  ;;              (setq proc (get-buffer-process (current-buffer)))
-  ;;              (setq TeX-texify-sentinel (process-sentinel proc))
-  ;;              (set-process-sentinel proc 'TeX-texify-sentinel))))))
-
   (defun ales/fill-paragraph (&optional P)
     "When called with prefix argument call `fill-paragraph'.
   Otherwise split the current paragraph into one sentence per line.
@@ -1213,7 +1281,7 @@ themselves with local config comment strings.
       ))
 
   (defun relative-master (path)
-    "Determine the relative PATH to the master file, calcuated by `extract-default-files'.
+    "Relative PATH to the master file using `extract-default-files'.
   Argument PATH the path to determine the relative path from."
     (let ((master-file (extract-default-files)))
       (f-relative master-file (f-dirname path))))
@@ -1224,20 +1292,19 @@ themselves with local config comment strings.
   Argument MSG The message."
     (TeX-command-sentinel process msg)
 
-    ;; Now update the produced synctex file to cater for the case of Sweave/knitr interactions
+    ;; Now update the produced synctex file to cater for the case of
+    ;; Sweave/knitr interactions
     (dolist ($buf (buffer-list (current-buffer)))
       (with-current-buffer $buf
         (when (eq (buffer-local-value 'major-mode $buf) 'pdf-view-mode)
           (message "Reloading PDF: %s" (buffer-name $buf))
-          (pdf-view-revert-buffer :ignore-auto :noconfirm))))
-    )
-
-  (use-package outline-magic)
+          (pdf-view-revert-buffer :ignore-auto :noconfirm)))))
 
   (use-package tex-site
     :ensure auctex
     :after (tex latex)
-    :mode (("\\.tex\\'" . LaTeX-mode))
+    :mode
+    (("\\.tex\\'" . LaTeX-mode))
     :commands (latex-mode LaTeX-mode plain-tex-mode)
     :bind (:map LaTeX-mode-map
                 ("M-q" . ales/fill-paragraph))
@@ -1347,11 +1414,6 @@ Now add =pdf-tools= for nicer PDF interactions
     (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward))
 #+END_SRC
 
-Add the =ebib= package to manage =.bib= files
-
-#+BEGIN_SRC emacs-lisp
-  (use-package ebib)
-#+END_SRC
 * R
 
 #+BEGIN_SRC emacs-lisp
@@ -1407,4 +1469,23 @@ Use =scala-mode= for scala syntax highlighting
   (use-package yaml-mode
     :mode ("\\.y[a?]ml\\'"))
 
+#+END_SRC
+
+* Ledger
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ledger-mode
+    :ensure t
+    :mode "\\.ledger\\'"
+    :config
+    (setq ledger-reconcile-default-commodity "R")
+    :init
+    (setq ledger-clear-whole-transactions 1))
+#+END_SRC
+
+Flycheck-ledger
+
+#+BEGIN_SRC emacs-lisp
+  (use-package flycheck-ledger
+    :after flycheck)
 #+END_SRC
