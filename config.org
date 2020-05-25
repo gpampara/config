@@ -432,7 +432,7 @@ Add a helper for long running commands with a lot of output that is not friendly
     )
 #+end_src
 
-* Navigation
+* disable-mouse
 
 To force the change in usage, just completely disable any sort of
 mouse event within Emacs.
@@ -595,11 +595,11 @@ Automatically delete whitespace in a sensible way with "smart" hungry delete
   ;;          ("C-d" . smart-hungry-delete-forward-char)))
 #+end_src
 
-* Appearance (themes / icons / etc)
+* themes
 
 #+begin_src emacs-lisp
   ;; (use-package modus-vivendi-theme)
-  (use-package gruvbox-theme)
+  ;;(use-package gruvbox-theme)
 
   (use-package doom-themes
      :config
@@ -615,9 +615,17 @@ Automatically delete whitespace in a sensible way with "smart" hungry delete
      (doom-themes-org-config)
 
      (load-theme 'doom-gruvbox t))
+#+end_src
 
+* all-the-icons
+
+#+begin_src emacs-lisp
   (use-package all-the-icons)
+#+end_src
 
+* doom-modeline
+
+#+begin_src emacs-lisp
   (use-package doom-modeline
     :init
     (doom-modeline-mode 1)
@@ -631,13 +639,6 @@ Automatically delete whitespace in a sensible way with "smart" hungry delete
     ;;(load-theme 'gruvbox-dark-hard t)
 #+end_src
 
-
-Highlight the current line.
-
-#+begin_src emacs-lisp
-(global-hl-line-mode 1)
-#+end_src
-
 # Improve look and feel of titlebar on Macos. Set =ns-appearance= to
 # =dark= for white title text and =nil= for black title text.
 
@@ -645,6 +646,14 @@ Highlight the current line.
   ;; (with-system darwin
   ;;   (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
   ;;   (add-to-list 'default-frame-alist '(ns-appearance . dark)))
+#+end_src
+
+* hl-line-mode
+
+Highlight the current line.
+
+#+begin_src emacs-lisp
+(global-hl-line-mode 1)
 #+end_src
 
 * dashboard
