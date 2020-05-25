@@ -8,38 +8,25 @@ possible.
 
 * Configure package sources
 
-#+BEGIN_SRC emacs-lisp
-  ;; Correct a bug that is in Emacs <= 26.2
-  ;; https://debbugs.gnu.org/cgi/bugreport.cgi?bug=34341#19
-  ;;(setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
-
-  (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
-                      (not (gnutls-available-p))))
-         (proto (if no-ssl "http" "https")))
-    ;; Comment/uncomment these two lines to enable/disable MELPA and MELPA Stable as desired
-    (add-to-list 'package-archives (cons "melpa" (concat proto "://melpa.org/packages/")) t)
-    ;;(add-to-list 'package-archives (cons "melpa-stable" (concat proto "://stable.melpa.org/packages/")) t)
-    (when (< emacs-major-version 24)
-      ;; For important compatibility libraries like cl-lib
-      (add-to-list 'package-archives '("gnu" . (concat proto "://elpa.gnu.org/packages/")))))
-
+#+begin_src emacs-lisp
   (when (eval-when-compile (version< emacs-version "27"))
-    (load "~/.emacs.d/early-init.el")
-    (package-initialize))
-
-  (setq package-archives
-        '(("gnu" . "https://elpa.gnu.org/packages/")
-          ("melpa" . "https://melpa.org/packages/")))
+    (load "~/.emacs.d/early-init.el"))
 
   (setq package-enable-at-startup nil)
-#+END_SRC
 
-# ** Benchmark setup
+  (setq package-archives
+	'(("gnu" . "https://elpa.gnu.org/packages/")
+	  ("melpa" . "https://melpa.org/packages/")))
+
+;;  (package-initialize)
+#+end_src
+
+# * Benchmark setup
 # `benchmark-init` records the startup time by package so that we can
 # debug problems. The package only records after it has been loaded, so
 # we put it as early as possible.
 #
-# #+BEGIN_SRC emacs-lisp
+# #+begin_src emacs-lisp
 # (use-package benchmark-init
 #   :config
 #   ;; To disable collection of benchmark data after init is done.
@@ -47,181 +34,61 @@ possible.
 #
 # (add-hook 'after-init-hook
 #   (lambda () (message "loaded in %s" (emacs-init-time))))
-# #+END_SRC
+# #+end_src
 
 * Bootstrap use-package
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (unless (package-installed-p 'use-package)
     (package-refresh-contents)
     (package-install 'use-package))
-#+END_SRC
+
+  (require 'use-package)
+#+end_src
 
 Always ensure that dependencies are downloaded
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (setq use-package-always-ensure t)
-#+END_SRC
+#+end_src
 
-#+BEGIN_SRC emacs-lisp
+Define an auto-update schedule for packages
+
+#+begin_src emacs-lisp
   (use-package auto-package-update
     :config
     (setq auto-package-update-delete-old-versions t
           auto-package-update-interval 7
           auto-package-update-prompt-before-update t)
     (auto-package-update-maybe))
-#+END_SRC
+#+end_src
 
-#+BEGIN_SRC emacs-lisp
-  ;; (use-package use-package-ensure-system-package
-  ;;   :ensure t)
-#+END_SRC
+#+begin_src emacs-lisp
+  ;; (use-package use-package-ensure-system-package)
+#+end_src
 
 * Dependencies
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package async)
   (use-package dash)
   (use-package f)
   (use-package hl-todo)
   (use-package s)
-#+END_SRC
+#+end_src
 
 * Variables
 
-* Redefinitions
+#+begin_src emacs-lisp
+  (setq inhibit-startup-screen t)  ; don't display the help screen
+  (setq coding-system-for-read 'utf-8 )	; use utf-8 by default
+  (setq coding-system-for-write 'utf-8 )
+  (setq sentence-end-double-space nil)	; sentence SHOULD end with only a point.
+  (setq require-final-newline t)  ; Ensure there is a final newline
+  (setq confirm-kill-emacs 'y-or-n-p)  ; Confirm really quit emacs
+  (defalias 'yes-or-no-p 'y-or-n-p)  ; shorten yes/no prompts to y/n
 
-* Helper functions
-
-Evaluate an expression when the system is the defined value
-
-#+BEGIN_SRC emacs-lisp
-  (defmacro with-system (type &rest body)
-    "Evaluate BODY if `system-type' equals TYPE."
-    (declare (indent defun))
-    `(when (eq system-type ',type)
-       ,@body))
-#+END_SRC
-
-Open / visit the configuration file
-
-#+BEGIN_SRC emacs-lisp
-  (defun config-visit ()
-    (interactive)
-    (find-file "~/.emacs.d/config.org"))
-  (global-set-key (kbd "C-c e") 'config-visit)
-#+END_SRC
-
-Reload the configuration
-
-#+BEGIN_SRC emacs-lisp
-  (defun config-reload ()
-    (interactive)
-    (org-babel-load-file (expand-file-name "~/.emacs.d/config.org")))
-  (global-set-key (kbd "C-c r") 'config-reload)
-#+END_SRC
-
-* Load custom settings
-
-#+BEGIN_SRC emacs-lisp
-  (setq custom-file "~/.emacs.d/custom-settings.el")
-  (load custom-file t)
-#+END_SRC
-
-* Load secrets
-
-#+BEGIN_SRC emacs-lisp
-  (load "~/.emacs.d/emacs.secrets" t)
-#+END_SRC
-
-* Interface
-** Basics
-
-=crux= has useful functions extracted from Emacs Prelude. Set `C-a` to
-move to the first non-whitespace character on a line, and then to
-toggle between that and the beginning of the line.
-
-#+BEGIN_SRC emacs-lisp
-(use-package crux
-    :bind (("C-a" . crux-move-beginning-of-line)))
-#+END_SRC
-
-I *never* want whitespace at the end of lines. Remove it on save.
-
-#+BEGIN_SRC emacs-lisp
- (add-hook 'before-save-hook 'delete-trailing-whitespace)
-#+END_SRC
-
-Also, having a newline at the end of the file is a "good" thing:
-
- #+BEGIN_SRC emacs-lisp
-   (setq require-final-newline t)
- #+END_SRC
-
-
-Don't display the help screen
-
-#+BEGIN_SRC emacs-lisp
-  (setq inhibit-startup-screen t)
-#+END_SRC
-
-On  I use ⌘ as =meta= and prefer ⌥ to do nothing so I can still
-insert special characters like easily.
-
-#+BEGIN_SRC emacs-lisp
-  (with-system darwin
-    (setq mac-command-modifier 'meta
-          mac-option-modifier 'super))
-#+END_SRC
-
-Disable passing various commands to the underlying  system:
-
-#+BEGIN_SRC emacs-lisp
-  (with-system darwin
-    (setq mac-pass-command-to-system nil))
-#+END_SRC
-
-# Some fancy  composition:
-#
-#+BEGIN_SRC emacs-lisp
-  ;; (with-system darwin
-  ;;   (if (fboundp 'mac-auto-operator-composition-mode)
-  ;;       (mac-auto-operator-composition-mode t)))
-#+END_SRC
-
-Make the =yes or no= prompts shorter.
-
-#+BEGIN_SRC emacs-lisp
-  (defalias 'yes-or-no-p 'y-or-n-p)
-#+END_SRC
-
-Prevent accidental quit emacs
-
-#+BEGIN_SRC emacs-lisp
-  (setq confirm-kill-emacs 'y-or-n-p)
-#+END_SRC
-
-Start emacs fullscreen
-
-#+BEGIN_SRC emacs-lisp
-  (with-system darwin
-    (setq ns-use-native-fullscreen t)
-    ;;(set-frame-parameter nil 'fullscreen 'maximized))
-    (add-hook 'window-setup-hook 'toggle-frame-fullscreen t))
-#+END_SRC
-
-I usually don't want tabs, if I do I can set this buffer-local to
-=t=. If I just want one tab then use =C-q= (=quoted-insert=) to insert
-as a literal.
-
-#+BEGIN_SRC emacs-lisp
-  (setq-default indent-tabs-mode nil)
-#+END_SRC
-
-I'm not a fan of the backup and autosave functionality of emacs as
-most of my work will be in a repository anyway.
-
-#+BEGIN_SRC emacs-lisp
+  ;; Change the way backups are done
   (setq make-backup-files nil)
   (setq auto-save-default nil)
 
@@ -236,40 +103,263 @@ most of my work will be in a repository anyway.
         create-lockfiles nil
         backup-directory-alist `(("." . (concat user-emacs-directory
                                                  "backups"))))
-#+END_SRC
+#+end_src
+
+I usually don't want tabs, if I do I can set this buffer-local to
+=t=. If I just want one tab then use =C-q= (=quoted-insert=) to insert
+as a literal.
+
+#+begin_src emacs-lisp
+  (setq-default indent-tabs-mode nil)
+#+end_src
+
+Use the "forward" uniquify scheme for buffer disambiguation
+
+#+begin_src emacs-lisp
+  (setq uniquify-buffer-name-style 'forward)
+#+end_src
+
+* Redefinitions
+
+Evaluate an expression when the system is the defined value
+
+#+begin_src emacs-lisp
+  (defmacro with-system (type &rest body)
+    "Evaluate BODY if `system-type' equals TYPE."
+    (declare (indent defun))
+    `(when (eq system-type ',type)
+       ,@body))
+#+end_src
+
+On  I use ⌘ as =meta= and prefer ⌥ to do nothing so I can still
+insert special characters like easily.
+
+#+begin_src emacs-lisp
+  (with-system darwin
+    (setq mac-command-modifier 'meta
+          mac-option-modifier 'super))
+#+end_src
+
+Disable passing various commands to the underlying  system:
+
+#+begin_src emacs-lisp
+  (with-system darwin
+    (setq mac-pass-command-to-system nil))
+#+end_src
+
+# Some fancy  composition:
+#
+#+begin_src emacs-lisp
+  ;; (with-system darwin
+  ;;   (if (fboundp 'mac-auto-operator-composition-mode)
+  ;;       (mac-auto-operator-composition-mode t)))
+#+end_src
+
+Start emacs fullscreen
+
+#+begin_src emacs-lisp
+  (with-system darwin
+    (setq ns-use-native-fullscreen t)
+    ;;(set-frame-parameter nil 'fullscreen 'maximized))
+    (add-hook 'window-setup-hook 'toggle-frame-fullscreen t))
+#+end_src
+
+* Helper functions
+
+Open / visit the configuration file
+
+#+begin_src emacs-lisp
+  (defun find-user-init-file ()
+    (interactive)
+    (find-file "~/.emacs.d/config.org"))
+  ;(global-set-key (kbd "C-c e") 'config-visit)
+#+end_src
+
+Reload the configuration
+
+#+begin_src emacs-lisp
+  (defun load-user-init-file ()
+    (interactive)
+    (org-babel-load-file (expand-file-name "~/.emacs.d/config.org")))
+  ;(global-set-key (kbd "C-c r") 'config-reload)
+#+end_src
+
+* Load user custom settings
+
+#+begin_src emacs-lisp
+  (setq custom-file "~/.emacs.d/custom-settings.el")
+  (load custom-file t)
+#+end_src
+
+* Load user secrets
+
+#+begin_src emacs-lisp
+  (load "~/.emacs.d/emacs.secrets" t)
+#+end_src
+
+* which-key
+
+Which key to show a list of keys that follow a speicific key-chord
+
+#+begin_src emacs-lisp
+  (use-package which-key
+    :config
+    ;; Allow C-h to trigger which-key before it is done automatically
+    (setq which-key-show-early-on-C-h t)
+    ;; make sure which-key doesn't show normally but refreshes quickly after it is
+    ;; triggered.
+    (setq which-key-idle-delay 10000)
+    (setq which-key-idle-secondary-delay 0.05)
+    (which-key-mode 1))
+#+end_src
+
+* general.el (Keybinds)
+
+#+begin_src emacs-lisp
+  (use-package general
+    :after which-key
+    :config
+    (general-override-mode 1)
+
+    (general-define-key
+      "C-:" 'avy-goto-char-timer
+      "C-s" 'swiper-isearch
+      "M-x" 'counsel-M-x
+      )
+
+    (general-define-key
+     "C-c p" '(:keymap projectile-command-map :package projectile))
+  )
+#+end_src
+
+* avy
+
+#+begin_src emacs-lisp
+  (use-package avy
+    :commands (avy-goto-char-timer))
+#+end_src
+
+* ivy
+
+Use the ivy completion frontend, and the set of ivy-enhanced emacs commands
+
+#+begin_src emacs-lisp
+  (use-package ivy
+    :diminish ivy-mode
+    :after (swiper,counsel)
+    :config
+    (ivy-mode 1))
+#+end_src
+
+* counsel
+
+#+begin_src emacs-lisp
+  (use-package counsel
+    :defer t
+    ;:config
+    ;(setq counsel-ag-base-command "ag --skip-vcs-ignores --vimgrep %s")
+    ;(global-set-key (kbd "M-x") 'counsel-M-x)
+    ;(global-set-key (kbd "C-x C-f") 'counsel-find-file)
+    ;(global-set-key (kbd "C-c g") 'counsel-git)
+    ;(global-set-key (kbd "C-c j") 'counsel-rg)
+    ;(global-set-key (kbd "C-c k") 'counsel-git-grep)
+    )
+#+end_src
+
+* swiper
+
+Use the ivy enhanced version of =isearch=
+
+#+begin_src emacs-lisp
+  (use-package swiper
+    :defer t
+    :config
+    (setq ivy-use-virtual-buffers t)
+    (setq enable-recursive-minibuffers t)
+                                          ;(global-set-key (kbd "C-c C-r") 'ivy-resume)
+                                          ;(global-set-key (kbd "<f6>") 'ivy-resume)
+    )
+#+end_src
+
+* ivy-rich
+
+Make use of the enriched version of ivy commands to display more information about the tasks etc.
+
+#+begin_src emacs-lisp
+  (use-package ivy-rich
+    :defer t
+    :after ivy
+    :config
+    (ivy-rich-mode 1))
+#+end_src
+
+* amx
+
+amx is the evolution of smex which provides commands that have been used previously
+
+#+begin_src emacs-lisp
+  (use-package amx
+    :after ivy
+    :custom
+    (amx-backend 'auto)
+    (amx-save-file "~/.emacs.d/amx-items")
+    (amx-history-length 50)
+    (amx-show-key-bindings nil)
+    :config
+    (amx-mode 1))
+#+end_src
+
+* COMMENT crux
+=crux= has useful functions extracted from Emacs Prelude. Set `C-a` to
+move to the first non-whitespace character on a line, and then to
+toggle between that and the beginning of the line.
+
+#+begin_src emacs-lisp
+(use-package crux
+    :bind (("C-a" . crux-move-beginning-of-line)))
+#+end_src
+
+* Delete trailing whitespace
+
+I *never* want whitespace at the end of lines. Remove it on save.
+
+#+begin_src emacs-lisp
+ (add-hook 'before-save-hook 'delete-trailing-whitespace)
+#+end_src
+
+* COMMENT PCRE in emacs
 
 Use a plainer syntax for regexp
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package pcre2el
     :config
     (pcre-mode))
-#+END_SRC
+#+end_src
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (when (eq system-type 'darwin)
     (require 'ls-lisp)
     (setq ls-lisp-use-insert-directory-program nil))
-#+END_SRC
+#+end_src
 
 Some system config for encoding
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (set-language-environment "UTF-8")
-  (set-default-coding-systems 'utf-8)
-#+END_SRC
+#+end_src
 
-** Font
+* COMMENT Fonts within emacs
 
-#+BEGIN_SRC emacs-lisp
-  (set-face-attribute 'default nil :family "Iosevka" :height 130)
-#+END_SRC
+#+begin_src emacs-lisp
+;;  (set-face-attribute 'default nil :family "Iosevka" :height 130)
+#+end_src
 
-* Shells + variables
+* Shell environment variable import
 
 Adjust shell environment variables, if needed
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package exec-path-from-shell
     :if (memq window-system '(mac ns x))
     :config
@@ -277,40 +367,39 @@ Adjust shell environment variables, if needed
     (setq exec-path-from-shell-arguments '("-l"))
     (exec-path-from-shell-initialize)
     (setenv "LANG" "en_US"))
-#+END_SRC
+#+end_src
 
-** eshell
+* COMMENT eshell
 
 Prevent opening up a file using the system =vi= and instead open it
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (defun eshell/vi (arg)
     "Any accidental attempts to open files using VI are simply opened using emacs instead"
     (princ "Opening file in emacs buffer")
     (find-file arg))
-#+END_SRC
+#+end_src
 
 Add a helper for long running commands with a lot of output that is not friendly to buffers
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (defun eshell/in-term (prog &rest args)
   "Run shell command in term buffer."
   (switch-to-buffer (apply #'make-term prog prog nil args))
   (term-mode)
   (term-char-mode))
-#+END_SRC
+#+end_src
 
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (add-hook 'eshell-mode-hook
   (lambda ()
     (define-key eshell-mode-map (kbd "<tab>")
       (lambda () (interactive) (pcomplete-std-complete)))))
-#+END_SRC
-
+#+end_src
 * Direnv
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package direnv
     :config
     (direnv-mode)
@@ -341,163 +430,78 @@ Add a helper for long running commands with a lot of output that is not friendly
                     (insert-file-contents stderr-tempfile)))))
           (delete-file stderr-tempfile))))
     )
-#+END_SRC
+#+end_src
 
 * Navigation
 
 To force the change in usage, just completely disable any sort of
 mouse event within Emacs.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package disable-mouse
     :config
     (global-disable-mouse-mode))
-#+END_SRC
+#+end_src
 
-* Multiple cursors
+* multiple-cursors
 
 Add multiple cursor support.
 
- #+BEGIN_SRC emacs-lisp
- (use-package multiple-cursors
-    :bind (("C-S-c C-S-c" . mc/edit-lines)
-          ("C->" . mc/mark-next-like-this)
-          ("C-<" . mc/mark-prev-like-this)
-          ("C-c C-<" . mc/mark-all-like-this)))
- #+END_SRC
+ #+begin_src emacs-lisp
+   (use-package multiple-cursors
+      :general
+      ("C-S-c C-S-c" 'mc/edit-lines)
+      ("C->" 'mc/mark-next-like-this)
+      ("C-<" 'mc/mark-prev-like-this)
+      ("C-c C-<" 'mc/mark-all-like-this))
+ #+end_src
 
-* Expand region
+* expand-region
 
 Add expand-region
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package expand-region
-    :bind
-    ("C-=" . er/expand-region)
-    ("C-+" . er/contract-region))
-#+END_SRC
+    :general
+    ("C-=" 'er/expand-region)
+    ("C-+" 'er/contract-region))
+#+end_src
 
-* Magit
+* magit
 
-Include magit
-
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package magit
-    :bind ("C-x g" . magit-status)
+    :defer t
+    :general
+    ("C-x g" 'magit-status)
     :config
-    (setq magit-git-executable "/usr/local/bin/git") ;; https://github.com/magit/magit/issues/2982#issuecomment-598493683
+    ;; https://github.com/magit/magit/issues/2982#issuecomment-598493683
+    (setq magit-git-executable "/usr/local/bin/git")
     (add-hook 'git-commit-setup-hook 'git-commit-turn-on-flyspell))
-#+END_SRC
+#+end_src
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 ;;  (use-package forge
 ;;    :after magit)
-#+END_SRC
+#+end_src
 
-#+BEGIN_SRC emacs-lisp
-  (use-package magit-todos
-    :ensure t
-    :after magit
-    :config
-    (setq magit-todos-exclude-globs '("node_modules")))
-#+END_SRC
+#+begin_src emacs-lisp
+  ;; (use-package magit-todos
+  ;;   :after magit
+  ;;   :config
+  ;;   (setq magit-todos-exclude-globs '("node_modules")))
+#+end_src
 
-* wgrep
+* COMMENT wgrep
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package wgrep)
-#+END_SRC
+#+end_src
 
-* Which-key
-
-Which key to show a list of keys that follow a speicific key-chord
-
-#+BEGIN_SRC emacs-lisp
-  (use-package which-key
-    :ensure t
-    :config
-    ;; Allow C-h to trigger which-key before it is done automatically
-    (setq which-key-show-early-on-C-h t)
-    ;; make sure which-key doesn't show normally but refreshes quickly after it is
-    ;; triggered.
-    (setq which-key-idle-delay 10000)
-    (setq which-key-idle-secondary-delay 0.05)
-    (which-key-mode))
-#+END_SRC
-
-* Ivy / Counsel / Swiper / Avy
-
-Use the ivy completion frontend, and the set of ivy-enhanced emacs commands
-
-#+BEGIN_SRC emacs-lisp
-  (use-package ivy
-    :diminish ivy-mode
-    :config (ivy-mode 1))
-
-  (use-package counsel
-    :config
-    (setq counsel-ag-base-command "ag --skip-vcs-ignores --vimgrep %s")
-    (global-set-key (kbd "M-x") 'counsel-M-x)
-    (global-set-key (kbd "C-x C-f") 'counsel-find-file)
-    ;(global-set-key (kbd "<f1> f") 'counsel-describe-function)
-    ;(global-set-key (kbd "<f1> v") 'counsel-describe-variable)
-    ;(global-set-key (kbd "<f1> l") 'counsel-find-library)
-    ;(global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
-    ;(global-set-key (kbd "<f2> u") 'counsel-unicode-char)
-    (global-set-key (kbd "C-c g") 'counsel-git)
-    (global-set-key (kbd "C-c j") 'counsel-rg)
-    (global-set-key (kbd "C-c k") 'counsel-git-grep)
-    ;(global-set-key (kbd "C-x l") 'counsel-locate)
-    ;(global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
-    ;(define-key read-expression-map (kbd "C-r") 'counsel-expression-history)
-    )
-
-  (use-package amx
-    :ensure t
-    :after ivy
-    :custom
-    (amx-backend 'auto)
-    (amx-save-file "~/.emacs.d/amx-items")
-    (amx-history-length 50)
-    (amx-show-key-bindings nil)
-    :config
-    (amx-mode 1))
-#+END_SRC
-
-Use the ivy enhanced version of =isearch=
-
-#+BEGIN_SRC emacs-lisp
-  (use-package swiper
-    :bind (("C-s" . swiper-isearch))
-    :config
-    (progn
-      (ivy-mode 1)
-      (setq ivy-use-virtual-buffers t)
-      (setq enable-recursive-minibuffers t)
-      ;(global-set-key (kbd "C-c C-r") 'ivy-resume)
-      ;(global-set-key (kbd "<f6>") 'ivy-resume)
-      ))
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-  (use-package avy
-    :ensure t
-    :bind ("C-:" . avy-goto-char-timer))
-#+END_SRC
-
-Make use of the enriched version of ivy commands to display more information about the tasks etc.
-
-#+BEGIN_SRC emacs-lisp
-  (use-package ivy-rich
-    :ensure t
-    :config
-    (ivy-rich-mode 1))
-#+END_SRC
-
-* ibuffer
+* COMMENT ibuffer
 
 Prefer the use of =ibuffer= instead of the default buffer list
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (global-set-key (kbd "C-x C-b") 'ibuffer)
   (setq ibuffer-saved-filter-groups
         '(("default"
@@ -518,82 +522,70 @@ Prefer the use of =ibuffer= instead of the default buffer list
   (setq ibuffer-show-empty-filter-groups nil)
 
   (setq ibuffer-expert t)
-#+END_SRC
+#+end_src
 
-* Dashboard
+* hydra
 
-Display a simple dashboard at startup
-#+BEGIN_SRC emacs-lisp
-  (use-package dashboard
-    :config
-    (dashboard-setup-startup-hook)
-    (setq show-week-agenda-p t)
-    (setq dashboard-items '((agenda . 10)
-                            (projects . 10)
-                            (recents . 10)))
-    (setq dashboard-set-heading-icons t)
-    (setq dashboard-set-file-icons t))
-#+END_SRC
+#+begin_src emacs-lisp
+(use-package hydra)
+#+end_src
 
-* Ace-window
+* ace-window
 
 Faster switching between windows, via =ace-window=
-#+BEGIN_SRC emacs-lisp
-    (use-package ace-window
-      :config
-      (global-set-key (kbd "M-o") 'ace-window)
-      (setq ;;aw-keys '(?a ?s ?d ?f ?j ?k ?l)
-            aw-dispatch-alist
-            '((?x aw-delete-window " Ace - Delete Window")
-              (?m aw-swap-window " Ace - Swap Window")
-              (?n aw-flip-window)
-              (?v aw-split-window-vert " Ace - Split Vert Window")
-              (?h aw-split-window-horz " Ace - Split Horz Window")
-              (?i delete-other-windows " Ace - Maximize Window")
-              (?o delete-other-windows)
-              (?b balance-windows))
+#+begin_src emacs-lisp
+  (use-package ace-window
+    :general
+    ("M-o" 'ace-window)
+    :config
+    ;;(setq ;;aw-keys '(?a ?s ?d ?f ?j ?k ?l)
+    (setq aw-dispatch-alist
+          '((?x aw-delete-window " Ace - Delete Window")
+            (?m aw-swap-window " Ace - Swap Window")
+            (?n aw-flip-window)
+            (?v aw-split-window-vert " Ace - Split Vert Window")
+            (?h aw-split-window-horz " Ace - Split Horz Window")
+            (?i delete-other-windows " Ace - Maximize Window")
+            (?o delete-other-windows)
+            (?b balance-windows)))
 
-      (when (package-installed-p 'hydra)
-        (defhydra hydra-window-size (:color red)
-          "Windows size"
-          ("h" shrink-window-horizontally "shrink horizontal")
-          ("j" shrink-window "shrink vertical")
-          ("k" enlarge-window "enlarge vertical")
-          ("l" enlarge-window-horizontally "enlarge horizontal"))
-        (defhydra hydra-window-frame (:color red)
-          "Frame"
-          ("f" make-frame "new frame")
-          ("x" delete-frame "delete frame"))
-        ;; (defhydra hydra-window-scroll (:color red)
-        ;;   "Scroll other window"
-        ;;   ("n" joe-scroll-other-window "scroll")
-        ;;   ("p" joe-scroll-other-window-down "scroll down"))
-        (add-to-list 'aw-dispatch-alist '(?w hydra-window-size/body) t)
-        (add-to-list 'aw-dispatch-alist '(?o hydra-window-scroll/body) t)
-        (add-to-list 'aw-dispatch-alist '(?\; hydra-window-frame/body) t))
+    (when (package-installed-p 'hydra)
+      (defhydra hydra-window-size (:color red)
+        "Windows size"
+        ("h" shrink-window-horizontally "shrink horizontal")
+        ("j" shrink-window "shrink vertical")
+        ("k" enlarge-window "enlarge vertical")
+        ("l" enlarge-window-horizontally "enlarge horizontal"))
+      ;; (defhydra hydra-window-frame (:color red)
+      ;;   "Frame"
+      ;;   ("f" make-frame "new frame")
+      ;;   ("x" delete-frame "delete frame"))
+      ;; (defhydra hydra-window-scroll (:color red)
+      ;;   "Scroll other window"
+      ;;   ("n" joe-scroll-other-window "scroll")
+      ;;   ("p" joe-scroll-other-window-down "scroll down"))
+      (add-to-list 'aw-dispatch-alist '(?w hydra-window-size/body) t)
+      ;;(add-to-list 'aw-dispatch-alist '(?o hydra-window-scroll/body) t)
+      ;;(add-to-list 'aw-dispatch-alist '(?\; hydra-window-frame/body) t)
+      ;;)
       (ace-window-display-mode t))
-#+END_SRC
+    )
+#+end_src
 
-* Popup kill ring
+* popup-kill-ring
 
 Simpler interactions with the kill-ring
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package popup-kill-ring
-    :bind ("M-y" . popup-kill-ring))
-#+END_SRC
+    :general
+    ("M-y" 'popup-kill-ring))
+#+end_src
 
-* Hydra
-
-#+BEGIN_SRC emacs-lisp
-(use-package hydra
-  :ensure t)
-#+END_SRC
-
-* Hungry delete
+* COMMENT Hungry delete
 
 Automatically delete whitespace in a sensible way with "smart" hungry delete
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package hungry-delete
     :config
     (global-hungry-delete-mode))
@@ -601,35 +593,13 @@ Automatically delete whitespace in a sensible way with "smart" hungry delete
   ;; (use-package smart-hungry-delete
   ;;   :bind (("<backspace>" . smart-hungry-delete-backward-char)
   ;;          ("C-d" . smart-hungry-delete-forward-char)))
-#+END_SRC
+#+end_src
 
-* Narrowing
+* Appearance (themes / icons / etc)
 
-Narrowing and widening a little faster?
-
-#+BEGIN_SRC emacs-lisp
-  ;; (use-package recursive-narrow
-  ;;   :config
-  ;;   (add-hook 'post-command-hook 'my-narrowed-fringe-status)
-
-  ;;   (defun my-narrowed-fringe-status ()
-  ;;     "Make the fringe background reflect the buffer's narrowing status."
-  ;;     (set-face-attribute
-  ;;      'fringe nil :background (if (buffer-narrowed-p)
-  ;;                                  "#999999" ;;my-fringe-narrow-bg
-  ;;                                nil)))
-  ;;   )
-#+END_SRC
-
-* Appearance
-
-#+BEGIN_SRC emacs-lisp
-
-  ;; (use-package modus-vivendi-theme
-  ;;   :ensure t)
-
-  (use-package gruvbox-theme
-    :ensure t)
+#+begin_src emacs-lisp
+  ;; (use-package modus-vivendi-theme)
+  (use-package gruvbox-theme)
 
   (use-package doom-themes
      :config
@@ -643,65 +613,76 @@ Narrowing and widening a little faster?
 
      ;; Corrects (and improves) org-mode's native fontification.
      (doom-themes-org-config)
+
      (load-theme 'doom-gruvbox t))
 
   (use-package all-the-icons)
 
   (use-package doom-modeline
     :init
+    (doom-modeline-mode 1)
     (setq doom-modeline-buffer-file-name-style 'relative-from-project)
     ;;(setq doom-modeline-icon nil)
     ;;(setq doom-modeline-major-mode-icon nil)
     ;;(setq doom-modeline-minor-modes t)
-    :hook (after-init . doom-modeline-init))
+    )
 
     ;;(load-theme 'modus-vivendi t)
-  ;;(load-theme 'gruvbox-dark-hard t)
-
-#+END_SRC
+    ;;(load-theme 'gruvbox-dark-hard t)
+#+end_src
 
 
 Highlight the current line.
 
-#+BEGIN_SRC emacs-lisp
-  (global-hl-line-mode 1)
-#+END_SRC
+#+begin_src emacs-lisp
+(global-hl-line-mode 1)
+#+end_src
 
 # Improve look and feel of titlebar on Macos. Set =ns-appearance= to
 # =dark= for white title text and =nil= for black title text.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   ;; (with-system darwin
   ;;   (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
   ;;   (add-to-list 'default-frame-alist '(ns-appearance . dark)))
-#+END_SRC
+#+end_src
 
+* dashboard
+
+Display a simple dashboard at startup
+#+begin_src emacs-lisp
+  (use-package dashboard
+    :config
+    (dashboard-setup-startup-hook)
+    (setq show-week-agenda-p t)
+    (setq dashboard-items '((agenda . 10)
+                            (projects . 10)
+                            (recents . 10)))
+    (setq dashboard-set-heading-icons t)
+    (setq dashboard-set-file-icons t))
+#+end_src
+
+* COMMENT rainbow mode
 
 Inline display of colours
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package rainbow-mode
     :init
     (add-hook 'prog-mode-hook 'rainbow-mode))
-#+END_SRC
+#+end_src
 
 # Add a visual inidcator when switching to a different window
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   ;; (use-package beacon
   ;;   :config
   ;;   (beacon-mode 1))
-#+END_SRC
+#+end_src
 
-Use the "forward" uniquify scheme for buffer disambiguation
+* COMMENT hippie-expand
 
-#+BEGIN_SRC emacs-lisp
-(setq uniquify-buffer-name-style 'forward)
-#+END_SRC
-
-* Hippie-expand
-
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (global-set-key (kbd "M-/") 'hippie-expand)
   (setq hippie-expand-try-functions-list
         '(try-expand-dabbrev
@@ -709,15 +690,15 @@ Use the "forward" uniquify scheme for buffer disambiguation
           try-complete-file-name-partially try-complete-file-name
           try-expand-all-abbrevs try-expand-list try-expand-line
           try-complete-lisp-symbol-partially try-complete-lisp-symbol))
-#+END_SRC
+#+end_src
 
-* Rainbow delimeters
+* rainbow-delimeters
 Some general configuration for development that is agnostic of
 language.
 
 Use parens highlighting to make reading the code a little simpler
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package rainbow-delimiters
     :config
     (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
@@ -725,28 +706,27 @@ Use parens highlighting to make reading the code a little simpler
     (set-face-attribute 'rainbow-delimiters-unmatched-face nil
                         :foreground "red"
                         :inherit 'error
-                        :box t)
-    )
-#+END_SRC
+                        :box t))
+#+end_src
 
-* Autocomplete
+* company
 
 Completion service using =company-mode=
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package company
     :config
-;;    (setq company-idle-delay 0)
-;;    (setq company-minimum-prefix-length 3)
+    ;;    (setq company-idle-delay 0)
+    ;;    (setq company-minimum-prefix-length 3)
 
     (global-company-mode t))
-#+END_SRC
+#+end_src
 
-* Flycheck
+* flycheck
 
 =Flycheck= to allow for the checking of code
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package flycheck
     ;; :diminish flycheck-mode
     :demand t
@@ -765,59 +745,57 @@ Completion service using =company-mode=
               (lambda ()
                 (flycheck-select-checker 'sh-shellcheck)))
     )
-#+END_SRC
+#+end_src
 
-* Projectile
+* projectile
 
 Project management using projectile
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package projectile
     :diminish projectile-mode
-    :init
-    (setq projectile-keymap-prefix (kbd "C-c p"))
     :config
     (setq projectile-indexing-method 'alien)
-    ;;(setq projectile-enable-caching t)
     (setq projectile-completion-system 'ivy)
     (setq projectile-switch-project-action 'magit-status)
     (setq projectile-git-submodule-command nil) ;; Stupid submodule bullshit
     (add-to-list 'projectile-globally-ignored-files "node_modules")
     (projectile-global-mode))
-#+END_SRC
+#+end_src
 
-#+BEGIN_SRC emacs-lisp
-  (use-package ag
-    :ensure t)
+* ripgrep
 
-  (use-package rg
-    :ensure-system-package
-    (rg . ripgrep))
-#+END_SRC
+#+begin_src emacs-lisp
+  ;; (use-package ag)
+
+  ;; (use-package rg
+  ;;   :ensure-system-package
+  ;;   (rg . ripgrep))
+#+end_src
 
 * yasnippet
 
 Snippet support
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package yasnippet
     :config
     (use-package yasnippet-snippets)
     (yas-reload-all))
-#+END_SRC
+#+end_src
 
-* Mark TODO / FIXME items
+* COMMENT Mark TODO / FIXME items
 
 Highlight TODO / FIXME strings in buffers
 
-# #+BEGIN_SRC emacs-lisp
+# #+begin_src emacs-lisp
 #   (use-package fic-mode
 #     :hook prog-mode)
-# #+END_SRC
+# #+end_src
 
-* Dumb-jump
+* COMMENT Dumb-jump
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package dumb-jump
     ;; :bind (("M-g o" . dumb-jump-go-other-window)
     ;;        ("M-g j" . dumb-jump-go)
@@ -853,81 +831,80 @@ Highlight TODO / FIXME strings in buffers
              ))
     ;;--regex-Elm=/^ *([[:lower:]][[:alnum:]_]+)[[:blank:]]*:[^:][^-]+$/\1/c,constant,constants/
     )
-#+END_SRC
+#+end_src
 * Nix and nixpkg
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package nix-mode
     :mode "\\.nix\\'")
 
-#+END_SRC
+#+end_src
 
-* Terminal
+* COMMENT Terminal
 
- #+BEGIN_SRC emacs-lisp
+ #+begin_src emacs-lisp
    (defvar my-term-shell "/usr/local/bin/fish")
    (defadvice ansi-term (before force-bash)
      (interactive (list my-term-shell)))
    (ad-activate 'ansi-term)
 
    ;;(global-set-key (kbd "<M-return>") 'ansi-term)
- #+END_SRC
+ #+end_src
 
-* org-mode settings
+* org-mode
 ** Appearance
 
 Improve the appearance of bullet points in Emacs:
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package org-bullets
-    :ensure t
     :config
     ;;    (setq org-bullets-bullet-list '("∙"))
     (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
-#+END_SRC
+#+end_src
 
 Set colours for priorities
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (setq org-priority-faces '((?A . (:foreground "#F0DFAF" :weight bold))
                            (?B . (:foreground "LightSteelBlue"))
                            (?C . (:foreground "OliveDrab"))))
-#+END_SRC
+#+end_src
 
-** Keybinds
+** COMMENT Keybinds
 
 Define org-mode related keybinds:
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (define-key global-map (kbd "C-c l") 'org-store-link)
   (define-key global-map (kbd "C-c a") 'org-agenda)
   (define-key global-map (kbd "C-c c") 'org-capture)
   (setq org-log-done t)
-#+END_SRC
+#+end_src
 
-** Agenda file locations
+** COMMENT Agenda file locations
 
 Define the locations of the different org files:
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (setq org-agenda-files (list "~/org/gtd.org"
                                "~/org/projects.org"
                                "~/org/work.org"
                                "~/org/calendar.org"
                                "~/org/call.org"))
-#+END_SRC
+#+end_src
 
 Nicer indenting in =org-mode= files
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (add-hook 'org-mode-hook 'org-indent-mode)
-#+END_SRC
+#+end_src
 
-** Alerts
+** COMMENT Alerts
 
 Add =org-alert= to display some alerts on the desktop
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package org-alert
     :config
     (with-system darwin
@@ -935,11 +912,11 @@ Add =org-alert= to display some alerts on the desktop
     (with-system gnu/linux
                  (setq alert-default-style 'libnotify)))
 
-#+END_SRC
+#+end_src
 
-** org-capture templates
+** COMMENT org-capture templates
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (setq org-capture-templates
         '(("t" "Todo" entry
            (file+headline "~/org/gtd.org" "Tasks")
@@ -954,11 +931,11 @@ Add =org-alert= to display some alerts on the desktop
            (file+headline "~/org/call.org" "To call")
            "* TODO %?\n  %i\n")
           ))
-#+END_SRC
+#+end_src
 
-** org-beamer
+** COMMENT org-beamer
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (eval-after-load "ox-latex"
 
   ;; update the list of LaTeX classes and associated header (encoding, etc.)
@@ -972,24 +949,22 @@ Add =org-alert= to display some alerts on the desktop
                   ("\\section{%s}" . "\\section*{%s}")
                   ("\\subsection{%s}" . "\\subsection*{%s}")
                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))))
-#+END_SRC
+#+end_src
 
-** org-noter
+** COMMENT org-noter
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package org-noter
     :after org
-    :ensure t
     :config
     (setq org-noter-default-notes-file-names '("notes.org")
           org-noter-separate-notes-from-heading t))
-#+END_SRC
+#+end_src
 
-** org-roam
+** COMMENT org-roam
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package org-roam
-    :ensure t
     :hook
     (after-init . org-roam-mode)
     :bind (:map org-roam-mode-map
@@ -1002,22 +977,21 @@ Add =org-alert= to display some alerts on the desktop
     :custom
     (org-roam-directory "~/org/roam/")
     (org-roam-graph-executable "/usr/local/bin/dot"))
-#+END_SRC
+#+end_src
 
 Completion with =company-mode=
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package company-org-roam
-    :ensure t
     :config
     (push 'company-org-roam company-backends))
-#+END_SRC
+#+end_src
 
-* Writing
+* COMMENT Writing
 
 Upgrade the dictionary used to a more up-to-date, recent version.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (cond
    ;; try hunspell at first
    ;; if hunspell does NOT exist, use aspell
@@ -1034,53 +1008,54 @@ Upgrade the dictionary used to a more up-to-date, recent version.
     (setq ispell-program-name "aspell")
     ;; Please note ispell-extra-args contains ACTUAL parameters passed to aspell
     (setq ispell-extra-args '("--sug-mode=ultra" "--lang=en_US"))))
-#+END_SRC
+#+end_src
 
 =writegood-mode= highlights bad words, weasels etc. Also has functions
 to calculate readability of writing.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package writegood-mode
   ;;:bind ("C-c g" . writegood-mode)
     :init
     (add-hook 'TeX-update-style-hook #'writegood-mode)
     :config
     (add-to-list 'writegood-weasel-words "actionable"))
-#+END_SRC
+#+end_src
 
 Add =langtool= as an additional tool to use
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package langtool
     :config
     (setq langtool-language-tool-jar "/usr/local/Cellar/languagetool/4.3/libexec/languagetool-commandline.jar"))
-#+END_SRC
+#+end_src
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package writeroom-mode
     :bind (:map writeroom-mode-map
                 ("C-s-," . writeroom-decrease-width)
                 ("C-s-." . writeroom-increase-width)
                 ("C-s-=" . writeroom-adjust-width))
     :config
+    (setq writeroom-width 120)
+    (advice-add 'text-scale-adjust :after #'visual-fill-column-adjust))
+
     (add-hook 'LaTeX-mode-hook 'writeroom-mode)
     (add-hook 'LaTeX-mode-hook 'adaptive-wrap-prefix-mode)
     (add-hook 'LaTeX-mode-hook 'visual-line-mode)
-    (setq writeroom-width 120)
-    (advice-add 'text-scale-adjust :after #'visual-fill-column-adjust))
-#+END_SRC
+#+end_src
 
 ** Thesaurus and dictionary
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (with-system darwin
     (use-package osx-dictionary
       :bind (("M-\\" . osx-dictionary-search-pointer))))
-#+END_SRC
+#+end_src
 
-* Language Server (LSP)
+* COMMENT Language Server (LSP)
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package lsp-mode
     :commands lsp lsp-deferred
     :custom
@@ -1123,50 +1098,42 @@ Add =langtool= as an additional tool to use
 
   ;; ;;  (use-package helm-lsp :commands helm-lsp-workspace-symbol)
   ;; ;;  (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
-#+END_SRC
+#+end_src
 
-* Auto-fill comments
-#+BEGIN_SRC emacs-lisp
+* COMMENT Auto-fill comments
+#+begin_src emacs-lisp
   (add-hook 'prog-mode (lambda ()
                          ((auto-fill-mode 1)
                           (setq comment-auto-fill-only-comments t))))
-#+END_SRC
+#+end_src
 * Javascript and "friends"
 
 Some additional modes for Javascript (rubbish language)
 
-#+BEGIN_SRC emacs-lisp
-  (use-package coffee-mode
-    :mode "\\.coffee\\'")
-#+END_SRC
-
 # Highlighting of mustache templates
 #
-# #+BEGIN_SRC emacs-lisp
+# #+begin_src emacs-lisp
 #   (use-package mustache-mode
-#     :ensure t
 #     :mode
 #     ("\\.mustache\\'" . web-mode))
-# #+END_SRC
+# #+end_src
 
-Highlighting for pug/jade templates
+# Highlighting for pug/jade templates
 
-#+BEGIN_SRC emacs-lisp
-  (use-package pug-mode
-    :mode ("\\.pug\\'" "\\.jade\\'")
-    :config
-    (setq pug-tab-width 4))
-#+END_SRC
+# #+begin_src emacs-lisp
+#   (use-package pug-mode
+#     :mode ("\\.pug\\'" "\\.jade\\'")
+#     :config
+#     (setq pug-tab-width 4))
+# #+end_src
 
-#+BEGIN_SRC emacs-lisp
-  (use-package add-node-modules-path
-    :ensure t)
+#+begin_src emacs-lisp
+  (use-package add-node-modules-path)
 
   (use-package js2-mode
-    :ensure t
     :after (add-node-modules-path)
     :interpreter (("node" . js2-mode))
-    :bind (:map js2-mode-map ("C-c C-p" . js2-print-json-path))
+;;    :bind (:map js2-mode-map ("C-c C-p" . js2-print-json-path))
     :mode "\\.\\(js\\|json\\)$"
     :config
     (add-hook 'js-mode-hook 'js2-minor-mode)
@@ -1176,21 +1143,20 @@ Highlighting for pug/jade templates
           js2-highlight-level 3
           js2-mode-show-parse-errors nil
           js2-mode-show-strict-warnings nil))
-#+END_SRC
+#+end_src
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package prettier-js
-    :ensure t
     :after (js2-mode add-node-modules-path)
     :hook (js2-mode . prettier-js-mode))
-#+END_SRC
+#+end_src
 
 * Elm
 
 Add =elm-mode= and =flycheck= configuration for editing of elm
 buffers.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package flycheck-elm
     :after flycheck
     :hook (flycheck-mode . flycheck-elm-setup))
@@ -1202,13 +1168,13 @@ buffers.
     :config
     (add-hook 'after-init-hook #'global-flycheck-mode)
     (add-hook 'elm-mode-hook #'elm-format-on-save-mode))
-#+END_SRC
+#+end_src
 
 * Haskell
 
 Some _very_ basic Haskell config
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (defun fix-imports ()
     "Fixes imports."
     (interactive)
@@ -1217,19 +1183,19 @@ Some _very_ basic Haskell config
 
   (use-package haskell-mode
     :mode "\\.hs\\'")
-#+END_SRC
+#+end_src
 
 * Polymode
 
 Define polymode to allow multiple modes in a single buffer. Handy for
 =knitr= and friends
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package polymode
     :mode
     (("\\.Rnw" . poly-noweb+r-mode)
      ("\\.Rtex" . poly-noweb+r-mode)))
-#+END_SRC
+#+end_src
 
 * LaTeX
 
@@ -1242,42 +1208,42 @@ pathing for files to correctly allow for the automatic setting of the
 =TeX-master= variable, removing the need to spoil the source files
 themselves with local config comment strings.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (defun ales/fill-paragraph (&optional P)
     "When called with prefix argument call `fill-paragraph'.
   Otherwise split the current paragraph into one sentence per line.
   Optional argument P Dunno?"
     (interactive "P")
     (if (not P)
-        (save-excursion
-          (let ((fill-column 12345678)) ;; relies on dynamic binding
-            (fill-paragraph) ;; this will not work correctly if the paragraph is
-                             ;; longer than 12345678 characters (in which case the
-                             ;; file must be at least 12MB long. This is unlikely.)
-            (let ((end (save-excursion
-                         (forward-paragraph 1)
-                         (backward-sentence)
-                         (point-marker))))  ;; remember where to stop
-              (beginning-of-line)
-              (while (progn (forward-sentence)
-                            (<= (point) (marker-position end)))
-                (just-one-space) ;; leaves only one space, point is after it
-                (delete-char -1) ;; delete the space
-                (newline)        ;; and insert a newline
-                (LaTeX-indent-line) ;; I only use this in combination with late, so this makes sense
-                ))))
+	(save-excursion
+	  (let ((fill-column 12345678)) ;; relies on dynamic binding
+	    (fill-paragraph) ;; this will not work correctly if the paragraph is
+			     ;; longer than 12345678 characters (in which case the
+			     ;; file must be at least 12MB long. This is unlikely.)
+	    (let ((end (save-excursion
+			 (forward-paragraph 1)
+			 (backward-sentence)
+			 (point-marker))))  ;; remember where to stop
+	      (beginning-of-line)
+	      (while (progn (forward-sentence)
+			    (<= (point) (marker-position end)))
+		(just-one-space) ;; leaves only one space, point is after it
+		(delete-char -1) ;; delete the space
+		(newline)        ;; and insert a newline
+		(LaTeX-indent-line) ;; I only use this in combination with late, so this makes sense
+		))))
       ;; otherwise do ordinary fill paragraph
       (fill-paragraph P)))
 
   (defun extract-default-files ()
     "Extract latex project main file from the Makefile in a temporary buffer."
     (let* ((default-directory (locate-dominating-file "." "Makefile"))
-           (target-file (concat default-directory "Makefile")))
+	   (target-file (concat default-directory "Makefile")))
       (with-temp-buffer
-        (insert-file-contents target-file)
-        (goto-char (point-min))
-        (when (re-search-forward "MAINFILE\s+:=\s+\\(.*\\)\s*")
-          (concat default-directory (match-string 1))))
+	(insert-file-contents target-file)
+	(goto-char (point-min))
+	(when (re-search-forward "MAINFILE\s+:=\s+\\(.*\\)\s*")
+	  (concat default-directory (match-string 1))))
       ))
 
   (defun relative-master (path)
@@ -1296,18 +1262,19 @@ themselves with local config comment strings.
     ;; Sweave/knitr interactions
     (dolist ($buf (buffer-list (current-buffer)))
       (with-current-buffer $buf
-        (when (eq (buffer-local-value 'major-mode $buf) 'pdf-view-mode)
-          (message "Reloading PDF: %s" (buffer-name $buf))
-          (pdf-view-revert-buffer :ignore-auto :noconfirm)))))
+	(when (eq (buffer-local-value 'major-mode $buf) 'pdf-view-mode)
+	  (message "Reloading PDF: %s" (buffer-name $buf))
+	  (pdf-view-revert-buffer :ignore-auto :noconfirm)))))
 
   (use-package tex-site
     :ensure auctex
     :after (tex latex)
+    :defer t
     :mode
     (("\\.tex\\'" . LaTeX-mode))
     :commands (latex-mode LaTeX-mode plain-tex-mode)
-    :bind (:map LaTeX-mode-map
-                ("M-q" . ales/fill-paragraph))
+    :general
+    (LaTeX-mode-map "M-q" 'ales/fill-paragraph)
     :init
     (add-hook 'LaTeX-mode-hook 'LaTeX-preview-setup)
     (add-hook 'LaTeX-mode-hook 'flyspell-mode)
@@ -1320,41 +1287,41 @@ themselves with local config comment strings.
 
     ;; to use pdfview with auctex
     (setq TeX-view-program-selection '((output-pdf "pdf-tools"))
-          TeX-source-correlate-start-server t)
+	  TeX-source-correlate-start-server t)
     (setq TeX-view-program-list '(("pdf-tools" "TeX-pdf-tools-sync-view")))
 
     (add-hook 'LaTeX-mode-hook (lambda ()
-                                 (setq TeX-master (relative-master (buffer-file-name)))
-                                 (add-to-list 'TeX-command-list '("Make" "make" TeX-run-TeX nil t))
-                                 (add-to-list 'TeX-command-list
-                                              '("custom" "something"
-                                                (lambda (name command file)
-                                                  (message name command file)
-                                                  (let ((TeX-save-query nil)
-                                                        (TeX-process-asynchronous t)
-                                                        (TeX-error-overview-open-after-TeX-run t)
-                                                        (master-file (TeX-master-file))
-                                                        (process (TeX-command-menu "Make")))
-                                                    (set-process-sentinel process 'reload-after-TeX-complete)))
-                                                nil t)
-                                              )
-                                 ))
+				 (setq TeX-master (relative-master (buffer-file-name)))
+				 (add-to-list 'TeX-command-list '("Make" "make" TeX-run-TeX nil t))
+				 (add-to-list 'TeX-command-list
+					      '("custom" "something"
+						(lambda (name command file)
+						  (message name command file)
+						  (let ((TeX-save-query nil)
+							(TeX-process-asynchronous t)
+							(TeX-error-overview-open-after-TeX-run t)
+							(master-file (TeX-master-file))
+							(process (TeX-command-menu "Make")))
+						    (set-process-sentinel process 'reload-after-TeX-complete)))
+						nil t)
+					      )
+				 ))
 
     (add-hook 'outline-minor-mode-hook
-              (lambda ()
-                (define-key outline-minor-mode-map ["\C-o"] 'outline-cycle)))
+	      (lambda ()
+		(define-key outline-minor-mode-map ["\C-o"] 'outline-cycle)))
     :config
     (setq TeX-auto-save t
-          TeX-parse-self t
-          TeX-save-query nil
-          TeX-command-force "custom"
-          TeX-PDF-mode t
-          reftex-plug-into-AUCTeX t
-          reftex-use-external-file-finders t
-          LaTeX-csquotes-open-quote "\\enquote{"
-          LaTeX-csquotes-close-quote "}"
-          reftex-bibliography-commands '("bibliography" "nobibliography" "addbibresource") ;; Make reftex try play nicer with biblatex
-          reftex-cite-format 'natbib)
+	  TeX-parse-self t
+	  TeX-save-query nil
+	  TeX-command-force "custom"
+	  TeX-PDF-mode t
+	  reftex-plug-into-AUCTeX t
+	  reftex-use-external-file-finders t
+	  LaTeX-csquotes-open-quote "\\enquote{"
+	  LaTeX-csquotes-close-quote "}"
+	  reftex-bibliography-commands '("bibliography" "nobibliography" "addbibresource") ;; Make reftex try play nicer with biblatex
+	  reftex-cite-format 'natbib)
 
     ;; Fancy verbatim config for code blocks in thesis
     (add-to-list 'LaTeX-verbatim-environments "code")
@@ -1362,41 +1329,41 @@ themselves with local config comment strings.
 
     ;; Spelling
     (setq ispell-tex-skip-alists
-          '((
-             ;;("%\\[" . "%\\]") ; AMStex block comment...
-             ;; All the standard LaTeX keywords from L. Lamport's guide:
-             ;; \cite, \hspace, \hspace*, \hyphenation, \include, \includeonly
-             ;; \input, \label, \nocite, \rule (in ispell - rest included here)
-             ("\\\\addcontentsline"              ispell-tex-arg-end 2)
-             ("\\\\add\\(tocontents\\|vspace\\)" ispell-tex-arg-end)
-             ("\\\\\\([aA]lph\\|arabic\\)"   ispell-tex-arg-end)
-             ("\\\\author"                         ispell-tex-arg-end)
-             ;; New regexps here --- kjh
-             ("\\\\\\(text\\|paren\\)cite" ispell-tex-arg-end)
-             ("\\\\cite\\(t\\|p\\|year\\|yearpar\\)" ispell-tex-arg-end)
-             ("\\\\bibliographystyle"                ispell-tex-arg-end)
-             ("\\\\gls"                ispell-tex-arg-end)
-             ("\\\\cref"               ispell-tex-arg-end)
-             ("\\\\makebox"                  ispell-tex-arg-end 0)
-             ("\\\\e?psfig"                  ispell-tex-arg-end)
-             ("\\\\document\\(class\\|style\\)" .
-              "\\\\begin[ \t\n]*{[ \t\n]*document[ \t\n]*}"))
-            (
-             ;; delimited with \begin.  In ispell: displaymath, eqnarray,
-             ;; eqnarray*, equation, minipage, picture, tabular,
-             ;; tabular* (ispell)
-             ("\\(figure\\|table\\)\\*?"     ispell-tex-arg-end 0)
-             ("\\(equation\\|eqnarray\\)\\*?"     ispell-tex-arg-end 0)
-             ("list"                                 ispell-tex-arg-end 2)
-             ("program" . "\\\\end[ \t\n]*{[ \t\n]*program[ \t\n]*}")
-             ("verbatim\\*?"."\\\\end[ \t\n]*{[ \t\n]*verbatim\\*?[ \t\n]*}")
-             ("lstlisting\\*?"."\\\\end[ \t\n]*{[ \t\n]*lstlisting\\*?[ \t\n]*}"))))
+	  '((
+	     ;;("%\\[" . "%\\]") ; AMStex block comment...
+	     ;; All the standard LaTeX keywords from L. Lamport's guide:
+	     ;; \cite, \hspace, \hspace*, \hyphenation, \include, \includeonly
+	     ;; \input, \label, \nocite, \rule (in ispell - rest included here)
+	     ("\\\\addcontentsline"              ispell-tex-arg-end 2)
+	     ("\\\\add\\(tocontents\\|vspace\\)" ispell-tex-arg-end)
+	     ("\\\\\\([aA]lph\\|arabic\\)"   ispell-tex-arg-end)
+	     ("\\\\author"                         ispell-tex-arg-end)
+	     ;; New regexps here --- kjh
+	     ("\\\\\\(text\\|paren\\)cite" ispell-tex-arg-end)
+	     ("\\\\cite\\(t\\|p\\|year\\|yearpar\\)" ispell-tex-arg-end)
+	     ("\\\\bibliographystyle"                ispell-tex-arg-end)
+	     ("\\\\gls"                ispell-tex-arg-end)
+	     ("\\\\cref"               ispell-tex-arg-end)
+	     ("\\\\makebox"                  ispell-tex-arg-end 0)
+	     ("\\\\e?psfig"                  ispell-tex-arg-end)
+	     ("\\\\document\\(class\\|style\\)" .
+	      "\\\\begin[ \t\n]*{[ \t\n]*document[ \t\n]*}"))
+	    (
+	     ;; delimited with \begin.  In ispell: displaymath, eqnarray,
+	     ;; eqnarray*, equation, minipage, picture, tabular,
+	     ;; tabular* (ispell)
+	     ("\\(figure\\|table\\)\\*?"     ispell-tex-arg-end 0)
+	     ("\\(equation\\|eqnarray\\)\\*?"     ispell-tex-arg-end 0)
+	     ("list"                                 ispell-tex-arg-end 2)
+	     ("program" . "\\\\end[ \t\n]*{[ \t\n]*program[ \t\n]*}")
+	     ("verbatim\\*?"."\\\\end[ \t\n]*{[ \t\n]*verbatim\\*?[ \t\n]*}")
+	     ("lstlisting\\*?"."\\\\end[ \t\n]*{[ \t\n]*lstlisting\\*?[ \t\n]*}"))))
     )
-#+END_SRC
+#+end_src
 
 Now add =pdf-tools= for nicer PDF interactions
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package pdf-tools
     :defer t
     :magic ("%PDF" . pdf-view-mode)
@@ -1412,24 +1379,24 @@ Now add =pdf-tools= for nicer PDF interactions
     (setq pdf-annot-activate-created-annotations t)
     ;; use normal isearch
     (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward))
-#+END_SRC
+#+end_src
 
 * R
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package poly-R)
-#+END_SRC
+#+end_src
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package ess
     :after ess-site)
-#+END_SRC
+#+end_src
 
 * Scala
 
 Use =scala-mode= for scala syntax highlighting
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package scala-mode
     :mode "\\.s\\(cala\\|bt\\)$")
 
@@ -1442,11 +1409,11 @@ Use =scala-mode= for scala syntax highlighting
      'minibuffer-complete-word
      'self-insert-command
      minibuffer-local-completion-map))
-#+END_SRC
+#+end_src
 
 * Terraform
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package terraform-mode
     :mode "\\.tf\\'")
 
@@ -1454,38 +1421,37 @@ Use =scala-mode= for scala syntax highlighting
     :after terraform-mode
     :config
     (company-terraform-init))
-#+END_SRC
+#+end_src
 
 * Dhall
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package dhall-mode
     :mode ("\\.dhall\\'"))
-#+END_SRC
+#+end_src
 
 * YAML
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package yaml-mode
     :mode ("\\.y[a?]ml\\'"))
 
-#+END_SRC
+#+end_src
 
 * Ledger
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package ledger-mode
-    :ensure t
     :mode "\\.ledger\\'"
     :config
     (setq ledger-reconcile-default-commodity "R")
     :init
     (setq ledger-clear-whole-transactions 1))
-#+END_SRC
+#+end_src
 
 Flycheck-ledger
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package flycheck-ledger
     :after flycheck)
-#+END_SRC
+#+end_src
