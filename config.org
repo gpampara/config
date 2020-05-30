@@ -9,16 +9,16 @@ possible.
 * Configure package sources
 
 #+begin_src emacs-lisp
-  (when (eval-when-compile (version< emacs-version "27"))
-    (load "~/.emacs.d/early-init.el"))
+    (when (eval-when-compile (version< emacs-version "27"))
+      (load "~/.emacs.d/early-init.el"))
 
-  (setq package-enable-at-startup nil)
+    (setq package-enable-at-startup nil)
 
-  (setq package-archives
-	'(("gnu" . "https://elpa.gnu.org/packages/")
-	  ("melpa" . "https://melpa.org/packages/")))
-
-;;  (package-initialize)
+    (setq package-archives
+          '(("gnu" . "https://elpa.gnu.org/packages/")
+            ("melpa" . "https://melpa.org/packages/")
+            ("org" . "https://orgmode.org/elpa/")))
+  ;;  (package-initialize)
 #+end_src
 
 # * Benchmark setup
@@ -222,9 +222,15 @@ Which key to show a list of keys that follow a speicific key-chord
     (general-override-mode 1)
 
     (general-define-key
-      "C-:" 'avy-goto-char-timer
-      "C-s" 'swiper-isearch
-      "M-x" 'counsel-M-x
+      "C-c e"   'find-user-init-file
+      "C-c r"   'load-user-init-file
+
+      "C-:"     'avy-goto-char-timer
+      "C-s"     'swiper-isearch
+      "M-x"     'counsel-M-x
+      "C-x C-b" 'ibuffer
+      "C-x b"   'ivy-switch-buffer
+      "C-x C-f" 'counsel-find-file
       )
 
     (general-define-key
@@ -239,31 +245,20 @@ Which key to show a list of keys that follow a speicific key-chord
     :commands (avy-goto-char-timer))
 #+end_src
 
-* ivy
-
-Use the ivy completion frontend, and the set of ivy-enhanced emacs commands
-
-#+begin_src emacs-lisp
-  (use-package ivy
-    :diminish ivy-mode
-    :after (swiper,counsel)
-    :config
-    (ivy-mode 1))
-#+end_src
-
 * counsel
 
 #+begin_src emacs-lisp
-  (use-package counsel
-    :defer t
-    ;:config
-    ;(setq counsel-ag-base-command "ag --skip-vcs-ignores --vimgrep %s")
-    ;(global-set-key (kbd "M-x") 'counsel-M-x)
-    ;(global-set-key (kbd "C-x C-f") 'counsel-find-file)
-    ;(global-set-key (kbd "C-c g") 'counsel-git)
-    ;(global-set-key (kbd "C-c j") 'counsel-rg)
-    ;(global-set-key (kbd "C-c k") 'counsel-git-grep)
-    )
+    (use-package counsel
+      :defer t
+      ;:config
+      ;(setq counsel-ag-base-command "ag --skip-vcs-ignores --vimgrep %s")
+      ;(global-set-key (kbd "M-x") 'counsel-M-x)
+      ;(global-set-key (kbd "C-x C-f") 'counsel-find-file)
+      ;(global-set-key (kbd "C-c g") 'counsel-git)
+      ;(global-set-key (kbd "C-c j") 'counsel-rg)
+      ;(global-set-key (kbd "C-c k") 'counsel-git-grep)
+      :general
+      ("C-c k" 'counsel-rg))
 #+end_src
 
 * swiper
@@ -279,6 +274,17 @@ Use the ivy enhanced version of =isearch=
                                           ;(global-set-key (kbd "C-c C-r") 'ivy-resume)
                                           ;(global-set-key (kbd "<f6>") 'ivy-resume)
     )
+#+end_src
+
+* ivy
+
+Use the ivy completion frontend, and the set of ivy-enhanced emacs commands
+
+#+begin_src emacs-lisp
+  (use-package ivy
+    :diminish ivy-mode
+    :config
+    (ivy-mode 1))
 #+end_src
 
 * ivy-rich
@@ -309,14 +315,15 @@ amx is the evolution of smex which provides commands that have been used previou
     (amx-mode 1))
 #+end_src
 
-* COMMENT crux
+* crux
 =crux= has useful functions extracted from Emacs Prelude. Set `C-a` to
 move to the first non-whitespace character on a line, and then to
 toggle between that and the beginning of the line.
 
 #+begin_src emacs-lisp
-(use-package crux
-    :bind (("C-a" . crux-move-beginning-of-line)))
+  (use-package crux
+    :general
+    ("C-a" 'crux-move-beginning-of-line))
 #+end_src
 
 * Delete trailing whitespace
@@ -327,7 +334,7 @@ I *never* want whitespace at the end of lines. Remove it on save.
  (add-hook 'before-save-hook 'delete-trailing-whitespace)
 #+end_src
 
-* COMMENT PCRE in emacs
+* PCRE in emacs
 
 Use a plainer syntax for regexp
 
@@ -337,16 +344,12 @@ Use a plainer syntax for regexp
     (pcre-mode))
 #+end_src
 
+* COMMENT ls-lisp
+
 #+begin_src emacs-lisp
   (when (eq system-type 'darwin)
     (require 'ls-lisp)
     (setq ls-lisp-use-insert-directory-program nil))
-#+end_src
-
-Some system config for encoding
-
-#+begin_src emacs-lisp
-  (set-language-environment "UTF-8")
 #+end_src
 
 * COMMENT Fonts within emacs
@@ -397,7 +400,7 @@ Add a helper for long running commands with a lot of output that is not friendly
     (define-key eshell-mode-map (kbd "<tab>")
       (lambda () (interactive) (pcomplete-std-complete)))))
 #+end_src
-* Direnv
+* direnv
 
 #+begin_src emacs-lisp
   (use-package direnv
@@ -498,11 +501,10 @@ Add expand-region
   (use-package wgrep)
 #+end_src
 
-* COMMENT ibuffer
+* ibuffer
 
 Prefer the use of =ibuffer= instead of the default buffer list
 #+begin_src emacs-lisp
-  (global-set-key (kbd "C-x C-b") 'ibuffer)
   (setq ibuffer-saved-filter-groups
         '(("default"
            ("emacs-config" (or (filename . ".emacs.d")
@@ -581,7 +583,7 @@ Simpler interactions with the kill-ring
     ("M-y" 'popup-kill-ring))
 #+end_src
 
-* COMMENT Hungry delete
+* hungry-delete
 
 Automatically delete whitespace in a sensible way with "smart" hungry delete
 
@@ -681,6 +683,8 @@ Inline display of colours
     (add-hook 'prog-mode-hook 'rainbow-mode))
 #+end_src
 
+* COMMENT beacon
+
 # Add a visual inidcator when switching to a different window
 
 #+begin_src emacs-lisp
@@ -689,16 +693,22 @@ Inline display of colours
   ;;   (beacon-mode 1))
 #+end_src
 
-* COMMENT hippie-expand
+* hippie-expand
 
 #+begin_src emacs-lisp
-  (global-set-key (kbd "M-/") 'hippie-expand)
+  (general-define-key "M-/" 'hippie-expand)
+
   (setq hippie-expand-try-functions-list
         '(try-expand-dabbrev
-          try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill
-          try-complete-file-name-partially try-complete-file-name
-          try-expand-all-abbrevs try-expand-list try-expand-line
-          try-complete-lisp-symbol-partially try-complete-lisp-symbol))
+          try-expand-dabbrev-all-buffers
+          try-expand-dabbrev-from-kill
+          try-complete-file-name-partially
+          try-complete-file-name
+          try-expand-all-abbrevs
+          try-expand-list
+          try-expand-line
+          try-complete-lisp-symbol-partially
+          try-complete-lisp-symbol))
 #+end_src
 
 * rainbow-delimeters
@@ -802,7 +812,7 @@ Highlight TODO / FIXME strings in buffers
 #     :hook prog-mode)
 # #+end_src
 
-* COMMENT Dumb-jump
+* COMMENT dumb-jump
 
 #+begin_src emacs-lisp
   (use-package dumb-jump
@@ -861,7 +871,18 @@ Highlight TODO / FIXME strings in buffers
  #+end_src
 
 * org-mode
-** Appearance
+
+#+begin_src emacs-lisp
+  (use-package org
+    :mode (("\\.org\\'" . org-mode))
+    :ensure org-plus-contrib
+    :general
+    ("C-c l" 'org-store-link)
+    ("C-c a" 'org-agenda)
+    ("C-C c" 'org-capture))
+#+end_src
+
+** org-bullets
 
 Improve the appearance of bullet points in Emacs:
 
@@ -872,6 +893,8 @@ Improve the appearance of bullet points in Emacs:
     (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 #+end_src
 
+** priority colours
+
 Set colours for priorities
 
 #+begin_src emacs-lisp
@@ -879,19 +902,7 @@ Set colours for priorities
                            (?B . (:foreground "LightSteelBlue"))
                            (?C . (:foreground "OliveDrab"))))
 #+end_src
-
-** COMMENT Keybinds
-
-Define org-mode related keybinds:
-
-#+begin_src emacs-lisp
-  (define-key global-map (kbd "C-c l") 'org-store-link)
-  (define-key global-map (kbd "C-c a") 'org-agenda)
-  (define-key global-map (kbd "C-c c") 'org-capture)
-  (setq org-log-done t)
-#+end_src
-
-** COMMENT Agenda file locations
+** Agenda file locations
 
 Define the locations of the different org files:
 
@@ -923,7 +934,7 @@ Add =org-alert= to display some alerts on the desktop
 
 #+end_src
 
-** COMMENT org-capture templates
+** org-capture templates
 
 #+begin_src emacs-lisp
   (setq org-capture-templates
