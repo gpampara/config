@@ -67,6 +67,27 @@ Define an auto-update schedule for packages
   ;; (use-package use-package-ensure-system-package)
 #+end_src
 
+* Load user custom settings
+
+#+begin_src emacs-lisp
+  (setq custom-file "~/.emacs.d/custom-settings.el")
+  (load custom-file t)
+#+end_src
+
+* Shell environment variable import
+
+Adjust shell environment variables, if needed
+
+#+begin_src emacs-lisp
+  (use-package exec-path-from-shell
+    :if (memq window-system '(mac ns x))
+    :config
+    (setq exec-path-from-shell-variables '("PATH" "SHELL")) ;;"LANG" "LC_ALL" "LC_TYPE" "SHELL"))
+    (setq exec-path-from-shell-arguments '("-l"))
+    (exec-path-from-shell-initialize)
+    (setenv "LANG" "en_US"))
+#+end_src
+
 * Dependencies
 
 #+begin_src emacs-lisp
@@ -182,13 +203,6 @@ Reload the configuration
     (interactive)
     (org-babel-load-file (expand-file-name "~/.emacs.d/config.org")))
   ;(global-set-key (kbd "C-c r") 'config-reload)
-#+end_src
-
-* Load user custom settings
-
-#+begin_src emacs-lisp
-  (setq custom-file "~/.emacs.d/custom-settings.el")
-  (load custom-file t)
 #+end_src
 
 * Load user secrets
@@ -344,32 +358,21 @@ Use a plainer syntax for regexp
     (pcre-mode))
 #+end_src
 
-* COMMENT ls-lisp
+* ls-lisp
+
+On Darwin the version of =ls= does not support an option which is present in GNU coreutils' version of `ls`
 
 #+begin_src emacs-lisp
   (when (eq system-type 'darwin)
-    (require 'ls-lisp)
-    (setq ls-lisp-use-insert-directory-program nil))
+    (setq ls-lisp-use-insert-directory-program nil)
+    (require 'ls-lisp))
+
 #+end_src
 
-* COMMENT Fonts within emacs
+* Fonts within emacs
 
 #+begin_src emacs-lisp
 ;;  (set-face-attribute 'default nil :family "Iosevka" :height 130)
-#+end_src
-
-* Shell environment variable import
-
-Adjust shell environment variables, if needed
-
-#+begin_src emacs-lisp
-  (use-package exec-path-from-shell
-    :if (memq window-system '(mac ns x))
-    :config
-    (setq exec-path-from-shell-variables '("PATH" "SHELL")) ;;"LANG" "LC_ALL" "LC_TYPE" "SHELL"))
-    (setq exec-path-from-shell-arguments '("-l"))
-    (exec-path-from-shell-initialize)
-    (setenv "LANG" "en_US"))
 #+end_src
 
 * COMMENT eshell
@@ -404,35 +407,10 @@ Add a helper for long running commands with a lot of output that is not friendly
 
 #+begin_src emacs-lisp
   (use-package direnv
+    :after warning
     :config
-    (direnv-mode)
-    (defun direnv--export (directory)
-      "Call direnv for DIRECTORY and return the parsed result."
-      (unless direnv--installed
-        (setq direnv--installed (direnv--detect)))
-      (unless direnv--installed
-        (user-error "Could not find the direnv executable. Is exec-path correct?"))
-      (let ((environment process-environment)
-            (stderr-tempfile (make-temp-file "direnv-stderr"))) ;; call-process needs a file for stderr output
-        (unwind-protect
-            (with-current-buffer (get-buffer-create direnv--output-buffer-name)
-              (erase-buffer)
-              (let* ((default-directory directory)
-                     (process-environment environment)
-                     (exit-code (call-process "direnv" nil `(t ,stderr-tempfile) nil "export" "json"))
-                     (json-key-type 'string))
-                (prog1
-                    (unless (zerop (buffer-size))
-                      (goto-char (point-max))
-                      (re-search-backward "^{")
-                      (json-read-object))
-                  (unless (zerop (direnv--file-size stderr-tempfile))
-                    (goto-char (point-max))
-                    (unless (zerop (buffer-size))
-                      (insert "\n\n"))
-                    (insert-file-contents stderr-tempfile)))))
-          (delete-file stderr-tempfile))))
-    )
+    ;;(add-to-list 'warning-suppress-types '(direnv))
+    (direnv-mode))
 #+end_src
 
 * disable-mouse
@@ -812,51 +790,51 @@ Highlight TODO / FIXME strings in buffers
 #     :hook prog-mode)
 # #+end_src
 
-* COMMENT dumb-jump
+* dumb-jump
 
 #+begin_src emacs-lisp
-  (use-package dumb-jump
-    ;; :bind (("M-g o" . dumb-jump-go-other-window)
-    ;;        ("M-g j" . dumb-jump-go)
-    ;;        ("M-g x" . dumb-jump-go-prefer-external)
-    ;;        ("M-g z" . dumb-jump-go-prefer-external-other-window))
-    :init
-    (dumb-jump-mode)
-    :config
-    (setq dumb-jump-selector 'ivy)
-    ;; Add some config for elm files
-    (nconc dumb-jump-language-file-exts
-           '((:language "elm" :ext "elm" :agtype "elm" :rgtype "elm")))
-    (nconc dumb-jump-language-comments
-           '((:comment "--" :language "elm")))
-    (nconc dumb-jump-find-rules
-           ;; Rules, based off the haskell syntax
-           '((:type "module" :supports ("ag" "rg") :language "elm"
-                    :regex "^module\\s+JJJ\\s+"
-                    :tests ("model Test exposing (exportA, exportB)"))
+    (use-package dumb-jump
+      :general
+      ("M-g o" 'dumb-jump-go-other-window)
+      ("M-g j" 'dumb-jump-go)
+      ("M-g x" 'dumb-jump-go-prefer-external)
+      ("M-g z" 'dumb-jump-go-prefer-external-other-window)
+      :init
+      (dumb-jump-mode)
+      :config
+      (setq dumb-jump-selector 'ivy)
+      ;; Add some config for elm files
+      (nconc dumb-jump-language-file-exts
+             '((:language "elm" :ext "elm" :agtype "elm" :rgtype "elm")))
+      (nconc dumb-jump-language-comments
+             '((:comment "--" :language "elm")))
+      (nconc dumb-jump-find-rules
+             ;; Rules, based off the haskell syntax
+             '((:type "module" :supports ("ag" "rg") :language "elm"
+                      :regex "^module\\s+JJJ\\s+"
+                      :tests ("model Test exposing (exportA, exportB)"))
 
-             (:type "type" :supports ("ag" "rg" "grep" "git-grep") :language "elm"
-                    :regex "^type\\s+JJJ\\b"
-                    :tests ("type Test"))
-             (:type "type" :supports ("ag" "rg" "grep" "git-grep") :language "elm"
-                    :regex "^type\\s+alias\\s+JJJ\\b"
-                    :tests ("type alias Test" "type alias Model ="))
-             (:type "function" :supports ("ag" "rg" "grep" "git-grep") :language "elm"
-                    :regex "^port\\s+JJJ\\b\\s*:[^:]"
-                    :tests ("port requestPopup :"))
-             (:type "function" :supports ("ag" "rg" "grep" "git-grep") :language "elm"
-                    :regex "^\\s*JJJ\\s*:[^:].*->.*"
-                    :tests ("foo : Int -> Int"))
-             ))
-    ;;--regex-Elm=/^ *([[:lower:]][[:alnum:]_]+)[[:blank:]]*:[^:][^-]+$/\1/c,constant,constants/
-    )
+               (:type "type" :supports ("ag" "rg" "grep" "git-grep") :language "elm"
+                      :regex "^type\\s+JJJ\\b"
+                      :tests ("type Test"))
+               (:type "type" :supports ("ag" "rg" "grep" "git-grep") :language "elm"
+                      :regex "^type\\s+alias\\s+JJJ\\b"
+                      :tests ("type alias Test" "type alias Model ="))
+               (:type "function" :supports ("ag" "rg" "grep" "git-grep") :language "elm"
+                      :regex "^port\\s+JJJ\\b\\s*:[^:]"
+                      :tests ("port requestPopup :"))
+               (:type "function" :supports ("ag" "rg" "grep" "git-grep") :language "elm"
+                      :regex "^\\s*JJJ\\s*:[^:].*->.*"
+                      :tests ("foo : Int -> Int"))
+               ))
+      ;;--regex-Elm=/^ *([[:lower:]][[:alnum:]_]+)[[:blank:]]*:[^:][^-]+$/\1/c,constant,constants/
+      )
 #+end_src
 * Nix and nixpkg
 
 #+begin_src emacs-lisp
   (use-package nix-mode
     :mode "\\.nix\\'")
-
 #+end_src
 
 * COMMENT Terminal
@@ -882,7 +860,21 @@ Highlight TODO / FIXME strings in buffers
     ("C-C c" 'org-capture))
 #+end_src
 
-** org-bullets
+Nicer indenting in =org-mode= files
+
+#+begin_src emacs-lisp
+  (add-hook 'org-mode-hook 'org-indent-mode)
+#+end_src
+
+Set colours for priorities
+
+#+begin_src emacs-lisp
+(setq org-priority-faces '((?A . (:foreground "#F0DFAF" :weight bold))
+                           (?B . (:foreground "LightSteelBlue"))
+                           (?C . (:foreground "OliveDrab"))))
+#+end_src
+
+* org-bullets
 
 Improve the appearance of bullet points in Emacs:
 
@@ -893,52 +885,27 @@ Improve the appearance of bullet points in Emacs:
     (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 #+end_src
 
-** priority colours
-
-Set colours for priorities
-
-#+begin_src emacs-lisp
-(setq org-priority-faces '((?A . (:foreground "#F0DFAF" :weight bold))
-                           (?B . (:foreground "LightSteelBlue"))
-                           (?C . (:foreground "OliveDrab"))))
-#+end_src
-** Agenda file locations
+* org-agenda
 
 Define the locations of the different org files:
 
 #+begin_src emacs-lisp
-  (setq org-agenda-files (list "~/org/gtd.org"
+  (setq org-agenda-files (list "~/org/thesis-todo.org"
+                               "~/org/gtd.org"
                                "~/org/projects.org"
                                "~/org/work.org"
                                "~/org/calendar.org"
                                "~/org/call.org"))
 #+end_src
 
-Nicer indenting in =org-mode= files
-
-#+begin_src emacs-lisp
-  (add-hook 'org-mode-hook 'org-indent-mode)
-#+end_src
-
-** COMMENT Alerts
-
-Add =org-alert= to display some alerts on the desktop
-
-#+begin_src emacs-lisp
-  (use-package org-alert
-    :config
-    (with-system darwin
-                 (setq alert-default-style 'message))
-    (with-system gnu/linux
-                 (setq alert-default-style 'libnotify)))
-
-#+end_src
-
-** org-capture templates
+* org-capture templates
 
 #+begin_src emacs-lisp
   (setq org-capture-templates
-        '(("t" "Todo" entry
+        '(("T" "Thesis todo" entry
+           (file+headline "~/org/thesis-todo.org" "Thesis Tasks")
+           "* TODO %?\n  %i\n  %a")
+          ("t" "Todo" entry
            (file+headline "~/org/gtd.org" "Tasks")
            "* TODO %?\n  %i\n  %a")
           ("p" "Project Todo" entry
@@ -953,7 +920,7 @@ Add =org-alert= to display some alerts on the desktop
           ))
 #+end_src
 
-** COMMENT org-beamer
+* COMMENT org-beamer
 
 #+begin_src emacs-lisp
 (eval-after-load "ox-latex"
@@ -971,7 +938,7 @@ Add =org-alert= to display some alerts on the desktop
                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))))
 #+end_src
 
-** COMMENT org-noter
+* COMMENT org-noter
 
 #+begin_src emacs-lisp
   (use-package org-noter
@@ -981,7 +948,7 @@ Add =org-alert= to display some alerts on the desktop
           org-noter-separate-notes-from-heading t))
 #+end_src
 
-** COMMENT org-roam
+* org-roam
 
 #+begin_src emacs-lisp
   (use-package org-roam
@@ -990,24 +957,101 @@ Add =org-alert= to display some alerts on the desktop
     :bind (:map org-roam-mode-map
                 (("C-c n l" . org-roam)
                  ("C-c n f" . org-roam-find-file)
-                 ("C-c n b" . org-roam-switch-to-buffer)
-                 ("C-c n g" . org-roam-graph))
+                 ("C-c n g" . org-roam-show-graph)
+                 ("C-c n c" . org-roam-capture))
                 :map org-mode-map
-                (("C-c n i" . org-roam-insert)))
-    :custom
-    (org-roam-directory "~/org/roam/")
-    (org-roam-graph-executable "/usr/local/bin/dot"))
+                (("C-c n i" . org-roam-insert)
+                 ("C-c n b" . org-roam-switch-to-buffer)))
+    :config
+    (setq org-roam-list-files-commands '(elisp)) ; Use elisp to recurse the current directory
+    (setq org-roam-directory "/Users/gpampara/org/roam/")
+
+    ;; redefine org-roam--list-files based on some debugging with jethro on the org-roam slack
+    ;; (defun org-roam--list-files (dir)
+  ;;     "Return all Org-roam files located recursively within DIR.
+  ;; Use external shell commands if defined in `org-roam-list-files-commands'."
+  ;;     (let (path exe)
+  ;;       (cl-dolist (cmd org-roam-list-files-commands)
+  ;;         (pcase cmd
+  ;;         (`(,e . ,path)
+  ;;          (setq path (executable-find path)
+  ;;                exe  (symbol-name e)))
+  ;;         ((pred symbolp)
+  ;;          (setq path (executable-find (symbol-name cmd))
+  ;;                exe (symbol-name cmd)))
+  ;;         (wrong-type
+  ;;          (signal 'wrong-type-argument
+  ;;                  `((consp symbolp)
+  ;;                    ,wrong-type))))
+  ;;         (when path (cl-return)))
+  ;;       (if-let* ((files (when path
+  ;;                          (let ((fn (intern (concat "org-roam--list-files-" exe))))
+  ;;                            (unless (fboundp fn) (user-error "%s is not an implemented search method" fn))
+  ;;                            (funcall fn path (format "\"%s\"" dir)))))
+  ;;                 (files (mapcar #'ansi-color-filter-apply files)) ; strip ansi codes
+  ;;                 (files (seq-filter #'org-roam--org-roam-file-p files))
+  ;;                 (files (mapcar #'expand-file-name files))) ; canonicalize names
+  ;;           files
+  ;;         (org-roam--list-files-elisp dir))))
+    )
+
+  ;;    (use-package org-roam
+  ;;;;      :hook
+  ;;      (after-init . org-roam-mode)
+  ;;      :general
+  ;;      (:prefix "C-c n"
+  ;;               "f" 'org-roam-find-file
+  ;;               "l" 'org-roam
+  ;;               "b" 'org-roam-switch-to-buffer
+  ;;               "g" 'org-roam-graph
+  ;;               "i" 'org-roam-insert)
+  ;;      :init
+  ;;      (executable-find "sqlite3")
+  ;;      (setq org-roam-directory "/Users/gpampara/org/roam"))
+  ;;      ;;(org-roam-graph-executable "/usr/local/bin/dot"))
 #+end_src
 
 Completion with =company-mode=
 
 #+begin_src emacs-lisp
   (use-package company-org-roam
+    :after org-roam
     :config
     (push 'company-org-roam company-backends))
 #+end_src
 
-* COMMENT Writing
+* org-journal
+
+For fleeting day to day notes
+
+#+begin_src emacs-lisp
+  (use-package org-journal
+    :bind
+    ("C-c n j" . org-journal-new-entry)
+    :custom
+    (org-journal-dir "/Users/gpampara/org/roam/")
+    ;;(org-journal-date-prefix "* ")
+    (org-journal-file-format "%Y-%m-%d.org")
+    (org-journal-date-format "%A, %d %B %Y")
+
+    :config
+    (setq org-journal-enable-agenda-integration t
+          org-journal-file-type 'monthly)
+
+    (defun org-journal-file-header-func (time)
+      "Custom function to create journal header."
+      (concat
+       (pcase org-journal-file-type
+         (`daily "#+TITLE: Daily Journal\n#+STARTUP: showeverything")
+         (`weekly "#+TITLE: Weekly Journal\n#+STARTUP: folded")
+         (`monthly "#+TITLE: Monthly Journal\n#+STARTUP: folded")
+         (`yearly "#+TITLE: Yearly Journal\n#+STARTUP: folded"))))
+
+    (setq org-journal-file-header 'org-journal-file-header-func)
+    )
+#+end_src
+
+* Writing
 
 Upgrade the dictionary used to a more up-to-date, recent version.
 
@@ -1061,7 +1105,7 @@ Add =langtool= as an additional tool to use
     (advice-add 'text-scale-adjust :after #'visual-fill-column-adjust))
 
     (add-hook 'LaTeX-mode-hook 'writeroom-mode)
-    (add-hook 'LaTeX-mode-hook 'adaptive-wrap-prefix-mode)
+    ;;(add-hook 'LaTeX-mode-hook 'adaptive-wrap-prefix-mode)
     (add-hook 'LaTeX-mode-hook 'visual-line-mode)
 #+end_src
 
@@ -1128,28 +1172,24 @@ Add =langtool= as an additional tool to use
 #+end_src
 * Javascript and "friends"
 
-Some additional modes for Javascript (rubbish language)
-
-# Highlighting of mustache templates
-#
-# #+begin_src emacs-lisp
-#   (use-package mustache-mode
-#     :mode
-#     ("\\.mustache\\'" . web-mode))
-# #+end_src
-
-# Highlighting for pug/jade templates
-
-# #+begin_src emacs-lisp
-#   (use-package pug-mode
-#     :mode ("\\.pug\\'" "\\.jade\\'")
-#     :config
-#     (setq pug-tab-width 4))
-# #+end_src
-
 #+begin_src emacs-lisp
   (use-package add-node-modules-path)
+#+end_src
 
+Some additional modes for Javascript (rubbish language)
+
+#+begin_src emacs-lisp
+    (use-package web-mode
+      :mode (("\\.html$" . web-mode)
+             ("\\.mustache\\'" . web-mode)
+             ("\\.coffee\\'" . web-mode))
+      :hook ((web-mode . company-mode))
+      :config
+      ;; highlight matching tag
+      (setq web-mode-enable-current-element-highlight t))
+#+end_src
+
+#+begin_src emacs-lisp
   (use-package js2-mode
     :after (add-node-modules-path)
     :interpreter (("node" . js2-mode))
@@ -1169,6 +1209,12 @@ Some additional modes for Javascript (rubbish language)
   (use-package prettier-js
     :after (js2-mode add-node-modules-path)
     :hook (js2-mode . prettier-js-mode))
+#+end_src
+* coffeescript
+
+#+begin_src emacs-lisp
+  (use-package coffee-mode
+    :mode (("\\.coffee\\'" . coffee-mode)))
 #+end_src
 
 * Elm
@@ -1461,12 +1507,19 @@ Use =scala-mode= for scala syntax highlighting
 * Ledger
 
 #+begin_src emacs-lisp
+  (defun ledger-find-file ()
+    (interactive)
+    (find-file "~/ledger/ledger-2020.ledger"))
+
   (use-package ledger-mode
     :mode "\\.ledger\\'"
-    :config
-    (setq ledger-reconcile-default-commodity "R")
+    :general
+    (:prefix "C-c C-l"
+             "f" 'ledger-find-file)
     :init
-    (setq ledger-clear-whole-transactions 1))
+    (setq ledger-clear-whole-transactions 1)
+    :config
+    (setq ledger-reconcile-default-commodity "R"))
 #+end_src
 
 Flycheck-ledger
