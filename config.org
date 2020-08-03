@@ -220,6 +220,17 @@ Reload the configuration
   (setq ispell-personal-dictionary "~/.emacs.d/personal_dictionary")
 #+end_src
 
+Flyspell correct
+
+#+begin_src emacs-lisp
+  (use-package flyspell-correct
+    :after flyspell
+    :bind (:map flyspell-mode-map ("C-;" . flyspell-correct-wrapper)))
+
+  (use-package flyspell-correct-ivy
+    :after flyspell-correct)
+#+end_src
+
 * which-key
 
 Which key to show a list of keys that follow a speicific key-chord
@@ -236,7 +247,7 @@ Which key to show a list of keys that follow a speicific key-chord
     (which-key-mode 1))
 #+end_src
 
-* general.el (Keybinds)
+* general.el (keybinds)
 
 #+begin_src emacs-lisp
   (use-package general
@@ -474,28 +485,35 @@ Add expand-region
 #+end_src
 
 #+begin_src emacs-lisp
-  ; Use https://github.com/Silex/docker.el as some inspriation
-
-  ;; ;;;###autoload
-  ;; (defun magit-maintenance-list-merged-branches (&optional args)
-  ;;   "List local branches that are merged upstream"
-  ;;   (interactive)
-  ;;   (message "Have a look at https://github.com/Silex/docker.el for inspriation to use transient.el"))
-
-  ;; ;(autoload 'magit-mytools-dispatch "magit-mytools" nil t)
-  ;; (transient-define-prefix magit-mytools-dispatch ()
-  ;;   "Invoke a custome git command from magit."
-  ;;   ["Transient commands"
-  ;;    [("l" "List merged remove branches" magit-maintenance-list-merged-branches)]])
-
-  ;; (eval-after-load 'magit
-  ;;   '(progn
-  ;;      (define-key magit-mode-map "@" 'magit-mytools-dispatch)
-  ;;      (transient-append-suffix 'magit-dispatch "%"
-  ;;        '("@" "Custom Tools" magit-mytools-dispatch))))
+  (use-package transient
+    :ensure t)
 #+end_src
 
-* COMMENT wgrep
+#+begin_src emacs-lisp
+  ; Use https://github.com/Silex/docker.el as some inspriation
+  (require 'transient)
+
+  ;;;###autoload
+  (autoload 'magit-maintenance-list-merged-branches "magit-mytools" nil t)
+  (defun magit-maintenance-list-merged-branches (&optional args)
+    "List local branches that are merged upstream"
+    (let* ((deleted-branches (magit-git-lines "fetch -p --dry-run")))
+      (message deleted-branches)))
+
+  ;(autoload 'magit-mytools-dispatch "magit-mytools" nil t)
+  (transient-define-prefix magit-mytools-dispatch ()
+    "Invoke a custome git command from magit."
+    ["Transient commands"
+     [("l" "List merged remove branches" magit-maintenance-list-merged-branches)]])
+
+  (eval-after-load 'magit
+    '(progn
+       (define-key magit-mode-map "@" 'magit-mytools-dispatch)
+       (transient-append-suffix 'magit-dispatch "%"
+         '("@" "Custom Tools" magit-mytools-dispatch))))
+#+end_src
+
+* wgrep
 
 #+begin_src emacs-lisp
   (use-package wgrep)
@@ -504,6 +522,7 @@ Add expand-region
 * ibuffer
 
 Prefer the use of =ibuffer= instead of the default buffer list
+
 #+begin_src emacs-lisp
   (setq ibuffer-saved-filter-groups
         '(("default"
@@ -512,9 +531,9 @@ Prefer the use of =ibuffer= instead of the default buffer list
            ("Org" (or (mode . org-mode)
                       (filename . "OrgMode")))
            ("Magit" (name . "magit.*"))
-           ("Help" (or (name . ".*Help.*")
-                       (name . ".*Apropos.*")
-                       (name . ".*info.*"))))))
+           ("Help" (or (mode . help-mode)
+                       (mode . Info-mode)
+                       (name . ".*Apropos.*"))))))
 
   (add-hook 'ibuffer-mode-hook
             (lambda ()
@@ -655,7 +674,7 @@ Automatically delete whitespace in a sensible way with "smart" hungry delete
 Highlight the current line.
 
 #+begin_src emacs-lisp
-(global-hl-line-mode 1)
+;;(global-hl-line-mode 1)
 #+end_src
 
 * dashboard
@@ -683,14 +702,15 @@ Inline display of colours
     (add-hook 'prog-mode-hook 'rainbow-mode))
 #+end_src
 
-* COMMENT beacon
+* beacon
 
 # Add a visual inidcator when switching to a different window
 
 #+begin_src emacs-lisp
-  ;; (use-package beacon
-  ;;   :config
-  ;;   (beacon-mode 1))
+  (use-package beacon
+    :config
+    (setq beacon-size 20)
+    (beacon-mode 1))
 #+end_src
 
 * hippie-expand
@@ -803,14 +823,14 @@ Snippet support
     (yas-reload-all))
 #+end_src
 
-* COMMENT Mark TODO / FIXME items
+* Mark TODO / FIXME items
 
 Highlight TODO / FIXME strings in buffers
 
-# #+begin_src emacs-lisp
-#   (use-package fic-mode
-#     :hook prog-mode)
-# #+end_src
+#+begin_src emacs-lisp
+  (use-package fic-mode
+    :hook prog-mode)
+#+end_src
 
 * dumb-jump
 
@@ -828,33 +848,33 @@ Highlight TODO / FIXME strings in buffers
     (setq dumb-jump-selector 'ivy)
     (setq dumb-jump-force-searcher 'ag)
     ;; Add some config for elm files
-    (nconc dumb-jump-language-file-exts
-           '((:language "elm" :ext "elm" :agtype "elm" :rgtype "elm")))
-    (nconc dumb-jump-language-comments
-           '((:comment "--" :language "elm")))
-    (nconc dumb-jump-find-rules
-           ;; Rules, based off the haskell syntax
-           '((:type "module" :supports ("ag" "rg") :language "elm"
-                    :regex "^module\\s+JJJ\\s+"
-                    :tests ("module Test exposing (exportA, exportB)"))
-             (:type "type" :supports ("ag" "rg" "grep" "git-grep") :language "elm"
-                    :regex "^type\\s+JJJ\\b"
-                    :tests ("type Test"))
-             (:type "type" :supports ("ag" "rg" "grep" "git-grep") :language "elm"
-                    :regex "^type\\s+alias\\s+JJJ\\b"
-                    :tests ("type alias Test"
-                            "type alias Model ="))
-             (:type "function" :supports ("ag" "rg" "grep" "git-grep") :language "elm"
-                    :regex "^port\\s+JJJ\\b\\s*:[^:]"
-                    :tests ("port requestPopup :"))
-             (:type "function" :supports ("ag" "rg" "grep" "git-grep") :language "elm"
-                    :regex "^\\s*JJJ\\s*:[^:].*->.*"
-                    :tests ("foo : Int -> Int"))
-             (:type "function" :supports ("ag" "rg" "grep" "git-grep") :language "elm"
-                    :regex "^\\bJJJ(?!(\\s+::))\\s+((.|\\s)*?)=\\s+"
-                    :tests ("test n = n * 2"))
-             ))
-    ;;--regex-Elm=/^ *([[:lower:]][[:alnum:]_]+)[[:blank:]]*:[^:][^-]+$/\1/c,constant,constants/
+    ;; (nconc dumb-jump-language-file-exts
+    ;;        '((:language "elm" :ext "elm" :agtype "elm" :rgtype "elm")))
+    ;; (nconc dumb-jump-language-comments
+    ;;        '((:comment "--" :language "elm")))
+    ;; (nconc dumb-jump-find-rules
+    ;;        ;; Rules, based off the haskell syntax
+    ;;        '((:type "module" :supports ("ag" "rg") :language "elm"
+    ;;                 :regex "^module\\s+JJJ\\s+"
+    ;;                 :tests ("module Test exposing (exportA, exportB)"))
+    ;;          (:type "type" :supports ("ag" "rg" "grep" "git-grep") :language "elm"
+    ;;                 :regex "^type\\s+JJJ\\b"
+    ;;                 :tests ("type Test"))
+    ;;          (:type "type" :supports ("ag" "rg" "grep" "git-grep") :language "elm"
+    ;;                 :regex "^type\\s+alias\\s+JJJ\\b"
+    ;;                 :tests ("type alias Test"
+    ;;                         "type alias Model ="))
+    ;;          (:type "function" :supports ("ag" "rg" "grep" "git-grep") :language "elm"
+    ;;                 :regex "^port\\s+JJJ\\b\\s*:[^:]"
+    ;;                 :tests ("port requestPopup :"))
+    ;;          (:type "function" :supports ("ag" "rg" "grep" "git-grep") :language "elm"
+    ;;                 :regex "^\\s*JJJ\\s*:[^:].*->.*"
+    ;;                 :tests ("foo : Int -> Int"))
+    ;;          (:type "function" :supports ("ag" "rg" "grep" "git-grep") :language "elm"
+    ;;                 :regex "^\\bJJJ(?!(\\s+::))\\s+((.|\\s)*?)=\\s+"
+    ;;                 :tests ("test n = n * 2"))
+    ;;          ))
+    ;; ;;--regex-Elm=/^ *([[:lower:]][[:alnum:]_]+)[[:blank:]]*:[^:][^-]+$/\1/c,constant,constants/
     )
 #+end_src
 
@@ -1140,48 +1160,51 @@ Add =langtool= as an additional tool to use
       :bind (("M-\\" . osx-dictionary-search-pointer))))
 #+end_src
 
-* COMMENT Language Server (LSP)
+* Language Server (LSP)
 
 #+begin_src emacs-lisp
   (use-package lsp-mode
-    :commands lsp lsp-deferred
-    :custom
-    (lsp-auto-guess-root nil)
-    (lsp-prefer-flymake nil)
-    ;; :hook (;;(scala-mode . lsp-deferred)
-    ;;        (elm-mode . lsp-deferred)
-    ;;        )
+    :ensure
+    :hook ((elm-mode . lsp-deferred))
+    :commands (lsp lsp-deferred)
+    ;; :custom
+    ;; (lsp-auto-guess-root nil)
+    ;; (lsp-prefer-flymake nil)
     )
 
-  (use-package lsp-ui
-    :after lsp-mode
-    :diminish
-    :commands lsp-ui-mode
-    :custom-face
-    (lsp-ui-doc-background ((t (:background nil))))
-    (lsp-ui-doc-header ((t (:inherit (font-lock-string-face italic)))))
-    :custom
-    (lsp-ui-doc-enable t)
-    (lsp-ui-doc-header t)
-    (lsp-ui-doc-include-signature t)
-    (lsp-ui-doc-position 'top)
-    (lsp-ui-doc-border (face-foreground 'default))
-    (lsp-ui-sideline-enable nil)
-    (lsp-ui-sideline-ignore-duplicate t)
-    (lsp-ui-sideline-show-code-actions nil)
-    :config
-    ;; Use lsp-ui-doc-webkit only in GUI
-    (setq lsp-ui-doc-use-webkit t)
-    ;; WORKAROUND Hide mode-line of the lsp-ui-imenu buffer
-    ;; https://github.com/emacs-lsp/lsp-ui/issues/243
-    (defadvice lsp-ui-imenu (after hide-lsp-ui-imenu-mode-line activate)
-      (setq mode-line-format nil))
-    (defun lsp--send-did-save-p () t))
+  ;;(use-package lsp-ui :commands lsp-ui-mode)
+      ;; :after lsp-mode
+      ;; :diminish
+      ;; :commands lsp-ui-mode
+      ;; :custom-face
+      ;; (lsp-ui-doc-background ((t (:background nil))))
+      ;; (lsp-ui-doc-header ((t (:inherit (font-lock-string-face italic)))))
+      ;; :custom
+      ;; (lsp-ui-doc-enable t)
+      ;; (lsp-ui-doc-header t)
+      ;; (lsp-ui-doc-include-signature t)
+      ;; (lsp-ui-doc-position 'top)
+      ;; (lsp-ui-doc-border (face-foreground 'default))
+      ;; (lsp-ui-sideline-enable nil)
+      ;; (lsp-ui-sideline-ignore-duplicate t)
+      ;; (lsp-ui-sideline-show-code-actions nil)
+      ;; :config
+      ;; ;; Use lsp-ui-doc-webkit only in GUI
+      ;; (setq lsp-ui-doc-use-webkit t)
+      ;; ;; WORKAROUND Hide mode-line of the lsp-ui-imenu buffer
+      ;; ;; https://github.com/emacs-lsp/lsp-ui/issues/243
+      ;; (defadvice lsp-ui-imenu (after hide-lsp-ui-imenu-mode-line activate)
+      ;;   (setq mode-line-format nil))
+      ;; (defun lsp--send-did-save-p () t))
+
+  (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
+
 
   (use-package company-lsp
+    :ensure)
     ;;:commands company-lsp
-    :config
-    (push 'company-lsp company-backends))
+    ;;:config
+    ;;(push 'company-lsp company-backends))
 
   ;; ;;  (use-package helm-lsp :commands helm-lsp-workspace-symbol)
   ;; ;;  (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
@@ -1246,9 +1269,9 @@ Add =elm-mode= and =flycheck= configuration for editing of elm
 buffers.
 
 #+begin_src emacs-lisp
-  (use-package flycheck-elm
-    :after flycheck
-    :hook (flycheck-mode . flycheck-elm-setup))
+  ;; (use-package flycheck-elm
+  ;;   :after flycheck
+  ;;   :hook (flycheck-mode . flycheck-elm-setup))
 
   (use-package elm-mode
     :mode "\\.elm\\'"
@@ -1304,35 +1327,35 @@ themselves with local config comment strings.
   Optional argument P Dunno?"
     (interactive "P")
     (if (not P)
-	(save-excursion
-	  (let ((fill-column 12345678)) ;; relies on dynamic binding
-	    (fill-paragraph) ;; this will not work correctly if the paragraph is
-			     ;; longer than 12345678 characters (in which case the
-			     ;; file must be at least 12MB long. This is unlikely.)
-	    (let ((end (save-excursion
-			 (forward-paragraph 1)
-			 (backward-sentence)
-			 (point-marker))))  ;; remember where to stop
-	      (beginning-of-line)
-	      (while (progn (forward-sentence)
-			    (<= (point) (marker-position end)))
-		(just-one-space) ;; leaves only one space, point is after it
-		(delete-char -1) ;; delete the space
-		(newline)        ;; and insert a newline
-		(LaTeX-indent-line) ;; I only use this in combination with late, so this makes sense
-		))))
+        (save-excursion
+          (let ((fill-column 12345678)) ;; relies on dynamic binding
+            (fill-paragraph) ;; this will not work correctly if the paragraph is
+                             ;; longer than 12345678 characters (in which case the
+                             ;; file must be at least 12MB long. This is unlikely.)
+            (let ((end (save-excursion
+                         (forward-paragraph 1)
+                         (backward-sentence)
+                         (point-marker))))  ;; remember where to stop
+              (beginning-of-line)
+              (while (progn (forward-sentence)
+                            (<= (point) (marker-position end)))
+                (just-one-space) ;; leaves only one space, point is after it
+                (delete-char -1) ;; delete the space
+                (newline)        ;; and insert a newline
+                (LaTeX-indent-line) ;; I only use this in combination with late, so this makes sense
+                ))))
       ;; otherwise do ordinary fill paragraph
       (fill-paragraph P)))
 
   (defun extract-default-files ()
     "Extract latex project main file from the Makefile in a temporary buffer."
     (let* ((default-directory (locate-dominating-file "." "Makefile"))
-	   (target-file (concat default-directory "Makefile")))
+           (target-file (concat default-directory "Makefile")))
       (with-temp-buffer
-	(insert-file-contents target-file)
-	(goto-char (point-min))
-	(when (re-search-forward "MAINFILE\s+:=\s+\\(.*\\)\s*")
-	  (concat default-directory (match-string 1))))
+        (insert-file-contents target-file)
+        (goto-char (point-min))
+        (when (re-search-forward "MAINFILE\s+:=\s+\\(.*\\)\s*")
+          (concat default-directory (match-string 1))))
       ))
 
   (defun relative-master (path)
@@ -1351,9 +1374,9 @@ themselves with local config comment strings.
     ;; Sweave/knitr interactions
     (dolist ($buf (buffer-list (current-buffer)))
       (with-current-buffer $buf
-	(when (eq (buffer-local-value 'major-mode $buf) 'pdf-view-mode)
-	  (message "Reloading PDF: %s" (buffer-name $buf))
-	  (pdf-view-revert-buffer :ignore-auto :noconfirm)))))
+        (when (eq (buffer-local-value 'major-mode $buf) 'pdf-view-mode)
+          (message "Reloading PDF: %s" (buffer-name $buf))
+          (pdf-view-revert-buffer :ignore-auto :noconfirm)))))
 
   (use-package tex-site
     :ensure auctex
@@ -1376,41 +1399,41 @@ themselves with local config comment strings.
 
     ;; to use pdfview with auctex
     (setq TeX-view-program-selection '((output-pdf "pdf-tools"))
-	  TeX-source-correlate-start-server t)
+          TeX-source-correlate-start-server t)
     (setq TeX-view-program-list '(("pdf-tools" "TeX-pdf-tools-sync-view")))
 
     (add-hook 'LaTeX-mode-hook (lambda ()
-				 (setq TeX-master (relative-master (buffer-file-name)))
-				 (add-to-list 'TeX-command-list '("Make" "make" TeX-run-TeX nil t))
-				 (add-to-list 'TeX-command-list
-					      '("custom" "something"
-						(lambda (name command file)
-						  (message name command file)
-						  (let ((TeX-save-query nil)
-							(TeX-process-asynchronous t)
-							(TeX-error-overview-open-after-TeX-run t)
-							(master-file (TeX-master-file))
-							(process (TeX-command-menu "Make")))
-						    (set-process-sentinel process 'reload-after-TeX-complete)))
-						nil t)
-					      )
-				 ))
+                                 (setq TeX-master (relative-master (buffer-file-name)))
+                                 (add-to-list 'TeX-command-list '("Make" "make" TeX-run-TeX nil t))
+                                 (add-to-list 'TeX-command-list
+                                              '("custom" "something"
+                                                (lambda (name command file)
+                                                  (message name command file)
+                                                  (let ((TeX-save-query nil)
+                                                        (TeX-process-asynchronous t)
+                                                        (TeX-error-overview-open-after-TeX-run t)
+                                                        (master-file (TeX-master-file))
+                                                        (process (TeX-command-menu "Make")))
+                                                    (set-process-sentinel process 'reload-after-TeX-complete)))
+                                                nil t)
+                                              )
+                                 ))
 
-    (add-hook 'outline-minor-mode-hook
-	      (lambda ()
-		(define-key outline-minor-mode-map ["\C-o"] 'outline-cycle)))
+    ;; (add-hook 'outline-minor-mode-hook
+    ;;           (lambda ()
+    ;;             (define-key outline-minor-mode-map ["\C-o"] 'outline-cycle)))
     :config
     (setq TeX-auto-save t
-	  TeX-parse-self t
-	  TeX-save-query nil
-	  TeX-command-force "custom"
-	  TeX-PDF-mode t
-	  reftex-plug-into-AUCTeX t
-	  reftex-use-external-file-finders t
-	  LaTeX-csquotes-open-quote "\\enquote{"
-	  LaTeX-csquotes-close-quote "}"
-	  reftex-bibliography-commands '("bibliography" "nobibliography" "addbibresource") ;; Make reftex try play nicer with biblatex
-	  reftex-cite-format 'natbib)
+          TeX-parse-self t
+          TeX-save-query nil
+          TeX-command-force "custom"
+          TeX-PDF-mode t
+          reftex-plug-into-AUCTeX t
+          reftex-use-external-file-finders t
+          LaTeX-csquotes-open-quote "\\enquote{"
+          LaTeX-csquotes-close-quote "}"
+          reftex-bibliography-commands '("bibliography" "nobibliography" "addbibresource") ;; Make reftex try play nicer with biblatex
+          reftex-cite-format 'natbib)
 
     ;; Fancy verbatim config for code blocks in thesis
     (add-to-list 'LaTeX-verbatim-environments "code")
@@ -1418,35 +1441,40 @@ themselves with local config comment strings.
 
     ;; Spelling
     (setq ispell-tex-skip-alists
-	  '((
-	     ;;("%\\[" . "%\\]") ; AMStex block comment...
-	     ;; All the standard LaTeX keywords from L. Lamport's guide:
-	     ;; \cite, \hspace, \hspace*, \hyphenation, \include, \includeonly
-	     ;; \input, \label, \nocite, \rule (in ispell - rest included here)
-	     ("\\\\addcontentsline"              ispell-tex-arg-end 2)
-	     ("\\\\add\\(tocontents\\|vspace\\)" ispell-tex-arg-end)
-	     ("\\\\\\([aA]lph\\|arabic\\)"   ispell-tex-arg-end)
-	     ("\\\\author"                         ispell-tex-arg-end)
-	     ;; New regexps here --- kjh
-	     ("\\\\\\(text\\|paren\\)cite" ispell-tex-arg-end)
-	     ("\\\\cite\\(t\\|p\\|year\\|yearpar\\)" ispell-tex-arg-end)
-	     ("\\\\bibliographystyle"                ispell-tex-arg-end)
-	     ("\\\\gls"                ispell-tex-arg-end)
-	     ("\\\\cref"               ispell-tex-arg-end)
-	     ("\\\\makebox"                  ispell-tex-arg-end 0)
-	     ("\\\\e?psfig"                  ispell-tex-arg-end)
-	     ("\\\\document\\(class\\|style\\)" .
-	      "\\\\begin[ \t\n]*{[ \t\n]*document[ \t\n]*}"))
-	    (
-	     ;; delimited with \begin.  In ispell: displaymath, eqnarray,
-	     ;; eqnarray*, equation, minipage, picture, tabular,
-	     ;; tabular* (ispell)
-	     ("\\(figure\\|table\\)\\*?"     ispell-tex-arg-end 0)
-	     ("\\(equation\\|eqnarray\\)\\*?"     ispell-tex-arg-end 0)
-	     ("list"                                 ispell-tex-arg-end 2)
-	     ("program" . "\\\\end[ \t\n]*{[ \t\n]*program[ \t\n]*}")
-	     ("verbatim\\*?"."\\\\end[ \t\n]*{[ \t\n]*verbatim\\*?[ \t\n]*}")
-	     ("lstlisting\\*?"."\\\\end[ \t\n]*{[ \t\n]*lstlisting\\*?[ \t\n]*}"))))
+          '((
+             ;;("%\\[" . "%\\]") ; AMStex block comment...
+             ;; All the standard LaTeX keywords from L. Lamport's guide:
+             ;; \cite, \hspace, \hspace*, \hyphenation, \include, \includeonly
+             ;; \input, \label, \nocite, \rule (in ispell - rest included here)
+             ("[^\\]\\$" . "[^\\]\\$") ;; For inline math. e.g., $\mathbf{\hat{y}}$
+             ("_\\\\{" . "\\\\}") ;; subscripts need to be excluded explicitly??
+             ("\\\\addcontentsline"              ispell-tex-arg-end 2)
+             ("\\\\add\\(tocontents\\|vspace\\)" ispell-tex-arg-end)
+             ("\\\\\\([aA]lph\\|arabic\\)"       ispell-tex-arg-end)
+             ("\\\\author"                       ispell-tex-arg-end)
+             ;; New regexps here --- kjh
+             ("\\\\\\(text\\|paren\\)cite"       ispell-tex-arg-end)
+             ("\\\\\\(c\\|C\\)ite\\(t\\|p\\|year\\|yearpar\\|author\\)" ispell-tex-arg-end)
+             ("\\\\bibliographystyle"            ispell-tex-arg-end)
+             ("\\\\\\(g\\|G\\)\\(l\\|L\\)\\(s\\|S\\)\\(pl\\)?"         ispell-tex-arg-end)
+             ("\\\\\\(c\\|v\\|C\\|V\\)ref"                 ispell-tex-arg-end)
+             ("\\\\label"                        ispell-tex-arg-end)
+             ("\\\\makebox"                      ispell-tex-arg-end 0)
+             ("\\\\e?psfig"                      ispell-tex-arg-end)
+             ("\\\\document\\(class\\|style\\)" .
+              "\\\\begin[ \t\n]*{[ \t\n]*document[ \t\n]*}"))
+            (
+             ;; delimited with \begin.  In ispell: displaymath, eqnarray,
+             ;; eqnarray*, equation, minipage, picture, tabular,
+             ;; tabular* (ispell)
+             ("\\(figure\\|table\\)\\*?"         ispell-tex-arg-end 0)
+             ;;("\\(equation\\|eqnarray\\)\\*?"     ispell-tex-arg-end 0)
+             ("equation"                         ispell-tex-arg-end 0)
+             ;;("algorithm"                        ispell-tex-arg-end 0)
+             ("list"                             ispell-tex-arg-end 2)
+             ("program" . "\\\\end[ \t\n]*{[ \t\n]*program[ \t\n]*}")
+             ("verbatim\\*?"."\\\\end[ \t\n]*{[ \t\n]*verbatim\\*?[ \t\n]*}")
+             ("lstlisting\\*?"."\\\\end[ \t\n]*{[ \t\n]*lstlisting\\*?[ \t\n]*}"))))
     )
 #+end_src
 
@@ -1527,7 +1555,7 @@ Use =scala-mode= for scala syntax highlighting
 
 #+end_src
 
-* Ledger
+* ledger-mode
 
 #+begin_src emacs-lisp
   (defun ledger-find-file ()
