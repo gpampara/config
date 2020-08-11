@@ -12,8 +12,6 @@ possible.
     (when (eval-when-compile (version< emacs-version "27"))
       (load "~/.emacs.d/early-init.el"))
 
-    (setq package-enable-at-startup nil)
-
     (setq package-archives
           '(("gnu" . "https://elpa.gnu.org/packages/")
             ("melpa" . "https://melpa.org/packages/")
@@ -101,17 +99,12 @@ Adjust shell environment variables, if needed
 * Variables
 
 #+begin_src emacs-lisp
-  (setq inhibit-startup-screen t)  ; don't display the help screen
   (setq coding-system-for-read 'utf-8 )	; use utf-8 by default
   (setq coding-system-for-write 'utf-8 )
   (setq sentence-end-double-space nil)	; sentence SHOULD end with only a point.
   (setq require-final-newline t)  ; Ensure there is a final newline
   (setq confirm-kill-emacs 'y-or-n-p)  ; Confirm really quit emacs
   (defalias 'yes-or-no-p 'y-or-n-p)  ; shorten yes/no prompts to y/n
-
-  ;; Change the way backups are done
-  (setq make-backup-files nil)
-  (setq auto-save-default nil)
 
   (setq save-interprogram-paste-before-kill t
         apropos-do-all t
@@ -121,7 +114,6 @@ Adjust shell environment variables, if needed
         load-prefer-newer t
         ediff-window-setup-function 'ediff-setup-windows-plain
         save-place-file (concat user-emacs-directory "places")
-        create-lockfiles nil
         backup-directory-alist `(("." . (concat user-emacs-directory
                                                  "backups"))))
 #+end_src
@@ -1393,6 +1385,8 @@ themselves with local config comment strings.
     (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
     (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
     (add-hook 'LaTeX-mode-hook 'visual-line-mode)
+    ;; Highlight the current line which works really well for writing
+    (add-hook 'LaTeX-mode-hook 'hl-line-mode)
 
     ;; to use pdfview with auctex
     (add-hook 'LaTeX-mode-hook 'pdf-tools-install)

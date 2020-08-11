@@ -1,7 +1,11 @@
-;; For Emacs 27 and above
 (setq package-enable-at-startup nil)
 
-;(menu-bar-mode -1)
+(setq inhibit-startup-screen t)  ; don't display the help screen
+(setq make-backup-files nil)
+(setq auto-save-default nil)
+(setq create-lockfiles nil)
+
+(menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
 
