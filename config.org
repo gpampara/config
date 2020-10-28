@@ -9,36 +9,23 @@ possible.
 * Configure package sources
 
 #+begin_src emacs-lisp
-    (when (eval-when-compile (version< emacs-version "27"))
-      (load "~/.emacs.d/early-init.el"))
+  (when (eval-when-compile (version< emacs-version "27"))
+    (load "~/.emacs.d/early-init.el"))
 
-    (setq package-archives
-          '(("gnu" . "https://elpa.gnu.org/packages/")
-            ("melpa" . "https://melpa.org/packages/")
-            ("org" . "https://orgmode.org/elpa/")))
+  (setq package-archives
+        '(("gnu" . "https://elpa.gnu.org/packages/")
+          ("melpa" . "https://melpa.org/packages/")
+          ("org" . "https://orgmode.org/elpa/")))
   ;;  (package-initialize)
-#+end_src
 
-# * Benchmark setup
-# `benchmark-init` records the startup time by package so that we can
-# debug problems. The package only records after it has been loaded, so
-# we put it as early as possible.
-#
-# #+begin_src emacs-lisp
-# (use-package benchmark-init
-#   :config
-#   ;; To disable collection of benchmark data after init is done.
-#   (add-hook 'after-init-hook 'benchmark-init/deactivate))
-#
-# (add-hook 'after-init-hook
-#   (lambda () (message "loaded in %s" (emacs-init-time))))
-# #+end_src
+  (unless package-archive-contents
+    (package-refresh-contents))
+#+end_src
 
 * Bootstrap use-package
 
 #+begin_src emacs-lisp
   (unless (package-installed-p 'use-package)
-    (package-refresh-contents)
     (package-install 'use-package))
 
   (require 'use-package)
@@ -65,11 +52,11 @@ Define an auto-update schedule for packages
   ;; (use-package use-package-ensure-system-package)
 #+end_src
 
-* Load user custom settings
+* no-littering
 
 #+begin_src emacs-lisp
-  (setq custom-file "~/.emacs.d/custom-settings.el")
-  (load custom-file t)
+  (use-package no-littering
+    :demand t)
 #+end_src
 
 * Shell environment variable import
@@ -99,8 +86,6 @@ Adjust shell environment variables, if needed
 * Variables
 
 #+begin_src emacs-lisp
-  (setq coding-system-for-read 'utf-8 )	; use utf-8 by default
-  (setq coding-system-for-write 'utf-8 )
   (setq sentence-end-double-space nil)	; sentence SHOULD end with only a point.
   (setq require-final-newline t)  ; Ensure there is a final newline
   (setq confirm-kill-emacs 'y-or-n-p)  ; Confirm really quit emacs
@@ -197,6 +182,69 @@ Reload the configuration
   ;(global-set-key (kbd "C-c r") 'config-reload)
 #+end_src
 
+Convert text into title-case
+
+#+begin_src emacs-lisp
+  (defun xah-title-case-region-or-line (@begin @end)
+    "Title case text between nearest brackets, or current line, or text selection.
+  Capitalize first letter of each word, except words like {to, of, the, a, in, or, and, …}. If a word already contains cap letters such as HTTP, URL, they are left as is.
+
+  When called in a elisp program, *begin *end are region boundaries.
+  URL `http://ergoemacs.org/emacs/elisp_title_case_text.html'
+  Version 2017-01-11"
+    (interactive
+     (if (use-region-p)
+         (list (region-beginning) (region-end))
+       (let (
+             $p1
+             $p2
+             ($skipChars "^\"<>(){}[]“”‘’‹›«»「」『』【】〖〗《》〈〉〔〕"))
+         (progn
+           (skip-chars-backward $skipChars (line-beginning-position))
+           (setq $p1 (point))
+           (skip-chars-forward $skipChars (line-end-position))
+           (setq $p2 (point)))
+         (list $p1 $p2))))
+    (let* (
+           ($strPairs [
+                       [" A " " a "]
+                       [" And " " and "]
+                       [" At " " at "]
+                       [" As " " as "]
+                       [" By " " by "]
+                       [" Be " " be "]
+                       [" Into " " into "]
+                       [" In " " in "]
+                       [" Is " " is "]
+                       [" It " " it "]
+                       [" For " " for "]
+                       [" Of " " of "]
+                       [" Or " " or "]
+                       [" On " " on "]
+                       [" Via " " via "]
+                       [" The " " the "]
+                       [" That " " that "]
+                       [" To " " to "]
+                       [" Vs " " vs "]
+                       [" With " " with "]
+                       [" From " " from "]
+                       ["'S " "'s "]
+                       ["'T " "'t "]
+                       ]))
+      (save-excursion
+        (save-restriction
+          (narrow-to-region @begin @end)
+          (upcase-initials-region (point-min) (point-max))
+          (let ((case-fold-search nil))
+            (mapc
+             (lambda ($x)
+               (goto-char (point-min))
+               (while
+                   (search-forward (aref $x 0) nil t)
+                 (replace-match (aref $x 1) "FIXEDCASE" "LITERAL")))
+             $strPairs))))))
+#+end_src
+
 * Load user secrets
 
 #+begin_src emacs-lisp
@@ -218,9 +266,6 @@ Flyspell correct
   (use-package flyspell-correct
     :after flyspell
     :bind (:map flyspell-mode-map ("C-;" . flyspell-correct-wrapper)))
-
-  (use-package flyspell-correct-ivy
-    :after flyspell-correct)
 #+end_src
 
 * which-key
@@ -239,29 +284,51 @@ Which key to show a list of keys that follow a speicific key-chord
     (which-key-mode 1))
 #+end_src
 
-* general.el (keybinds)
+* key bindings
 
 #+begin_src emacs-lisp
   (use-package general
     :after which-key
     :config
     (general-override-mode 1)
-
-    (general-define-key
-      "C-c e"   'find-user-init-file
-      "C-c r"   'load-user-init-file
-
-      "C-:"     'avy-goto-char-timer
-      "C-s"     'swiper-isearch
-      "M-x"     'counsel-M-x
-      "C-x C-b" 'ibuffer
-      "C-x b"   'ivy-switch-buffer
-      "C-x C-f" 'counsel-find-file
-      )
-
-    (general-define-key
-     "C-c p" '(:keymap projectile-command-map :package projectile))
   )
+#+end_src
+
+There seems to be some evidence that defining a custom key-map via
+minor-mode is a good idea.
+
+#+begin_src emacs-lisp
+  (defvar gp-keys-map
+    (let ((map (make-sparse-keymap)))
+      (define-key map (kbd "C-c e")   'find-user-init-file)
+      (define-key map (kbd "C-c r")   'load-user-init-file)
+
+      (define-key map (kbd "C-:")     'avy-goto-char-timer)
+      (define-key map (kbd "C-x C-b") 'ibuffer)
+      map)
+    "gp-keys-minor-mode-map")
+
+  (define-minor-mode gp-keys
+    "A minor mode that contains all my key settings to override locals"
+    :init-value t
+    :lighter "ok?")
+
+  (gp-keys 1)
+#+end_src
+
+Now give priority to my custom key map:
+
+#+begin_src emacs-lisp
+  (add-hook 'after-load-functions 'my-keys-have-priority)
+
+  (defun my-keys-have-priority (_file)
+    "Try to ensure that my keybindings retain priority over other minor modes.
+
+  Called via the `after-load-functions' special hook."
+    (unless (eq (caar minor-mode-map-alist) 'gp-keys)
+      (let ((mykeys (assq 'gp-keys minor-mode-map-alist)))
+        (assq-delete-all 'gp-keys minor-mode-map-alist)
+        (add-to-list 'minor-mode-map-alist mykeys))))
 #+end_src
 
 * avy
@@ -271,74 +338,52 @@ Which key to show a list of keys that follow a speicific key-chord
     :commands (avy-goto-char-timer))
 #+end_src
 
-* counsel
+* ctrlf
 
 #+begin_src emacs-lisp
-    (use-package counsel
-      :defer t
-      ;:config
-      ;(setq counsel-ag-base-command "ag --skip-vcs-ignores --vimgrep %s")
-      ;(global-set-key (kbd "M-x") 'counsel-M-x)
-      ;(global-set-key (kbd "C-x C-f") 'counsel-find-file)
-      ;(global-set-key (kbd "C-c g") 'counsel-git)
-      ;(global-set-key (kbd "C-c j") 'counsel-rg)
-      ;(global-set-key (kbd "C-c k") 'counsel-git-grep)
-      :general
-      ("C-c k" 'counsel-rg))
-#+end_src
-
-* swiper
-
-Use the ivy enhanced version of =isearch=
-
-#+begin_src emacs-lisp
-  (use-package swiper
-    :defer t
+  (use-package ctrlf
     :config
-    (setq ivy-use-virtual-buffers t)
-    (setq enable-recursive-minibuffers t)
-                                          ;(global-set-key (kbd "C-c C-r") 'ivy-resume)
-                                          ;(global-set-key (kbd "<f6>") 'ivy-resume)
-    )
+    (ctrlf-mode +1))
 #+end_src
 
-* ivy
-
-Use the ivy completion frontend, and the set of ivy-enhanced emacs commands
+* selectrum
 
 #+begin_src emacs-lisp
-  (use-package ivy
-    :diminish ivy-mode
+  (use-package selectrum
     :config
-    (ivy-mode 1))
-#+end_src
+    (setq selectrum-refine-candidates-function #'orderless-filter)
+    (setq selectrum-highlight-candidates-function #'orderless-highlight-matches)
+    (selectrum-mode +1))
 
-* ivy-rich
-
-Make use of the enriched version of ivy commands to display more information about the tasks etc.
-
-#+begin_src emacs-lisp
-  (use-package ivy-rich
-    :defer t
-    :after ivy
+  (use-package selectrum-prescient
+    :after selectrum
     :config
-    (ivy-rich-mode 1))
+    ;; to make sorting and filtering more intelligent
+    (selectrum-prescient-mode +1)
+
+    ;; to save your command history on disk, so the sorting gets more
+    ;; intelligent over time
+    (prescient-persist-mode +1))
 #+end_src
 
-* amx
-
-amx is the evolution of smex which provides commands that have been used previously
+* orderless
 
 #+begin_src emacs-lisp
-  (use-package amx
-    :after ivy
+  (use-package orderless
+    ;;:init (icomplete-mode)
     :custom
-    (amx-backend 'auto)
-    (amx-save-file "~/.emacs.d/amx-items")
-    (amx-history-length 50)
-    (amx-show-key-bindings nil)
-    :config
-    (amx-mode 1))
+    (completion-styles '(orderless)))
+#+end_src
+
+* helpful
+
+#+begin_src emacs-lisp
+  (use-package helpful
+    :bind
+    ([remap describe-function] . helpful-callable)
+    ([remap describe-command] . helpful-command)
+    ([remap describe-variable] . helpful-variable)
+    ([remap describe-key] . helpful-key))
 #+end_src
 
 * crux
@@ -472,7 +517,7 @@ Add expand-region
     ("C-x g" 'magit-status)
     :config
     ;; https://github.com/magit/magit/issues/2982#issuecomment-598493683
-    (setq magit-git-executable "/usr/local/bin/git")
+    (setq magit-git-executable (executable-find "git"))
     (add-hook 'git-commit-setup-hook 'git-commit-turn-on-flyspell))
 #+end_src
 
@@ -503,6 +548,15 @@ Add expand-region
        (define-key magit-mode-map "@" 'magit-mytools-dispatch)
        (transient-append-suffix 'magit-dispatch "%"
          '("@" "Custom Tools" magit-mytools-dispatch))))
+#+end_src
+
+* ssh-agency
+
+Manage the ssh-agent on the system by loading identities if and when required
+
+#+begin_src emacs-lisp
+  (use-package ssh-agency
+    :ensure t)
 #+end_src
 
 * wgrep
@@ -636,6 +690,10 @@ Automatically delete whitespace in a sensible way with "smart" hungry delete
   (use-package all-the-icons)
 #+end_src
 
+After installation, the following needs to be run to ensure that the fonts are correctly setup:
+
+=M-x all-the-icons-install-fonts=
+
 * doom-modeline
 
 #+begin_src emacs-lisp
@@ -646,6 +704,7 @@ Automatically delete whitespace in a sensible way with "smart" hungry delete
     ;;(setq doom-modeline-icon nil)
     ;;(setq doom-modeline-major-mode-icon nil)
     ;;(setq doom-modeline-minor-modes t)
+    :custom ((doom-modeline-height 15))
     )
 
     ;;(load-theme 'modus-vivendi t)
@@ -684,16 +743,6 @@ Display a simple dashboard at startup
     (setq dashboard-set-file-icons t))
 #+end_src
 
-* COMMENT rainbow mode
-
-Inline display of colours
-
-#+begin_src emacs-lisp
-  (use-package rainbow-mode
-    :init
-    (add-hook 'prog-mode-hook 'rainbow-mode))
-#+end_src
-
 * beacon
 
 # Add a visual inidcator when switching to a different window
@@ -724,6 +773,7 @@ Inline display of colours
 #+end_src
 
 * rainbow-delimeters
+
 Some general configuration for development that is agnostic of
 language.
 
@@ -731,8 +781,8 @@ Use parens highlighting to make reading the code a little simpler
 
 #+begin_src emacs-lisp
   (use-package rainbow-delimiters
+    :hook (prog-mode . rainbow-delimiters-mode)
     :config
-    (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
     (add-hook 'TeX-update-style-hook #'rainbow-delimiters-mode)
     (set-face-attribute 'rainbow-delimiters-unmatched-face nil
                         :foreground "red"
@@ -785,23 +835,18 @@ Project management using projectile
 #+begin_src emacs-lisp
   (use-package projectile
     :diminish projectile-mode
+    :bind-keymap
+    ("C-c p" . projectile-command-map)
     :config
-    (setq projectile-indexing-method 'alien)
-    (setq projectile-completion-system 'ivy)
+    (add-to-list 'projectile-globally-ignored-files "node_modules")
+    (projectile-global-mode)
+    :init
     (setq projectile-switch-project-action 'magit-status)
     (setq projectile-git-submodule-command nil) ;; Stupid submodule bullshit
-    (add-to-list 'projectile-globally-ignored-files "node_modules")
-    (projectile-global-mode))
-#+end_src
-
-* ripgrep
-
-#+begin_src emacs-lisp
-  ;; (use-package ag)
-
-  ;; (use-package rg
-  ;;   :ensure-system-package
-  ;;   (rg . ripgrep))
+    (setq projectile-completion-system 'default)
+    :custom
+    (projectile-indexing-method 'alien)
+    )
 #+end_src
 
 * yasnippet
@@ -837,7 +882,6 @@ Highlight TODO / FIXME strings in buffers
     (dumb-jump-mode)
     :config
     (add-to-list 'xref-backend-functions #'dumb-jump-xref-activate)
-    (setq dumb-jump-selector 'ivy)
     (setq dumb-jump-force-searcher 'ag)
     ;; Add some config for elm files
     ;; (nconc dumb-jump-language-file-exts
@@ -870,22 +914,6 @@ Highlight TODO / FIXME strings in buffers
     )
 #+end_src
 
-* xref
-
-#+begin_src emacs-lisp
-  (use-package ivy-xref
-    :ensure t
-    :init
-    ;; xref initialization is different in Emacs 27 - there are two different
-    ;; variables which can be set rather than just one
-    (when (>= emacs-major-version 27)
-      (setq xref-show-definitions-function #'ivy-xref-show-defs))
-    ;; Necessary in Emacs <27. In Emacs 27 it will affect all xref-based
-    ;; commands other than xref-find-definitions (e.g. project-find-regexp)
-    ;; as well
-    (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
-#+end_src
-
 * Nix and nixpkg
 
 #+begin_src emacs-lisp
@@ -906,6 +934,39 @@ Highlight TODO / FIXME strings in buffers
 
 * org-mode
 
+Some variables that will be needed:
+
+#+begin_src emacs-lisp
+  (setq
+     org_notes (concat (getenv "HOME") "/org/roam/")
+     zot_bib (concat (getenv "HOME") "/org/zotLib.bib")
+     org-directory org_notes
+     deft-directory org_notes
+     org-roam-directory org_notes
+     )
+#+end_src
+
+Deft
+
+#+begin_src emacs-lisp
+  (use-package deft
+    :commands deft
+    :init
+    (setq deft-default-extension "org"
+          ;; de-couples filename and note title:
+          deft-use-filename-as-title nil
+          deft-use-filter-string-for-filename t
+          ;; disable auto-save
+          deft-auto-save-interval -1.0
+          ;; converts the filter string into a readable file-name using kebab-case:
+          deft-file-naming-rules
+          '((noslash . "-")
+            (nospace . "-")
+            (case-fn . downcase)))
+    :config
+    (add-to-list 'deft-extensions "tex"))
+#+end_src
+
 #+begin_src emacs-lisp
   (use-package org
     :mode (("\\.org\\'" . org-mode))
@@ -913,21 +974,41 @@ Highlight TODO / FIXME strings in buffers
     :general
     ("C-c l" 'org-store-link)
     ("C-c a" 'org-agenda)
-    ("C-C c" 'org-capture))
-#+end_src
-
-Nicer indenting in =org-mode= files
-
-#+begin_src emacs-lisp
-  (add-hook 'org-mode-hook 'org-indent-mode)
+    ("C-C c" 'org-capture)
+    :init
+    (add-hook 'org-mode-hook #'org-indent-mode)
+    (add-hook 'org-mode-hook #'flyspell-mode)
+    :config
+    ;;(setq org-directory "~/org")
+    (setq org-log-done 'time)
+    ;;(setq org-startup-indented t)
+    ;;(setq org-hide-emphasis-markers t)
+    ;;(setq org-log-done 'note)
+    )
 #+end_src
 
 Set colours for priorities
 
 #+begin_src emacs-lisp
-(setq org-priority-faces '((?A . (:foreground "#F0DFAF" :weight bold))
-                           (?B . (:foreground "LightSteelBlue"))
-                           (?C . (:foreground "OliveDrab"))))
+  (setq org-priority-faces '((?A . (:foreground "#F0DFAF" :weight bold))
+                             (?B . (:foreground "LightSteelBlue"))
+                             (?C . (:foreground "OliveDrab"))))
+#+end_src
+
+* COMMENT org-ref
+
+#+begin_src emacs-lisp
+  ;; (use-package org-ref
+    ;;   :config
+  ;;   (setq
+  ;;      org-ref-get-pdf-filename-function 'org-ref-get-pdf-filename-helm-bibtex
+  ;;      org-ref-default-bibliography (list zot_bib)
+  ;;      org-ref-bibliography-notes (concat org_notes "/bibnotes.org")
+  ;;      org-ref-note-title-format "* TODO %y - %t\n :PROPERTIES:\n  :Custom_ID: %k\n  :NOTER_DOCUMENT: %F\n :ROAM_KEY: Cite:%k\n  :AUTHOR: %9a\n  :JOURNAL: %j\n  :YEAR: %y\n  :VOLUME: %v\n  :PAGES: %p\n  :DOI: %D\n  :URL: %U\n :END:\n\n"
+  ;;      org-ref-notes-directory org_notes
+  ;;      org-ref-notes-function 'orb-edit-notes
+  ;;      )
+  ;;   )
 #+end_src
 
 * org-bullets
@@ -936,8 +1017,8 @@ Improve the appearance of bullet points in Emacs:
 
 #+begin_src emacs-lisp
   (use-package org-bullets
-    :config
-    ;;    (setq org-bullets-bullet-list '("∙"))
+    :init
+    ;; :config   (setq org-bullets-bullet-list '("∙"))
     (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 #+end_src
 
@@ -946,12 +1027,13 @@ Improve the appearance of bullet points in Emacs:
 Define the locations of the different org files:
 
 #+begin_src emacs-lisp
-  (setq org-agenda-files (list "~/org/thesis-todo.org"
-                               "~/org/gtd.org"
-                               "~/org/projects.org"
-                               "~/org/work.org"
-                               "~/org/calendar.org"
-                               "~/org/call.org"))
+    (setq org-agenda-files (list "~/org/thesis-todo.org"
+                                 "~/org/gtd.org"
+                                 "~/org/projects.org"
+                                 "~/org/work.org"
+                                 "~/org/calendar.org"
+                                 "~/org/call.org"
+                                 "~/org/birthdays.org"))
 #+end_src
 
 * org-capture templates
@@ -994,14 +1076,23 @@ Define the locations of the different org files:
                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))))
 #+end_src
 
-* COMMENT org-noter
+* org-noter
 
 #+begin_src emacs-lisp
   (use-package org-noter
-    :after org
+    :after (org pdf-view)
     :config
-    (setq org-noter-default-notes-file-names '("notes.org")
-          org-noter-separate-notes-from-heading t))
+    (setq
+       ;; The WM can handle splits
+       org-noter-notes-window-location 'other-frame
+       ;; Please stop opening frames
+       org-noter-always-create-frame nil
+       ;; I want to see the whole file
+       org-noter-hide-other nil
+       ;; Everything is relative to the main notes file
+       org-noter-notes-search-path (list org_notes)
+       org-noter-default-notes-file-names '("notes.org")
+       org-noter-separate-notes-from-heading t))
 #+end_src
 
 * org-roam
@@ -1020,7 +1111,7 @@ Define the locations of the different org files:
                  ("C-c n b" . org-roam-switch-to-buffer)))
     :config
     (setq org-roam-list-files-commands '(elisp)) ; Use elisp to recurse the current directory
-    (setq org-roam-directory "/Users/gpampara/org/roam/")
+    ;;(setq org-roam-directory "/Users/gpampara/org/roam/")
 
     ;; redefine org-roam--list-files based on some debugging with jethro on the org-roam slack
     ;; (defun org-roam--list-files (dir)
@@ -1074,6 +1165,26 @@ Completion with =company-mode=
     :after org-roam
     :config
     (push 'company-org-roam company-backends))
+#+end_src
+
+* COMMENT org-roam-bibtex
+
+#+begin_src emacs-lisp
+  (use-package org-roam-bibtex
+    :after (org-roam)
+    :hook (org-roam-mode . org-roam-bibtex-mode)
+    :config
+    (setq orb-preformat-keywords
+     '("=key=" "title" "url" "file" "author-or-editor" "keywords"))
+    (setq orb-templates
+          '(("r" "ref" plain (function org-roam-capture--get-point)
+             ""
+             :file-name "${slug}"
+             :head "#+TITLE: ${=key=}: ${title}\n#+ROAM_KEY: ${ref}
+  - tags ::
+  - keywords :: ${keywords}
+  \n* ${title}\n  :PROPERTIES:\n  :Custom_ID: ${=key=}\n  :URL: ${url}\n  :AUTHOR: ${author-or-editor}\n  :NOTER_DOCUMENT: %(orb-process-file-field \"${=key=}\")\n  :NOTER_PAGE: \n  :END:\n\n"
+             :unnarrowed t))))
 #+end_src
 
 * org-journal
@@ -1156,13 +1267,11 @@ Add =langtool= as an additional tool to use
 
 #+begin_src emacs-lisp
   (use-package lsp-mode
-    :ensure
-    :hook ((elm-mode . lsp-deferred))
     :commands (lsp lsp-deferred)
-    ;; :custom
-    ;; (lsp-auto-guess-root nil)
-    ;; (lsp-prefer-flymake nil)
-    )
+    :hook
+    ((elm-mode . lsp-deferred))
+    :config
+    (lsp-enable-which-key-integration t))
 
   ;;(use-package lsp-ui :commands lsp-ui-mode)
       ;; :after lsp-mode
@@ -1188,66 +1297,44 @@ Add =langtool= as an additional tool to use
       ;; (defadvice lsp-ui-imenu (after hide-lsp-ui-imenu-mode-line activate)
       ;;   (setq mode-line-format nil))
       ;; (defun lsp--send-did-save-p () t))
-
-  (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
-
-
-  (use-package company-lsp
-    :ensure)
-    ;;:commands company-lsp
-    ;;:config
-    ;;(push 'company-lsp company-backends))
-
-  ;; ;;  (use-package helm-lsp :commands helm-lsp-workspace-symbol)
-  ;; ;;  (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
 #+end_src
 
-* COMMENT Auto-fill comments
+* auto-fill comments
+
 #+begin_src emacs-lisp
   (add-hook 'prog-mode (lambda ()
                          ((auto-fill-mode 1)
                           (setq comment-auto-fill-only-comments t))))
 #+end_src
+
 * Javascript and "friends"
 
 #+begin_src emacs-lisp
   (use-package add-node-modules-path)
 #+end_src
 
-Some additional modes for Javascript (rubbish language)
-
 #+begin_src emacs-lisp
-    (use-package web-mode
-      :mode (("\\.html$" . web-mode)
-             ("\\.mustache\\'" . web-mode)
-             ("\\.coffee\\'" . web-mode))
-      :hook ((web-mode . company-mode))
-      :config
-      ;; highlight matching tag
-      (setq web-mode-enable-current-element-highlight t))
-#+end_src
-
-#+begin_src emacs-lisp
-  (use-package js2-mode
-    :after (add-node-modules-path)
-    :interpreter (("node" . js2-mode))
-;;    :bind (:map js2-mode-map ("C-c C-p" . js2-print-json-path))
-    :mode "\\.\\(js\\|json\\)$"
-    :config
-    (add-hook 'js-mode-hook 'js2-minor-mode)
-    (eval-after-load 'js2-mode '(add-hook 'js2-mode-hook 'add-node-modules-path))
-    (flycheck-add-mode 'javascript-eslint 'js2-mode)
-    (setq js2-basic-offset 2
-          js2-highlight-level 3
-          js2-mode-show-parse-errors nil
-          js2-mode-show-strict-warnings nil))
+  ;;   (use-package js2-mode
+  ;;     :after (add-node-modules-path)
+  ;;     :interpreter (("node" . js2-mode))
+  ;; ;;    :bind (:map js2-mode-map ("C-c C-p" . js2-print-json-path))
+  ;;     :mode "\\.\\(js\\|json\\)$"
+  ;;     :config
+  ;;     (add-hook 'js-mode-hook 'js2-minor-mode)
+  ;;     (eval-after-load 'js2-mode '(add-hook 'js2-mode-hook 'add-node-modules-path))
+  ;;     (flycheck-add-mode 'javascript-eslint 'js2-mode)
+  ;;     (setq js2-basic-offset 2
+  ;;           js2-highlight-level 3
+  ;;           js2-mode-show-parse-errors nil
+  ;;           js2-mode-show-strict-warnings nil))
 #+end_src
 
 #+begin_src emacs-lisp
   (use-package prettier-js
-    :after (js2-mode add-node-modules-path)
-    :hook (js2-mode . prettier-js-mode))
+    :after (js-mode add-node-modules-path)
+    :hook (js-mode . prettier-js-mode))
 #+end_src
+
 * coffeescript
 
 #+begin_src emacs-lisp
@@ -1257,20 +1344,15 @@ Some additional modes for Javascript (rubbish language)
 
 * Elm
 
-Add =elm-mode= and =flycheck= configuration for editing of elm
-buffers.
+Add =elm-mode= configuration for editing of elm buffers.
 
 #+begin_src emacs-lisp
-  ;; (use-package flycheck-elm
-  ;;   :after flycheck
-  ;;   :hook (flycheck-mode . flycheck-elm-setup))
-
   (use-package elm-mode
     :mode "\\.elm\\'"
     :init
     (add-to-list 'company-backends 'company-elm)
     :config
-    (add-hook 'after-init-hook #'global-flycheck-mode)
+    ;;(add-hook 'after-init-hook #'global-flycheck-mode)
     (add-hook 'elm-mode-hook #'elm-format-on-save-mode))
 #+end_src
 
@@ -1289,16 +1371,26 @@ Some _very_ basic Haskell config
     :mode "\\.hs\\'")
 #+end_src
 
-* Polymode
+* Poly-mode
 
 Define polymode to allow multiple modes in a single buffer. Handy for
 =knitr= and friends
 
 #+begin_src emacs-lisp
+  (use-package poly-R
+    :ensure t)
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package poly-noweb
+    :ensure t)
+#+end_src
+
+#+begin_src emacs-lisp
   (use-package polymode
     :mode
-    (("\\.Rnw" . poly-noweb+r-mode)
-     ("\\.Rtex" . poly-noweb+r-mode)))
+    (("\\.Rnw" . poly-noweb+R-mode)
+     ("\\.Rtex" . poly-noweb+R-mode)))
 #+end_src
 
 * LaTeX
@@ -1339,36 +1431,6 @@ themselves with local config comment strings.
       ;; otherwise do ordinary fill paragraph
       (fill-paragraph P)))
 
-  (defun extract-default-files ()
-    "Extract latex project main file from the Makefile in a temporary buffer."
-    (let* ((default-directory (locate-dominating-file "." "Makefile"))
-           (target-file (concat default-directory "Makefile")))
-      (with-temp-buffer
-        (insert-file-contents target-file)
-        (goto-char (point-min))
-        (when (re-search-forward "MAINFILE\s+:=\s+\\(.*\\)\s*")
-          (concat default-directory (match-string 1))))
-      ))
-
-  (defun relative-master (path)
-    "Relative PATH to the master file using `extract-default-files'.
-  Argument PATH the path to determine the relative path from."
-    (let ((master-file (extract-default-files)))
-      (f-relative master-file (f-dirname path))))
-
-  (defun reload-after-TeX-complete (process msg)
-    "Reload any associated PDFView buffers, after compilation succeeds.
-  Argument PROCESS The sentinel process.
-  Argument MSG The message."
-    (TeX-command-sentinel process msg)
-
-    ;; Now update the produced synctex file to cater for the case of
-    ;; Sweave/knitr interactions
-    (dolist ($buf (buffer-list (current-buffer)))
-      (with-current-buffer $buf
-        (when (eq (buffer-local-value 'major-mode $buf) 'pdf-view-mode)
-          (message "Reloading PDF: %s" (buffer-name $buf))
-          (pdf-view-revert-buffer :ignore-auto :noconfirm)))))
 
   (use-package tex-site
     :ensure auctex
@@ -1379,48 +1441,32 @@ themselves with local config comment strings.
     :commands (latex-mode LaTeX-mode plain-tex-mode)
     :general
     (LaTeX-mode-map "M-q" 'ales/fill-paragraph)
-    :init
-    (add-hook 'LaTeX-mode-hook 'LaTeX-preview-setup)
-    (add-hook 'LaTeX-mode-hook 'flyspell-mode)
-    (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
-    (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
-    (add-hook 'LaTeX-mode-hook 'visual-line-mode)
-    ;; Highlight the current line which works really well for writing
-    (add-hook 'LaTeX-mode-hook 'hl-line-mode)
-
-    ;; to use pdfview with auctex
-    (add-hook 'LaTeX-mode-hook 'pdf-tools-install)
-
-    ;; to use pdfview with auctex
-    (setq TeX-view-program-selection '((output-pdf "pdf-tools"))
-          TeX-source-correlate-start-server t)
-    (setq TeX-view-program-list '(("pdf-tools" "TeX-pdf-tools-sync-view")))
-
-    (add-hook 'LaTeX-mode-hook (lambda ()
-                                 (setq TeX-master (relative-master (buffer-file-name)))
-                                 (add-to-list 'TeX-command-list '("Make" "make" TeX-run-TeX nil t))
-                                 (add-to-list 'TeX-command-list
-                                              '("custom" "something"
-                                                (lambda (name command file)
-                                                  (message name command file)
-                                                  (let ((TeX-save-query nil)
-                                                        (TeX-process-asynchronous t)
-                                                        (TeX-error-overview-open-after-TeX-run t)
-                                                        (master-file (TeX-master-file))
-                                                        (process (TeX-command-menu "Make")))
-                                                    (set-process-sentinel process 'reload-after-TeX-complete)))
-                                                nil t)
-                                              )
-                                 ))
+    ;; (add-hook 'LaTeX-mode-hook (lambda ()
+    ;;                              (setq TeX-master (relative-master (buffer-file-name)))
+    ;;                              (add-to-list 'TeX-command-list '("Make" "make" TeX-run-TeX nil t))
+    ;;                              (add-to-list 'TeX-command-list
+    ;;                                           '("custom" "something"
+    ;;                                             (lambda (name command file)
+    ;;                                               (message name command file)
+    ;;                                               (let ((TeX-save-query nil)
+    ;;                                                     (TeX-process-asynchronous t)
+    ;;                                                     (TeX-error-overview-open-after-TeX-run t)
+    ;;                                                     (master-file (TeX-master-file))
+    ;;                                                     (process (TeX-command-menu "Make")))
+    ;;                                                 (set-process-sentinel process 'reload-after-TeX-complete)))
+    ;;                                             nil t)
+    ;;                                           )
+    ;;                              ))
 
     ;; (add-hook 'outline-minor-mode-hook
     ;;           (lambda ()
     ;;             (define-key outline-minor-mode-map ["\C-o"] 'outline-cycle)))
     :config
+    (setq-default TeX-master nil)
     (setq TeX-auto-save t
           TeX-parse-self t
           TeX-save-query nil
-          TeX-command-force "custom"
+          ;;TeX-command-force "custom"
           TeX-PDF-mode t
           reftex-plug-into-AUCTeX t
           reftex-use-external-file-finders t
@@ -1428,6 +1474,23 @@ themselves with local config comment strings.
           LaTeX-csquotes-close-quote "}"
           reftex-bibliography-commands '("bibliography" "nobibliography" "addbibresource") ;; Make reftex try play nicer with biblatex
           reftex-cite-format 'natbib)
+
+    (add-hook 'LaTeX-mode-hook 'LaTeX-preview-setup)
+    (add-hook 'LaTeX-mode-hook 'flyspell-mode)
+    (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
+    (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
+    (add-hook 'LaTeX-mode-hook 'visual-line-mode)
+
+    ;; Highlight the current line which works really well for writing
+    (add-hook 'LaTeX-mode-hook 'hl-line-mode)
+
+    ;; to use pdfview with auctex
+    ;;(add-hook 'LaTeX-mode-hook 'pdf-tools-install)
+
+    ;; to use pdfview with auctex
+    ;; (setq TeX-view-program-selection '((output-pdf "pdf-tools"))
+    ;;       TeX-source-correlate-start-server t)
+    ;; (setq TeX-view-program-list '(("pdf-tools" "TeX-pdf-tools-sync-view")))
 
     ;; Fancy verbatim config for code blocks in thesis
     (add-to-list 'LaTeX-verbatim-environments "code")
@@ -1455,6 +1518,7 @@ themselves with local config comment strings.
              ("\\\\label"                        ispell-tex-arg-end)
              ("\\\\makebox"                      ispell-tex-arg-end 0)
              ("\\\\e?psfig"                      ispell-tex-arg-end)
+             ("\\\\\\(g\\|G\\)\\(l\\|L\\)\\(s\\|S\\)\\(pl\\)"   ispell-tex-arg-end)
              ("\\\\document\\(class\\|style\\)" .
               "\\\\begin[ \t\n]*{[ \t\n]*document[ \t\n]*}"))
             (
@@ -1467,6 +1531,7 @@ themselves with local config comment strings.
              ;;("algorithm"                        ispell-tex-arg-end 0)
              ("list"                             ispell-tex-arg-end 2)
              ("program" . "\\\\end[ \t\n]*{[ \t\n]*program[ \t\n]*}")
+             ("tikzpicture" . "\\\\end[ \t\n]*{[ \t\n]*tikzpicture[ \t\n]*}")
              ("verbatim\\*?"."\\\\end[ \t\n]*{[ \t\n]*verbatim\\*?[ \t\n]*}")
              ("lstlisting\\*?"."\\\\end[ \t\n]*{[ \t\n]*lstlisting\\*?[ \t\n]*}"))))
     )
@@ -1475,32 +1540,21 @@ themselves with local config comment strings.
 Now add =pdf-tools= for nicer PDF interactions
 
 #+begin_src emacs-lisp
-  (use-package pdf-tools
-    :defer t
-    :magic ("%PDF" . pdf-view-mode)
-    :config
-    (with-system darwin
-      ;; https://github.com/politza/pdf-tools/issues/480#issuecomment-473707355
-      (setenv "PKG_CONFIG_PATH" "/usr/local/lib/pkgconfig:/usr/local/Cellar/libffi/3.2.1/lib/pkgconfig"))
-    ;; initialise
-    (pdf-tools-install)
-    ;; open pdfs scaled to fit page
-    (setq-default pdf-view-display-size 'fit-page)
-    ;; automatically annotate highlights
-    (setq pdf-annot-activate-created-annotations t)
-    ;; use normal isearch
-    (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward))
-#+end_src
-
-* R
-
-#+begin_src emacs-lisp
-  (use-package poly-R)
-#+end_src
-
-#+begin_src emacs-lisp
-  (use-package ess
-    :after ess-site)
+  ;; (use-package pdf-tools
+  ;;   :defer t
+  ;;   :magic ("%PDF" . pdf-view-mode)
+  ;;   :config
+  ;;   (with-system darwin
+  ;;     ;; https://github.com/politza/pdf-tools/issues/480#issuecomment-473707355
+  ;;     (setenv "PKG_CONFIG_PATH" "/usr/local/lib/pkgconfig:/usr/local/Cellar/libffi/3.2.1/lib/pkgconfig"))
+  ;;   ;; initialise
+  ;;   (pdf-tools-install)
+  ;;   ;; open pdfs scaled to fit page
+  ;;   (setq-default pdf-view-display-size 'fit-page)
+  ;;   ;; automatically annotate highlights
+  ;;   (setq pdf-annot-activate-created-annotations t)
+  ;;   ;; use normal isearch
+  ;;   (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward))
 #+end_src
 
 * Scala
@@ -1522,18 +1576,6 @@ Use =scala-mode= for scala syntax highlighting
      minibuffer-local-completion-map))
 #+end_src
 
-* Terraform
-
-#+begin_src emacs-lisp
-  (use-package terraform-mode
-    :mode "\\.tf\\'")
-
-  (use-package company-terraform
-    :after terraform-mode
-    :config
-    (company-terraform-init))
-#+end_src
-
 * Dhall
 
 #+begin_src emacs-lisp
@@ -1546,7 +1588,6 @@ Use =scala-mode= for scala syntax highlighting
 #+begin_src emacs-lisp
   (use-package yaml-mode
     :mode ("\\.y[a?]ml\\'"))
-
 #+end_src
 
 * ledger-mode
@@ -1572,4 +1613,13 @@ Flycheck-ledger
 #+begin_src emacs-lisp
   (use-package flycheck-ledger
     :after flycheck)
+#+end_src
+
+* rg.el
+
+#+begin_src emacs-lisp
+  (use-package rg
+    :ensure
+    :config
+    (rg-enable-default-bindings))
 #+end_src
