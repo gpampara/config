@@ -1617,9 +1617,29 @@ Flycheck-ledger
 
 * rg.el
 
+~rg.rl~ is a great alternative to /counsel-rg/ that was the goto for
+this config. this package is very flexible and far more standalone
+than the alternatives whilst being very easy to use.
+
+This is a great package and makes searching for things far more simple.
+
 #+begin_src emacs-lisp
   (use-package rg
-    :ensure
+    :after wgrep
     :config
-    (rg-enable-default-bindings))
+    (rg-enable-default-bindings)
+
+    (rg-define-search gp/rg-vc-or-dir
+      :query ask
+      :format regexp
+      :files "everything"
+      :dir (let ((vc (vc-root-dir)))
+             (if vc
+                 vc                  ; search root project directory
+               default-directory))   ; or from the current directory
+      :confirm prefix
+      :flags ("--hidden --smart-case -g !.git")
+      :menu ("Search" "p" "Project")
+      )
+    )
 #+end_src

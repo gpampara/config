@@ -1,7 +1,7 @@
 .*el
+config.el
 .last-package-update-day
 *secrets
-config*
 .DS_Store
 recentf*
 abbrev*
@@ -19,3 +19,4 @@ smex*
 /amx-items
 /personal_dictionary
 /.org-id-locations
+/var
