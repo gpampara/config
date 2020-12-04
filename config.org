@@ -1,4 +1,4 @@
-#+TITLE: Emacs Config
+#+TITLE: Emacs Configuration
 #+AUTHOR: Gary Pamparà
 #+TOC: true
 
@@ -86,10 +86,10 @@ Adjust shell environment variables, if needed
 * Variables
 
 #+begin_src emacs-lisp
-  (setq sentence-end-double-space nil)	; sentence SHOULD end with only a point.
-  (setq require-final-newline t)  ; Ensure there is a final newline
-  (setq confirm-kill-emacs 'y-or-n-p)  ; Confirm really quit emacs
-  (defalias 'yes-or-no-p 'y-or-n-p)  ; shorten yes/no prompts to y/n
+  (setq sentence-end-double-space nil)   ; Sentences _SHOULD_ end with only a point.
+  (setq require-final-newline t)         ; Ensure there is a final newline
+  (setq confirm-kill-emacs 'y-or-n-p)    ; Confirm really quit emacs
+  (defalias 'yes-or-no-p 'y-or-n-p)      ; Shorten yes/no prompts to y/n
 
   (setq save-interprogram-paste-before-kill t
         apropos-do-all t
@@ -145,15 +145,7 @@ Disable passing various commands to the underlying  system:
     (setq mac-pass-command-to-system nil))
 #+end_src
 
-# Some fancy  composition:
-#
-#+begin_src emacs-lisp
-  ;; (with-system darwin
-  ;;   (if (fboundp 'mac-auto-operator-composition-mode)
-  ;;       (mac-auto-operator-composition-mode t)))
-#+end_src
-
-Start emacs fullscreen
+Start Emacs fullscreen
 
 #+begin_src emacs-lisp
   (with-system darwin
@@ -387,6 +379,7 @@ Now give priority to my custom key map:
 #+end_src
 
 * crux
+
 =crux= has useful functions extracted from Emacs Prelude. Set `C-a` to
 move to the first non-whitespace character on a line, and then to
 toggle between that and the beginning of the line.
@@ -432,35 +425,18 @@ On Darwin the version of =ls= does not support an option which is present in GNU
 ;;  (set-face-attribute 'default nil :family "Iosevka" :height 130)
 #+end_src
 
-* COMMENT eshell
+* Terminals
 
-Prevent opening up a file using the system =vi= and instead open it
-
-#+begin_src emacs-lisp
-  (defun eshell/vi (arg)
-    "Any accidental attempts to open files using VI are simply opened using emacs instead"
-    (princ "Opening file in emacs buffer")
-    (find-file arg))
-#+end_src
-
-Add a helper for long running commands with a lot of output that is not friendly to buffers
+** vterm
 
 #+begin_src emacs-lisp
-(defun eshell/in-term (prog &rest args)
-  "Run shell command in term buffer."
-  (switch-to-buffer (apply #'make-term prog prog nil args))
-  (term-mode)
-  (term-char-mode))
+  (use-package vterm
+    :config
+    (setq vterm-max-scrollback 5000))
 #+end_src
 
-
-#+begin_src emacs-lisp
-(add-hook 'eshell-mode-hook
-  (lambda ()
-    (define-key eshell-mode-map (kbd "<tab>")
-      (lambda () (interactive) (pcomplete-std-complete)))))
-#+end_src
 * direnv
+
 #+begin_src emacs-lisp
   (use-package warnings)
 #+end_src
@@ -511,43 +487,44 @@ Add expand-region
 * magit
 
 #+begin_src emacs-lisp
+  ;;;###autoload
+  (defun gp/magit-fetch-and-prune-gone-remotes ()
+    (interactive)
+    (magit-run-git-async "gone"))
+
+
   (use-package magit
-    :defer t
+    :demand t
+    :commands git-fetch-and-prune
     :general
     ("C-x g" 'magit-status)
     :config
     ;; https://github.com/magit/magit/issues/2982#issuecomment-598493683
     (setq magit-git-executable (executable-find "git"))
-    (add-hook 'git-commit-setup-hook 'git-commit-turn-on-flyspell))
+    (add-hook 'git-commit-setup-hook 'git-commit-turn-on-flyspell)
+
+    (transient-insert-suffix 'magit-fetch "p"
+      '("P" "fetch, prune and remove local branches tracking 'gone' remotes" gp/magit-fetch-and-prune-gone-remotes))
+
+    ;; http://whattheemacsd.com/setup-magit.el-01.html#comment-748135498
+    ;; full screen magit-status
+    (defadvice magit-status (around magit-fullscreen activate)
+      (window-configuration-to-register :magit-fullscreen)
+      ad-do-it
+      (delete-other-windows))
+
+    (defun magit-quit-session ()
+      "Restores the previous window configuration and kills the magit buffer"
+      (interactive)
+      (kill-buffer)
+      (jump-to-register :magit-fullscreen))
+
+    (define-key magit-status-mode-map (kbd "q") 'magit-quit-session))
 #+end_src
 
 #+begin_src emacs-lisp
   (use-package transient
     :ensure t)
-#+end_src
-
-#+begin_src emacs-lisp
-  ; Use https://github.com/Silex/docker.el as some inspriation
-  (require 'transient)
-
-  ;;;###autoload
-  (autoload 'magit-maintenance-list-merged-branches "magit-mytools" nil t)
-  (defun magit-maintenance-list-merged-branches (&optional args)
-    "List local branches that are merged upstream"
-    (let* ((deleted-branches (magit-git-lines "fetch -p --dry-run")))
-      (message deleted-branches)))
-
-  ;(autoload 'magit-mytools-dispatch "magit-mytools" nil t)
-  (transient-define-prefix magit-mytools-dispatch ()
-    "Invoke a custome git command from magit."
-    ["Transient commands"
-     [("l" "List merged remove branches" magit-maintenance-list-merged-branches)]])
-
-  (eval-after-load 'magit
-    '(progn
-       (define-key magit-mode-map "@" 'magit-mytools-dispatch)
-       (transient-append-suffix 'magit-dispatch "%"
-         '("@" "Custom Tools" magit-mytools-dispatch))))
 #+end_src
 
 * ssh-agency
@@ -741,6 +718,7 @@ Display a simple dashboard at startup
                             (recents . 10)))
     (setq dashboard-set-heading-icons t)
     (setq dashboard-set-file-icons t))
+    ;(setq dashboard-org-agenda-categories '("Tasks" "birthdays" "gtd")))
 #+end_src
 
 * beacon
@@ -824,6 +802,7 @@ Completion service using =company-mode=
             ))
     (add-hook 'sh-mode-hook
               (lambda ()
+                (sh-set-shell "bash")
                 (flycheck-select-checker 'sh-shellcheck)))
     )
 #+end_src
@@ -995,22 +974,6 @@ Set colours for priorities
                              (?C . (:foreground "OliveDrab"))))
 #+end_src
 
-* COMMENT org-ref
-
-#+begin_src emacs-lisp
-  ;; (use-package org-ref
-    ;;   :config
-  ;;   (setq
-  ;;      org-ref-get-pdf-filename-function 'org-ref-get-pdf-filename-helm-bibtex
-  ;;      org-ref-default-bibliography (list zot_bib)
-  ;;      org-ref-bibliography-notes (concat org_notes "/bibnotes.org")
-  ;;      org-ref-note-title-format "* TODO %y - %t\n :PROPERTIES:\n  :Custom_ID: %k\n  :NOTER_DOCUMENT: %F\n :ROAM_KEY: Cite:%k\n  :AUTHOR: %9a\n  :JOURNAL: %j\n  :YEAR: %y\n  :VOLUME: %v\n  :PAGES: %p\n  :DOI: %D\n  :URL: %U\n :END:\n\n"
-  ;;      org-ref-notes-directory org_notes
-  ;;      org-ref-notes-function 'orb-edit-notes
-  ;;      )
-  ;;   )
-#+end_src
-
 * org-bullets
 
 Improve the appearance of bullet points in Emacs:
@@ -1027,13 +990,13 @@ Improve the appearance of bullet points in Emacs:
 Define the locations of the different org files:
 
 #+begin_src emacs-lisp
-    (setq org-agenda-files (list "~/org/thesis-todo.org"
-                                 "~/org/gtd.org"
-                                 "~/org/projects.org"
-                                 "~/org/work.org"
-                                 "~/org/calendar.org"
-                                 "~/org/call.org"
-                                 "~/org/birthdays.org"))
+  (setq org-agenda-files (list "~/org/thesis-todo.org"
+                               "~/org/gtd.org"
+                               "~/org/projects.org"
+                               "~/org/work.org"
+                               "~/org/calendar.org"
+                               "~/org/call.org"
+                               "~/org/birthdays.org"))
 #+end_src
 
 * org-capture templates
@@ -1266,37 +1229,66 @@ Add =langtool= as an additional tool to use
 * Language Server (LSP)
 
 #+begin_src emacs-lisp
-  (use-package lsp-mode
-    :commands (lsp lsp-deferred)
-    :hook
-    ((elm-mode . lsp-deferred))
-    :config
-    (lsp-enable-which-key-integration t))
+    (use-package lsp-mode
+      :commands (lsp lsp-deferred)
+      :hook
+      ((elm-mode . lsp-deferred)
+       (scala-mode . lsp-deferred)
+       )
+      :config
+      (setq lsp-diagnostics-provider :flycheck)
+      (lsp-enable-which-key-integration t)
+      :custom
+      (lsp-enable-xref t))
 
-  ;;(use-package lsp-ui :commands lsp-ui-mode)
-      ;; :after lsp-mode
-      ;; :diminish
-      ;; :commands lsp-ui-mode
-      ;; :custom-face
-      ;; (lsp-ui-doc-background ((t (:background nil))))
-      ;; (lsp-ui-doc-header ((t (:inherit (font-lock-string-face italic)))))
-      ;; :custom
-      ;; (lsp-ui-doc-enable t)
-      ;; (lsp-ui-doc-header t)
-      ;; (lsp-ui-doc-include-signature t)
-      ;; (lsp-ui-doc-position 'top)
-      ;; (lsp-ui-doc-border (face-foreground 'default))
-      ;; (lsp-ui-sideline-enable nil)
-      ;; (lsp-ui-sideline-ignore-duplicate t)
-      ;; (lsp-ui-sideline-show-code-actions nil)
-      ;; :config
-      ;; ;; Use lsp-ui-doc-webkit only in GUI
-      ;; (setq lsp-ui-doc-use-webkit t)
-      ;; ;; WORKAROUND Hide mode-line of the lsp-ui-imenu buffer
-      ;; ;; https://github.com/emacs-lsp/lsp-ui/issues/243
-      ;; (defadvice lsp-ui-imenu (after hide-lsp-ui-imenu-mode-line activate)
-      ;;   (setq mode-line-format nil))
-      ;; (defun lsp--send-did-save-p () t))
+    (use-package lsp-ui
+      :config
+      (setq lsp-ui-doc-delay 2))
+    ;;(use-package lsp-ui :commands lsp-ui-mode)
+        ;; :after lsp-mode
+        ;; :diminish
+        ;; :commands lsp-ui-mode
+        ;; :custom-face
+        ;; (lsp-ui-doc-background ((t (:background nil))))
+        ;; (lsp-ui-doc-header ((t (:inherit (font-lock-string-face italic)))))
+        ;; :custom
+        ;; (lsp-ui-doc-enable t)
+        ;; (lsp-ui-doc-header t)
+        ;; (lsp-ui-doc-include-signature t)
+        ;; (lsp-ui-doc-position 'top)
+        ;; (lsp-ui-doc-border (face-foreground 'default))
+        ;; (lsp-ui-sideline-enable nil)
+        ;; (lsp-ui-sideline-ignore-duplicate t)
+        ;; (lsp-ui-sideline-show-code-actions nil)
+        ;; :config
+        ;; ;; Use lsp-ui-doc-webkit only in GUI
+        ;; (setq lsp-ui-doc-use-webkit t)
+        ;; ;; WORKAROUND Hide mode-line of the lsp-ui-imenu buffer
+        ;; ;; https://github.com/emacs-lsp/lsp-ui/issues/243
+        ;; (defadvice lsp-ui-imenu (after hide-lsp-ui-imenu-mode-line activate)
+        ;;   (setq mode-line-format nil))
+        ;; (defun lsp--send-did-save-p () t))
+
+
+    ;; Add metals backend for lsp-mode
+    (use-package lsp-metals
+      :config (setq lsp-metals-treeview-show-when-views-received t))
+
+    ;; Use the Debug Adapter Protocol for running tests and debugging
+    (use-package posframe
+      ;; Posframe is a pop-up tool that must be manually installed for dap-mode
+      )
+    (use-package dap-mode
+      :hook
+      (lsp-mode . dap-mode)
+      (lsp-mode . dap-ui-mode)
+      )
+#+end_src
+
+** Debug Adapter Protocol (DAP)
+
+#+begin_src emacs-lisp
+  (use-package dap-mode)
 #+end_src
 
 * auto-fill comments
@@ -1573,7 +1565,10 @@ Use =scala-mode= for scala syntax highlighting
     (substitute-key-definition
      'minibuffer-complete-word
      'self-insert-command
-     minibuffer-local-completion-map))
+     minibuffer-local-completion-map)
+    ;; sbt-supershell kills sbt-mode:  https://github.com/hvesalai/emacs-sbt-mode/issues/152
+    (setq sbt:program-options '("-Dsbt.supershell=false"))
+    )
 #+end_src
 
 * Dhall
@@ -1633,13 +1628,18 @@ This is a great package and makes searching for things far more simple.
       :query ask
       :format regexp
       :files "everything"
-      :dir (let ((vc (vc-root-dir)))
+      :dir (let ((vc (projectile-project-root)))
              (if vc
                  vc                  ; search root project directory
                default-directory))   ; or from the current directory
       :confirm prefix
-      :flags ("--hidden --smart-case -g !.git")
-      :menu ("Search" "p" "Project")
-      )
+      :flags ("--hidden --smart-case -g !.git -g '!**/node_modules/**'")
+      :menu ("Custom" "k" "Project from root"))
     )
+#+end_src
+
+* bazel
+
+#+begin_src emacs-lisp
+  (use-package bazel-mode)
 #+end_src
