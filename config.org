@@ -56,7 +56,9 @@ Define an auto-update schedule for packages
 
 #+begin_src emacs-lisp
   (use-package no-littering
-    :demand t)
+    :demand t
+    :config
+    (setq custom-file (no-littering-expand-etc-file-name "custom.el")))
 #+end_src
 
 * Shell environment variable import
