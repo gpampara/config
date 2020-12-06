@@ -148,13 +148,16 @@
         enable = true;
         config = ''
           (dashboard-setup-startup-hook)
-          (setq show-week-agenda-p t)
-          (setq dashboard-items '((agenda . 10)
-                                  (projects . 10)
+
+          (setq dashboard-week-agenda t)
+
+          ;; TODO: add the agenda for the current day that is more flexible than the default implementation in dashboard.el
+          ;; The filter should take all agenda items for the current day and display them (including birthdays)
+          (setq dashboard-items '((projects . 10)
                                   (recents . 10)))
+
           (setq dashboard-set-heading-icons t)
           (setq dashboard-set-file-icons t)
-          ;;(setq dashboard-org-agenda-categories '("Tasks" "birthdays" "gtd"))
         '';
       };
 
@@ -509,15 +512,21 @@
         '';
       };
 
-      org-plus-contrib = { # the larger org mode package
+      org = {
         enable = true;
-        mode = [ ''"\\.org\\'"'' ];
         bind = {
           "C-c l" = "org-store-link";
           "C-c a" = "org-agenda";
           "C-C c" = "org-capture";
         };
         config = builtins.readFile ./org-config.el;
+      };
+
+      org-agenda = {
+        enable = true;
+        after = [ "org" ];
+        defer = true;
+        config = "(setq org-agenda-include-diary t)";
       };
 
       org-bullets = {
