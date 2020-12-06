@@ -158,6 +158,8 @@
 
           (setq dashboard-set-heading-icons t)
           (setq dashboard-set-file-icons t)
+
+          (setq default-directory "~/")
         '';
       };
 
@@ -566,8 +568,9 @@
         '';
       };
 
+      # TODO verify the config for org-noter
       org-noter = {
-        enable = true;
+        enable = false;
         command = [ "org-noter" ];
         after = [ "org" "pdf-view" ];
         config = ''
@@ -623,8 +626,8 @@
       polymode = {
         enable = true;
         mode = [
-          ''("\\.Rnw" . poly-noweb+R-mode)''
-          ''("\\.Rtex" . poly-noweb+R-mode)''
+          ''("\\.Rnw" . poly-noweb+r-mode)''
+          ''("\\.Rtex" . poly-noweb+r-mode)''
         ];
       };
 
@@ -759,6 +762,7 @@
 
       writeroom-mode = {
         enable = true;
+        after = [ "hydra" ];
         bindLocal = {
           writeroom-mode-map = {
             "C-M-=" = "hydra-writeroom-width/body";
@@ -772,12 +776,11 @@
           ;;(add-hook 'LaTeX-mode-hook 'adaptive-wrap-prefix-mode)
           (add-hook 'LaTeX-mode-hook 'visual-line-mode)
 
-          (when (featurep 'hydra)
-            (defhydra hydra-writeroom-width (:color red)
-              "Write-room panel size"
-              ("j" writeroom-decrease-width "shrink panel width")
-              ("k" writeroom-increase-width "increase panel width")
-              ("=" writeroom-adjust-width "specify panel width"))
+          (defhydra hydra-writeroom-width (:color red)
+            "Write-room panel size"
+            ("j" writeroom-decrease-width "shrink panel width")
+            ("k" writeroom-increase-width "increase panel width")
+            ("=" writeroom-adjust-width "specify panel width"))
         '';
       };
 
