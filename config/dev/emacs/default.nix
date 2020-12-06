@@ -759,11 +759,9 @@
 
       writeroom-mode = {
         enable = true;
-        bindLocal = { #TODO: do this with a hydra
+        bindLocal = {
           writeroom-mode-map = {
-            "C-s-," = "writeroom-decrease-width";
-            "C-s-." = "writeroom-increase-width";
-            "C-s-=" = "writeroom-adjust-width";
+            "C-M-=" = "hydra-writeroom-width/body";
           };
         };
         config = ''
@@ -773,6 +771,13 @@
           (add-hook 'LaTeX-mode-hook 'writeroom-mode)
           ;;(add-hook 'LaTeX-mode-hook 'adaptive-wrap-prefix-mode)
           (add-hook 'LaTeX-mode-hook 'visual-line-mode)
+
+          (when (featurep 'hydra)
+            (defhydra hydra-writeroom-width (:color red)
+              "Write-room panel size"
+              ("j" writeroom-decrease-width "shrink panel width")
+              ("k" writeroom-increase-width "increase panel width")
+              ("=" writeroom-adjust-width "specify panel width"))
         '';
       };
 
