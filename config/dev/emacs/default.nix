@@ -402,6 +402,7 @@
         hook = [
           "(elm-mode . lsp-deferred)"
           "(scala-mode . lsp-deferred)"
+          "(nix-mode . lsp-deferred)"
           "(lsp-mode . lsp-enable-which-key-integration)"
         ];
         config = ''
@@ -507,6 +508,11 @@
       nix-mode = {
         enable = true;
         mode = [ ''"\\.nix\\'"'' ];
+        defer = 1;
+        after = [ "company" ];
+        extraPackages = [
+          pkgs.rnix-lsp
+        ];
       };
 
       no-littering = {
