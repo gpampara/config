@@ -104,6 +104,7 @@
         enable = true;
         diminish = [ "company-mode" ];
         command = [ "company-mode" "company-doc-buffer" "global-company-mode" ];
+        hook = [ "(after-init . global-company-mode)"];
         defer = 1;
         extraConfig = ''
           :bind (:map company-mode-map
@@ -116,7 +117,6 @@
                 company-tooltip-minimum-width 20
                 ; Allow me to keep typing even if company disapproves.
                 company-require-match nil)
-          (global-company-mode)
         '';
       };
 
@@ -229,8 +229,9 @@
 
       elm-mode = {
         enable = true;
+        mode = [ ''"\\.elm\\'"'' ];
         defer = 1;
-        after = [ "company" "lsp-mode" ];
+        after = [ "company" ];
         hook = [ "(elm-mode . elm-format-on-save-mode)" ];
         extraPackages = [
           pkgs.elmPackages.elm-language-server
@@ -385,6 +386,10 @@
         '';
       };
 
+      lsp-diagnostics = {
+        enable = true;
+      };
+
       lsp-metals = {
         enable = true;
         after = [ "lsp-mode" ];
@@ -397,10 +402,10 @@
         hook = [
           "(elm-mode . lsp-deferred)"
           "(scala-mode . lsp-deferred)"
+          "(lsp-mode . lsp-enable-which-key-integration)"
         ];
         config = ''
           (setq lsp-diagnostics-provider :flycheck)
-          (setq lsp-enable-which-key-integration t)
           (setq lsp-enable-xref t)
 
           (push "[/\\\\]vendor$" lsp-file-watch-ignored)
@@ -792,7 +797,7 @@
         hook = [
           # Yasnippet interferes with tab completion in ansi-term.
           "(term-mode . (lambda () (yas-minor-mode -1)))"
-          "(yas-minor-mode-hook . (lambda () (yas-activate-extra-mode 'fundamental-mode)))"
+          "(yas-minor-mode . (lambda () (yas-activate-extra-mode 'fundamental-mode)))"
         ];
         config = "(yas-global-mode 1)";
       };
