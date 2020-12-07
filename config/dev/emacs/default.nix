@@ -408,7 +408,12 @@
           (setq lsp-diagnostics-provider :flycheck)
           (setq lsp-enable-xref t)
 
+          ;; Performance adjustments (https://emacs-lsp.github.io/lsp-mode/page/performance/)
+          (setq read-process-output-max (* 1024 1024)) ;; 1mb
+          (setq lsp-completion-provider :capf)
+
           (push "[/\\\\]vendor$" lsp-file-watch-ignored)
+          (push "[/\\\\]node_modules$" lsp-file-watch-ignored)
           (push "[/\\\\]\\.yarn$" lsp-file-watch-ignored)
           (push "[/\\\\]\\.direnv$" lsp-file-watch-ignored)
         '';
