@@ -22,19 +22,19 @@
 
 
 (setq org-capture-templates
-      '(("T" "Thesis todo" entry
-         (file+headline "~/org/thesis-todo.org" "Thesis Tasks")
+      `(("T" "Thesis todo" entry
+         (file+headline ,(concat org-agenda-directory "thesis-todo.org") "Thesis Tasks")
          "* TODO %?\n  %i\n  %a")
         ("t" "Todo" entry
-         (file+headline "~/org/gtd.org" "Tasks")
+         (file+headline ,(concat org-agenda-directory "gtd.org") "Tasks")
          "* TODO %?\n  %i\n  %a")
         ("p" "Project Todo" entry
-         (file+headline "~/org/projects.org" "Tasks")
+         (file+headline ,(concat org-agenda-directory "projects.org") "Tasks")
          "* TODO %?\n  %i\n  %a")
         ("w" "Work Todo" entry
-         (file+headline "~/org/work.org" "Tasks")
+         (file+headline ,(concat org-agenda-directory "work.org") "Tasks")
          "* TODO %?\n  %i\n  %a")
         ("c" "Call someone" entry
-         (file+headline "~/org/call.org" "To call")
+         (file+headline ,(concat org-agenda-directory "call.org") "To call")
          "* TODO %?\n  %i\n")
         ))
