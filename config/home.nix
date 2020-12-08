@@ -42,9 +42,6 @@ in
     elmPackages.elm-format
     elmPackages.elm-test
 
-    # Scala
-    metals # The language server
-
     graphviz
     ledger
     jq

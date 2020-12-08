@@ -642,8 +642,8 @@
       polymode = {
         enable = true;
         mode = [
-          ''("\\.Rnw" . poly-noweb+r-mode)''
-          ''("\\.Rtex" . poly-noweb+r-mode)''
+          ''("\\.Rnw\\'" . poly-noweb+r-mode)''
+          ''("\\.Rtex\\'" . poly-noweb+r-mode)''
         ];
       };
 
@@ -717,7 +717,13 @@
 
       scala-mode = {
         enable = true;
-        mode = [ ''"\\.s\\(cala|bt\\)\\'"'' ];
+        mode = [
+          ''("\\.scala\\'" . scala-mode)''
+          ''("\\.sbt\\'" . scala-mode)''
+        ];
+        extraPackages = [
+          pkgs.metals # language server
+        ];
       };
 
       selectrum = {
@@ -798,6 +804,12 @@
             ("k" writeroom-increase-width "increase panel width")
             ("=" writeroom-adjust-width "specify panel width"))
         '';
+      };
+
+      yaml-mode = {
+        enable = true;
+        defer = true;
+        mode = [ ''"\\.ya?ml\\'"'' ];
       };
 
       yasnippet = {
