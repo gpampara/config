@@ -82,13 +82,10 @@ in
     enable = true;
     userName = "Gary Pamparà";
     aliases = {
-      # https://www.erikschierboom.com/2020/02/17/cleaning-up-local-git-branches-deleted-on-a-remote/
-      gone =
-        let
-          xargs =
-            if pkgs.stdenv.isDarwin then "xargs -n1" else "xargs -r";
-        in
-          ''! git fetch -a -p | grep "deleted" | awk '{ print $5 }' | sed -e 's;origin/;;g' | ${xargs} git branch -D'';
+      # https://github.com/not-an-aardvark/git-delete-squashed
+      gone =''
+        ! ${pkgs.bash}/bin/bash -c 'git fetch -a -p && git for-each-ref refs/heads/ "--format=%(refname:short)" | while read branch; do mergeBase=$(git merge-base origin/master $branch) && [[ $(git cherry origin/master $(git commit-tree $(git rev-parse $branch\^{tree}) -p $mergeBase -m _)) == "-"* ]] && git branch -D $branch; done; echo ""'
+     '';
 
       # list all aliases
       aliases = "!git config --get-regexp 'alias.*' | colrm 1 6 | sed 's/[ ]/ = /' | sort";
