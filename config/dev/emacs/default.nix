@@ -20,44 +20,29 @@
     prelude = builtins.readFile ./prelude.el;
 
     usePackage = {
+
       ace-window = {
         enable = true;
+        after = [ "hydra" ];
         bind = {
           "M-o" = "ace-window";
         };
-        # config = ''
-        #   (setq aw-dispatch-alist
-        #         '((?x aw-delete-window " Ace - Delete Window")
-        #         (?m aw-swap-window " Ace - Swap Window")
-        #         (?n aw-flip-window)
-        #         (?v aw-split-window-vert " Ace - Split Vert Window")
-        #         (?h aw-split-window-horz " Ace - Split Horz Window")
-        #         (?i delete-other-windows " Ace - Maximize Window")
-        #         (?o delete-other-windows)
-        #         (?b balance-windows)))
+        config = ''
+          (setq aw-dispatch-alist
+                '((?x aw-delete-window " Ace - Delete Window")
+                (?m aw-swap-window " Ace - Swap Window")
+                (?n aw-flip-window)
+                (?v aw-split-window-vert " Ace - Split Vert Window")
+                (?h aw-split-window-horz " Ace - Split Horz Window")
+                (?i delete-other-windows " Ace - Maximize Window")
+                (?o delete-other-windows)
+                (?b balance-windows)))
 
-        #   (when (featurep 'hydra)
-        #     (defhydra hydra-window-size (:color red)
-        #       "Windows size"
-        #       ("h" shrink-window-horizontally "shrink horizontal")
-        #       ("j" shrink-window "shrink vertical")
-        #       ("k" enlarge-window "enlarge vertical")
-        #       ("l" enlarge-window-horizontally "enlarge horizontal"))
-        #     ;; (defhydra hydra-window-frame (:color red)
-        #     ;;   "Frame"
-        #     ;;   ("f" make-frame "new frame")
-        #     ;;   ("x" delete-frame "delete frame"))
-        #     ;; (defhydra hydra-window-scroll (:color red)
-        #     ;;   "Scroll other window"
-        #     ;;   ("n" joe-scroll-other-window "scroll")
-        #     ;;   ("p" joe-scroll-other-window-down "scroll down"))
+          (add-to-list 'aw-dispatch-alist '(?w hydra-window-size/body) t)
+          (add-to-list 'aw-dispatch-alist '(?\; hydra-window-frame/body) t)
 
-        #     (add-to-list 'aw-dispatch-alist '(?w hydra-window-size/body) t)
-        #     ;;(add-to-list 'aw-dispatch-alist '(?o hydra-window-scroll/body) t)
-        #     ;;(add-to-list 'aw-dispatch-alist '(?\; hydra-window-frame/body) t)
-        #     ;;)
-        #     (ace-window-display-mode t)
-        # '';
+          (ace-window-display-mode t)
+        '';
       };
 
       async = {
@@ -66,7 +51,7 @@
 
       auctex = {
         enable = true;
-        after = [ "tex" "latex" "writeroom-mode" "writegood-mode" ];
+        after = [ "tex" "latex" "writegood-mode" "olivetti" ];
         command = [ "latex-mode" "LaTeX-mode" "plain-tex-mode" ];
         defer = 1;
         mode = [ ''("\\.tex\\'" . LaTeX-mode)'' ];
@@ -323,7 +308,11 @@
 
       haskell-mode = {
         enable = true;
+        defer = true;
         mode = [ ''"\\.hs\\'"'' ];
+        config = ''
+          (require 'haskell)
+        '';
       };
 
       helpful = {
@@ -366,8 +355,28 @@
         config = "(global-hungry-delete-mode)";
       };
 
+      # Would be great to define these in the different use-package definitions
       hydra = {
         enable = true;
+        config = ''
+          (defhydra hydra-window-size (:color red)
+            "Window size"
+            ("h" shrink-window-horizontally "shrink horizontal")
+            ("j" shrink-window "shrink vertical")
+            ("k" enlarge-window "enlarge vertical")
+            ("l" enlarge-window-horizontally "enlarge horizontal"))
+
+          (defhydra hydra-window-frame (:color red)
+            "Frame"
+            ("f" make-frame "new frame")
+            ("x" delete-frame "delete frame"))
+
+          (defhydra hydra-olivetti-width (:color red)
+            "Olivetti panel size"
+            ("j" olivetti-shrink "shrink panel width")
+            ("k" olivetti-expand "increase panel width")
+            ("=" olivetti-set-width "specify panel width"))
+        '';
       };
 
       ibuffer = {
@@ -520,6 +529,27 @@
         demand = true;
         config = ''
           (setq custom-file (no-littering-expand-etc-file-name "custom.el"))
+        '';
+      };
+
+      olivetti = {
+        enable = true;
+        after = [ "polymode" ];
+        command = [ "olivetti-mode" ];
+        diminish = [ "olivetti-mode" ];
+        bindLocal = {
+          olivetti-mode-map = {
+            "C-M-=" = "hydra-olivetti-width/body";
+          };
+        };
+
+        config = ''
+          (setq olivetti-body-width 110)
+          (setq olivetti-minimum-body-width 80)
+          (setq olivetti-recall-visual-line-mode-entry-state t)
+
+          (push 'olivetti-mode polymode-move-these-vars-from-old-buffer) ;; Doesn't seem to work!
+          (add-hook 'poly-markdown+r-mode-hook (lambda() (olivetti-mode t)))
         '';
       };
 
@@ -692,6 +722,11 @@
         '';
       };
 
+      restclient = {
+        enable = true;
+        command = [ "rectclient-mode" ];
+      };
+
       rg = {
         enable = true;
         after = [ "wgrep" ];
@@ -782,29 +817,23 @@
         '';
       };
 
-      writeroom-mode = {
-        enable = true;
-        after = [ "hydra" ];
-        bindLocal = {
-          writeroom-mode-map = {
-            "C-M-=" = "hydra-writeroom-width/body";
-          };
-        };
-        config = ''
-          (setq writeroom-width 120)
-          (advice-add 'text-scale-adjust :after #'visual-fill-column-adjust)
+      # writeroom-mode = {
+      #   enable = true;
+      #   after = [ "hydra" ];
+      #   bindLocal = {
+      #     writeroom-mode-map = {
+      #       "C-M-=" = "hydra-writeroom-width/body";
+      #     };
+      #   };
+      #   config = ''
+      #     (setq writeroom-width 120)
+      #     (advice-add 'text-scale-adjust :after #'visual-fill-column-adjust)
 
-          (add-hook 'LaTeX-mode-hook 'writeroom-mode)
-          ;;(add-hook 'LaTeX-mode-hook 'adaptive-wrap-prefix-mode)
-          (add-hook 'LaTeX-mode-hook 'visual-line-mode)
-
-          (defhydra hydra-writeroom-width (:color red)
-            "Write-room panel size"
-            ("j" writeroom-decrease-width "shrink panel width")
-            ("k" writeroom-increase-width "increase panel width")
-            ("=" writeroom-adjust-width "specify panel width"))
-        '';
-      };
+      #     (add-hook 'LaTeX-mode-hook 'writeroom-mode)
+      #     ;;(add-hook 'LaTeX-mode-hook 'adaptive-wrap-prefix-mode)
+      #     (add-hook 'LaTeX-mode-hook 'visual-line-mode)
+      #   '';
+      # };
 
       yaml-mode = {
         enable = true;
