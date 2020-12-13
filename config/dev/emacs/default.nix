@@ -71,14 +71,6 @@
         };
       };
 
-      beacon = {
-        enable = true;
-        config = ''
-          (setq beacon-size 20)
-          (beacon-mode 1)
-        '';
-      };
-
       coffee-mode = {
         enable = true;
         defer = 1;
@@ -704,6 +696,19 @@
           (push ".yarn" projectile-globally-ignored-directories)
 
           (projectile-mode +1)
+        '';
+      };
+
+      pulse = {
+        enable = true;
+        config = ''
+          (defun pulse-line (&rest _)
+            "Pulse the current line."
+            (pulse-momentary-highlight-one-line (point)))
+
+          (dolist (command '( ;; scroll-up-command scroll-down-command
+                             recenter-top-bottom other-window ace-window))
+            (advice-add command :after #'pulse-line))
         '';
       };
 
