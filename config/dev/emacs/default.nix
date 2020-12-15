@@ -23,7 +23,7 @@
 
       ace-window = {
         enable = true;
-        after = [ "hydra" ];
+        command = [ "ace-window" ];
         bind = {
           "M-o" = "ace-window";
         };
@@ -53,7 +53,6 @@
         enable = true;
         after = [ "tex" "latex" "writegood-mode" "olivetti" ];
         command = [ "latex-mode" "LaTeX-mode" "plain-tex-mode" ];
-        defer = 1;
         mode = [ ''("\\.tex\\'" . LaTeX-mode)'' ];
         bindLocal = {
           LaTeX-mode-map = {
@@ -73,7 +72,6 @@
 
       coffee-mode = {
         enable = true;
-        defer = 1;
         mode = [ ''"\\.coffee\\'"'' ];
       };
 
@@ -82,7 +80,6 @@
         diminish = [ "company-mode" ];
         command = [ "company-mode" "company-doc-buffer" "global-company-mode" ];
         hook = [ "(after-init . global-company-mode)"];
-        defer = 1;
         extraConfig = ''
           :bind (:map company-mode-map
                       ([remap completion-at-point] . company-complete-common)
@@ -207,7 +204,7 @@
       elm-mode = {
         enable = true;
         mode = [ ''"\\.elm\\'"'' ];
-        defer = 1;
+        command = [ "elm-mode" ];
         after = [ "company" ];
         hook = [ "(elm-mode . elm-format-on-save-mode)" ];
         extraPackages = [
@@ -271,7 +268,6 @@
         enable = true;
         diminish = [ "flycheck-mode" ];
         command = [ "global-flycheck-mode" ];
-        defer = 1;
         bind = {
           "M-n" = "flycheck-next-error";
           "M-p" = "flycheck-previous-error";
@@ -300,7 +296,6 @@
 
       haskell-mode = {
         enable = true;
-        defer = true;
         mode = [ ''"\\.hs\\'"'' ];
         config = ''
           (require 'haskell)
@@ -381,6 +376,7 @@
 
       ledger-mode = {
         enable = true;
+        defer = true;
         config = ''
           (setq ledger-clear-whole-transactions 1)
           (setq ledger-reconcile-default-commodity "R")
@@ -393,6 +389,7 @@
 
       lsp-metals = {
         enable = true;
+        defer = true;
         after = [ "lsp-mode" ];
       };
 
@@ -509,7 +506,6 @@
       nix-mode = {
         enable = true;
         mode = [ ''"\\.nix\\'"'' ];
-        defer = 1;
         after = [ "company" ];
         extraPackages = [
           pkgs.rnix-lsp
@@ -661,17 +657,25 @@
         after = [ "polymode" ];
       };
 
+      # poly-latex-R = {
+      #   enable = true;
+      #   after = [ "polymode" ];
+      #   config = ''
+      #     (add-to-list 'LaTeX-verbatim-environments "Rcode")
+      #   '';
+      # };
+
       polymode = {
         enable = true;
         mode = [
           ''("\\.Rnw\\'" . poly-noweb+r-mode)''
           ''("\\.Rtex\\'" . poly-noweb+r-mode)''
+          ''("\\.Rlatex\\'" . poly-latex+R-mode)''
         ];
       };
 
       popup-kill-ring = {
         enable = true;
-        defer = 1;
         command = [ "popup-kill-ring" ];
         bind = {
           "M-y" = "popup-kill-ring";
@@ -842,13 +846,11 @@
 
       yaml-mode = {
         enable = true;
-        defer = true;
         mode = [ ''"\\.ya?ml\\'"'' ];
       };
 
       yasnippet = {
         enable = true;
-        defer = 3;
         diminish = [ "yas-minor-mode" ];
         command = [ "yas-global-mode" "yas-minor-mode" "yas-expand-snippet" ];
         hook = [
