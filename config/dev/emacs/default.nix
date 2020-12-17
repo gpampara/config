@@ -565,12 +565,6 @@
         config = "(setq org-agenda-include-diary t)";
       };
 
-      org-bullets = {
-        enable = true;
-        after = [ "org" ];
-        hook = [ "(org-mode . (lambda () (org-bullets-mode 1)))" ];
-      };
-
       # TODO: look into alternatives for org journal. Using dailies from org-roam??
       org-journal = {
         enable = true;
@@ -640,6 +634,12 @@
 
       org-roam-bibtex = { # TODO: complete this
         enable = false;
+      };
+
+      org-superstar = {
+        enable = true;
+        after = [ "org" ];
+        hook = [ "(org-mode . (lambda () (org-superstar-mode 1)))" ];
       };
 
       pcre2el = {
