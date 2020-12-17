@@ -89,6 +89,9 @@ in
 
       # list all aliases
       aliases = "!git config --get-regexp 'alias.*' | colrm 1 6 | sed 's/[ ]/ = /' | sort";
+
+      # WIP status of branches
+      wip = "!git for-each-ref --sort='authordate:iso8601' --format=' %(color:green)%(authordate:relative)%09%(color:white)%(refname:short)' refs/heads | tac";
     };
     extraConfig = {
       user = {
