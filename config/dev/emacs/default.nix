@@ -376,7 +376,7 @@
 
       ledger-mode = {
         enable = true;
-        defer = true;
+        mode = [ ''"\\.ledger\\'"'' ];
         config = ''
           (setq ledger-clear-whole-transactions 1)
           (setq ledger-reconcile-default-commodity "R")
@@ -620,7 +620,7 @@
 
       org-roam = {
         enable = true;
-        after = [ "org" "emacsql" "emacsql-sqlite" ];
+        after = [ "emacsql" "emacsql-sqlite" ];
         hook = [ "(after-init . org-roam-mode)" ];
         bind = {
           "C-c n l" = "org-roam";
