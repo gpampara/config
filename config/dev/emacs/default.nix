@@ -565,6 +565,12 @@
         config = "(setq org-agenda-include-diary t)";
       };
 
+      org-chef = {
+        enable = true;
+        after = [ "org" ];
+        defer = 5; # defer loading for 5 seconds
+      };
+
       # TODO: look into alternatives for org journal. Using dailies from org-roam??
       org-journal = {
         enable = true;
