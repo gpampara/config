@@ -529,7 +529,6 @@
 
       olivetti = {
         enable = true;
-        after = [ "polymode" ];
         command = [ "olivetti-mode" ];
         diminish = [ "olivetti-mode" ];
         bindLocal = {
@@ -543,8 +542,10 @@
           (setq olivetti-minimum-body-width 80)
           (setq olivetti-recall-visual-line-mode-entry-state t)
 
-          (push 'olivetti-mode polymode-move-these-vars-from-old-buffer) ;; Doesn't seem to work!
-          (add-hook 'poly-markdown+r-mode-hook (lambda() (olivetti-mode t)))
+          (add-hook 'poly-markdown+r-mode-hook
+            (lambda()
+              (push 'olivetti-mode polymode-move-these-vars-from-old-buffer) ;; Doesn't seem to work!
+              (olivetti-mode t)))
         '';
       };
 
