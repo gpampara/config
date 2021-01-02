@@ -52,7 +52,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Basic spelling configurations
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq ispell-personal-dictionary "~/.emacs.d/personal_dictionary")
+(setq ispell-personal-dictionary (f-join (getenv "HOME") ".emacs.d" "personal_dictionary"))
 (setq ispell-program-name "aspell")
   ;; Please note ispell-extra-args contains ACTUAL parameters passed to aspell
 ;;(setq ispell-extra-args '("-t" "--lang=en_GB" "--add-tex-command='citep op'" "--add-tex-command='citet op'"))
@@ -61,10 +61,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Common variables for org
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defconst org-root-directory (concat (getenv "HOME") "/org/"))
-(defconst org-agenda-directory (concat org-root-directory "agenda/") "Filesystem location of agenda files.")
-(defconst org-notes-directory (concat org-root-directory "roam/") "Filesystem location of org-roam knowledge base.")
-(defconst zotero-bib-file (concat org-root-directory "zotLib.bib") "Filesystem location of Zotero bibfile.")
+(defconst org-root-directory (f-join (getenv "HOME") "org"))
+(defconst org-agenda-directory (f-join org-root-directory "agenda") "Filesystem location of agenda files.")
+(defconst org-notes-directory (f-join org-root-directory "roam") "Filesystem location of org-roam knowledge base.")
+(defconst zotero-bib-file (f-join org-root-directory "zotLib.bib") "Filesystem location of Zotero bibfile.")
 
 ;;###autoload
 (defun gp/magit-fetch-and-prune-gone-remotes ()
@@ -73,7 +73,7 @@
   (magit-run-git-async "gone"))
 
 
-
+(defconst ledger-home-directory (f-join (getenv "HOME") "ledger") "Location of ledger files.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Helper functions

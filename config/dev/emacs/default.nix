@@ -133,7 +133,7 @@
           (setq dashboard-set-heading-icons t)
           (setq dashboard-set-file-icons t)
 
-          (setq default-directory "~/")
+          (setq default-directory (getenv "HOME"))
         '';
       };
 
@@ -377,6 +377,13 @@
       ledger-mode = {
         enable = true;
         mode = [ ''"\\.ledger\\'"'' ];
+        init = ''
+          (defun gp/open-current-postings-file ()
+            (interactive)
+            (let* ((current-year (format-time-string "%Y" (current-time)))
+                   (ledger-file-name (f-join ledger-home-directory current-year "postings.ledger")))
+              (find-file ledger-file-name)))
+        '';
         config = ''
           (setq ledger-clear-whole-transactions 1)
           (setq ledger-reconcile-default-commodity "R")
@@ -632,7 +639,7 @@
         extraPackages = [ pkgs.sqlite ];
         config = ''
           (setq org-roam-directory org-notes-directory)
-          (setq org-roam-db-location (concat org-root-directory "/org-roam.db"))
+          (setq org-roam-db-location (f-join org-root-directory "org-roam.db"))
           (setq org-roam-graph-executable "${pkgs.graphviz}/bin/dot")
           (setq org-roam-list-files-commands '(elisp)) ; Use elisp to recurse the current directory
         '';
