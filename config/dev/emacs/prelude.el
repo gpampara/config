@@ -1,3 +1,5 @@
+(require 'f)
+
 (setq inhibit-startup-screen t)
 
 ;; Stop creating backup and autosave files
