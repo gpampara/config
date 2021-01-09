@@ -659,6 +659,11 @@
         hook = [ "(org-mode . (lambda () (org-superstar-mode 1)))" ];
       };
 
+      page-break-lines = {
+        enable = true;
+        diminish = [ "page-break-lines-mode" ];
+      };
+
       pcre2el = {
         enable = true;
         config = "(pcre-mode)";
