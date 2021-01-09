@@ -16,7 +16,7 @@
         configuration = { ... }: {
           nixpkgs.overlays = [ emacs-overlay.overlay ];
           imports = [
-            ./config/home.nix
+            ./home.nix
           ];
         };
         system = "x86_64-darwin";

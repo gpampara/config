@@ -6,7 +6,7 @@ let
 in
 {
   imports = [
-    ./dev
+    ./config/dev
   ];
 
   # Let Home Manager install and manage itself.
@@ -53,7 +53,7 @@ in
     ripgrep                       # rg, fast grepper
     shellcheck
     # stack
-    #tectonic # latex build process (experimental)
+    tectonic # latex build process (experimental)
     tmux
     vagrant
     yarn
@@ -74,7 +74,7 @@ in
       end
     '';
 
-    promptInit = builtins.readFile ./fish/fish_prompt.fish;
+    promptInit = builtins.readFile ./config/fish/fish_prompt.fish;
   };
 
   programs.git = {
