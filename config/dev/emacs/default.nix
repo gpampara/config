@@ -100,6 +100,19 @@
         config = "(push 'company-org-roam company-backends)";
       };
 
+      consult = {
+        enable = true;
+      };
+
+      consult-flycheck = {
+        enable = true;
+      };
+
+      consult-selectrum = {
+        enable = true;
+        after = [ "selectrum" ];
+      };
+
       ctrlf = {
         enable = true;
         config = ''
@@ -221,6 +234,34 @@
 
       emacsql-sqlite = {
         enable = true;
+      };
+
+      embark = {
+        enable = true;
+        bind = {
+          "C-S-a" = "embark-act";
+        };
+        config = ''
+          ;; For Selectrum users:
+          (defun current-candidate+category ()
+            (when selectrum-active-p
+              (cons (selectrum--get-meta 'category)
+                    (selectrum-get-current-candidate))))
+
+          (add-hook 'embark-target-finders #'current-candidate+category)
+
+          (defun current-candidates+category ()
+            (when selectrum-active-p
+              (cons (selectrum--get-meta 'category)
+              (selectrum-get-current-candidates
+              ;; Pass relative file names for dired.
+              minibuffer-completing-file-name))))
+
+          (add-hook 'embark-candidate-collectors #'current-candidates+category)
+
+          ;; No unnecessary computation delay after injection.
+          (add-hook 'embark-setup-hook 'selectrum-set-selected-candidate)
+        '';
       };
 
       envrc = {
@@ -479,10 +520,9 @@
         '';
       };
 
-      # TODO: Marginalia is said to be similar to ivy-rich but there is no package on melpa yet
       marginalia = {
-        enable = false;
-        init = ''
+        enable = true;
+        config = ''
           ;; Must be in the :init section of use-package such that the mode gets
           ;; enabled right away. Note that this forces loading the package.
           (marginalia-mode)
