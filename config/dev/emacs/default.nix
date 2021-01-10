@@ -848,24 +848,6 @@
         '';
       };
 
-      # writeroom-mode = {
-      #   enable = true;
-      #   after = [ "hydra" ];
-      #   bindLocal = {
-      #     writeroom-mode-map = {
-      #       "C-M-=" = "hydra-writeroom-width/body";
-      #     };
-      #   };
-      #   config = ''
-      #     (setq writeroom-width 120)
-      #     (advice-add 'text-scale-adjust :after #'visual-fill-column-adjust)
-
-      #     (add-hook 'LaTeX-mode-hook 'writeroom-mode)
-      #     ;;(add-hook 'LaTeX-mode-hook 'adaptive-wrap-prefix-mode)
-      #     (add-hook 'LaTeX-mode-hook 'visual-line-mode)
-      #   '';
-      # };
-
       yaml-mode = {
         enable = true;
         mode = [ ''"\\.ya?ml\\'"'' ];
