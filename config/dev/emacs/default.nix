@@ -18,6 +18,7 @@
     '';
 
     prelude = builtins.readFile ./prelude.el;
+    postlude = builtins.readFile ./postlude.el;
 
     usePackage = {
 
@@ -102,6 +103,10 @@
 
       consult = {
         enable = true;
+        extraConfig = ''
+          :bind
+          ([remap goto-line] . consult-goto-line)
+        '';
       };
 
       consult-flycheck = {
@@ -146,7 +151,7 @@
           (setq dashboard-set-heading-icons t)
           (setq dashboard-set-file-icons t)
 
-          (setq default-directory (getenv "HOME"))
+          (setq default-directory (concat (getenv "HOME") "/"))
         '';
       };
 
@@ -263,6 +268,11 @@
           (add-hook 'embark-setup-hook 'selectrum-set-selected-candidate)
         '';
       };
+
+      # embark-consult = {
+      #   enable = true;
+      #   after = [ "embark" "consult" ];
+      # };
 
       envrc = {
         enable = true;
@@ -418,13 +428,6 @@
       ledger-mode = {
         enable = true;
         mode = [ ''"\\.ledger\\'"'' ];
-        init = ''
-          (defun gp/open-current-postings-file ()
-            (interactive)
-            (let* ((current-year (format-time-string "%Y" (current-time)))
-                   (ledger-file-name (f-join ledger-home-directory current-year "postings.ledger")))
-              (find-file ledger-file-name)))
-        '';
         config = ''
           (setq ledger-clear-whole-transactions 1)
           (setq ledger-reconcile-default-commodity "R")
@@ -443,7 +446,7 @@
 
       lsp-mode = {
         enable = true;
-        command = [ "lsp" "lsp-deferred" ];
+        defer = true;
         after = [ "company" "flycheck" ];
         hook = [
           "(elm-mode . lsp-deferred)"
@@ -454,6 +457,7 @@
         config = ''
           (setq lsp-diagnostics-provider :flycheck)
           (setq lsp-enable-xref t)
+          (setq lsp-headerline-breadcrumb-enable nil)
 
           ;; Performance adjustments (https://emacs-lsp.github.io/lsp-mode/page/performance/)
           (setq read-process-output-max (* 1024 1024)) ;; 1mb

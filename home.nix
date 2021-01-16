@@ -74,6 +74,10 @@ in
       end
     '';
 
+    shellAbbrs = {
+      "hm-rm-old-generations" = "home-manager generations | tail -n +2 | awk '{ print $5 }' | xargs home-manager remove-generations";
+    };
+
     promptInit = builtins.readFile ./config/fish/fish_prompt.fish;
   };
 
