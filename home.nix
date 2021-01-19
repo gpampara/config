@@ -66,7 +66,7 @@ in
       # Disable the fish welcome message
       set fish_greeting
 
-      set -p fish_function_path ${pkgs.fish-foreign-env}/share/fish-foreign-env/functions
+      set -p fish_function_path ${pkgs.fishPlugins.foreign-env}/share/fish/vendor_functions.d
 
       # nix
       if test -e ${homeDirectory}/.nix-profile/etc/profile.d/nix.sh

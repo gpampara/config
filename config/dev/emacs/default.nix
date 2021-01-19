@@ -643,7 +643,6 @@
           (setq org-journal-date-format "%A, %d %B %Y")
 
 
-
           (defun org-journal-file-header-func (time)
             "Custom function to create journal header."
             (concat
