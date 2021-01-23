@@ -27,7 +27,7 @@ in
   # changes in each release.
   home.stateVersion = "20.09";
 
-  # General packages
+  # General global packages for the user
   home.packages = with pkgs; [
     #nixUnstable
 
@@ -38,9 +38,9 @@ in
 
     # Elm
     elmPackages.elm
-    elmPackages.elm-analyse
     elmPackages.elm-format
     elmPackages.elm-test
+    elmPackages.elm-review
 
     graphviz
     ledger
@@ -50,7 +50,7 @@ in
 
     pijul
 
-    ripgrep                       # rg, fast grepper
+    ripgrep
     shellcheck
     # stack
     tectonic # latex build process (experimental)
