@@ -17,7 +17,7 @@
 
 
 (setq org-agenda-files (mapcar
-                        (lambda (s) (concat org-agenda-directory s))
+                        (lambda (s) (f-join org-agenda-directory s))
                         agenda-files))
 
 
