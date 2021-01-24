@@ -5,7 +5,7 @@
 
 
 # build
-nix --experimental-features 'flakes nix-command' build  .#macbook
+nix --experimental-features 'flakes nix-command' build  .#macbook --verbose
 
 # activate
 #./result/activate

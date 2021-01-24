@@ -40,7 +40,7 @@ in
     elmPackages.elm
     elmPackages.elm-format
     elmPackages.elm-test
-    elmPackages.elm-review
+    #elmPackages.elm-review
 
     graphviz
     ledger
@@ -48,7 +48,7 @@ in
     nodejs
     gitAndTools.git-crypt
 
-    pijul
+    #pijul
 
     ripgrep
     shellcheck

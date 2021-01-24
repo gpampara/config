@@ -139,19 +139,20 @@
       dashboard = {
         enable = true;
         config = ''
-          (dashboard-setup-startup-hook)
-
           (setq dashboard-week-agenda t)
 
           ;; TODO: add the agenda for the current day that is more flexible than the default implementation in dashboard.el
           ;; The filter should take all agenda items for the current day and display them (including birthdays)
-          (setq dashboard-items '((projects . 10)
+          (setq dashboard-items '((agenda . 10)
+                                  (projects . 10)
                                   (recents . 10)))
 
           (setq dashboard-set-heading-icons t)
           (setq dashboard-set-file-icons t)
 
           (setq default-directory (concat (getenv "HOME") "/"))
+
+          (dashboard-setup-startup-hook)
         '';
       };
 
@@ -225,9 +226,7 @@
         command = [ "elm-mode" ];
         after = [ "company" ];
         hook = [ "(elm-mode . elm-format-on-save-mode)" ];
-        extraPackages = [
-          pkgs.elmPackages.elm-language-server
-        ];
+        extraPackages = [ pkgs.elmPackages.elm-language-server ];
         config = ''
           (add-to-list 'company-backends 'company-elm)
         '';
@@ -617,7 +616,6 @@
         enable = true;
         after = [ "org" ];
         defer = true;
-        config = "(setq org-agenda-include-diary t)";
       };
 
       org-chef = {
