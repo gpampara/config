@@ -220,6 +220,11 @@
         '';
       };
 
+      elegant-agenda-mode = {
+        enable = false;
+        hook = [ "(elegant-agenda-mode . org-agenda-mode-hook)" ];
+      };
+
       elm-mode = {
         enable = true;
         mode = [ ''"\\.elm\\'"'' ];

@@ -1,14 +1,14 @@
 {
   description = "macOS configuration";
 
-  inputs.nixpkgs.url = github:NixOS/nixpkgs/nixos-unstable;
-
-  inputs.home-manager = {
-    url = github:rycee/home-manager/master;
-    inputs.nixpkgs.follows = "/nixpkgs";
+  inputs = {
+    nixpkgs.url = github:NixOS/nixpkgs/nixos-unstable;
+    emacs-overlay.url = github:nix-community/emacs-overlay;
+    home-manager = {
+      url = github:rycee/home-manager/master;
+      inputs.nixpkgs.follows = "/nixpkgs";
+    };
   };
-
-  inputs.emacs-overlay.url = "github:nix-community/emacs-overlay";
 
   outputs = { self, nixpkgs, home-manager, emacs-overlay, ... }@inputs: {
     homeManagerConfigurations = {
