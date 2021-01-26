@@ -3,6 +3,9 @@
 let
   username = "gpampara";
   homeDirectory = "/Users/gpampara";
+
+  packageForSystem = { linux, darwin }:
+    if pkgs.stdenv.isDarwin then darwin else linux;
 in
 {
   imports = [
@@ -61,8 +64,13 @@ in
 
   programs.brave = {
     enable = true;
-    package =
-      if pkgs.stdenv.isDarwin then pkgs.BraveBrowser else pkgs.brave;
+    package = packageForSystem {
+      darwin = pkgs.dmgPkgs.brave;
+      linux = pkgs.brave;
+    };
+    extensions = [
+      { id = "hdokiejnpimakedhajhdlcegeplioahd"; } # lastpass
+    ];
   };
 
   # Enabling direnv will automatically add `eval (direnv hook fish)` to programs.fish.shellInit

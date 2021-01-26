@@ -1,3 +1,5 @@
 final: prev: {
-  BraveBrowser = prev.callPackage ./brave {};
+  dmgPkgs = {
+    brave = prev.callPackage ./brave {};
+  };
 }

@@ -1,7 +1,7 @@
 { stdenv, fetchurl, undmg }:
 
 stdenv.mkDerivation rec {
-  pname = "Brave-Browser";
+  pname = "brave";
   version = "1.19.86";
 
   buildInputs = [ undmg ];
