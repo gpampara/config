@@ -69,7 +69,7 @@ in
       linux = pkgs.brave;
     };
     extensions = [
-      { id = "hdokiejnpimakedhajhdlcegeplioahd"; } # lastpass
+      { id = "hdokiejnpimakedhajhdlcegeplioahd"; }
     ];
   };
 
