@@ -4,7 +4,7 @@ let
   username = "gpampara";
   homeDirectory = "/Users/gpampara";
 
-  packageForSystem = { linux, darwin }:
+  forSystem = { linux, darwin }:
     if pkgs.stdenv.isDarwin then darwin else linux;
 in
 {
@@ -64,7 +64,7 @@ in
 
   programs.brave = {
     enable = true;
-    package = packageForSystem {
+    package = forSystem {
       darwin = pkgs.dmgPkgs.brave;
       linux = pkgs.brave;
     };
