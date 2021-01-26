@@ -29,7 +29,7 @@ in
 
   # General global packages for the user
   home.packages = with pkgs; [
-    #nixUnstable
+    nixUnstable
 
     aspell
     aspellDicts.en
@@ -58,6 +58,18 @@ in
     vagrant
     yarn
   ];
+
+  programs.brave = {
+    enable = true;
+    package =
+      if pkgs.stdenv.isDarwin then pkgs.BraveBrowser else pkgs.brave;
+  };
+
+  # Enabling direnv will automatically add `eval (direnv hook fish)` to programs.fish.shellInit
+  programs.direnv = {
+    enable = true;
+    enableNixDirenvIntegration = true;
+  };
 
   programs.fish = {
     enable = true;
@@ -105,11 +117,5 @@ in
         user = username;
       };
     };
-  };
-
-  # Enabling direnv will automatically add `eval (direnv hook fish)` to programs.fish.shellInit
-  programs.direnv = {
-    enable = true;
-    enableNixDirenvIntegration = true;
   };
 }

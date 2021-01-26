@@ -11,20 +11,19 @@
   };
 
   outputs = { self, nixpkgs, home-manager, emacs-overlay, ... }@inputs: {
-    homeManagerConfigurations = {
-      gpampara = home-manager.lib.homeManagerConfiguration {
-        configuration = { ... }: {
-          nixpkgs.overlays = [ emacs-overlay.overlay ];
-          imports = [
-            ./home.nix
-          ];
-        };
-        system = "x86_64-darwin";
-        homeDirectory = "/Users/gpampara";
-        username = "gpampara";
+    workbook = home-manager.lib.homeManagerConfiguration {
+      configuration = { ... }: {
+        nixpkgs.overlays = [ emacs-overlay.overlay (import ./overlays) ];
+        imports = [
+          ./home.nix
+        ];
       };
+
+      system = "x86_64-darwin";
+      homeDirectory = "/Users/gpampara";
+      username = "gpampara";
     };
 
-    macbook = self.homeManagerConfigurations.gpampara.activationPackage;
+    macbook = self.workbook.activationPackage;
   };
 }

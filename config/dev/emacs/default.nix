@@ -735,11 +735,11 @@
 
       polymode = {
         enable = true;
-        mode = [
-          ''("\\.Rnw\\'" . poly-noweb+r-mode)''
-          ''("\\.Rtex\\'" . poly-noweb+r-mode)''
-          ''("\\.Rlatex\\'" . poly-latex+R-mode)''
-        ];
+#        mode = [
+          #''("\\.Rnw\\'" . poly-noweb+r-mode)''
+#          ''("\\.Rtex\\'" . poly-noweb+r-mode)''
+#          ''("\\.Rlatex\\'" . poly-latex+R-mode)''
+#        ];
       };
 
       popup-kill-ring = {
