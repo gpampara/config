@@ -280,7 +280,6 @@
 
       envrc = {
         enable = true;
-        after = [ "lsp-mode" ];
         bindKeyMap = {
           "C-c e" = "envrc-command-map";
         };
@@ -339,6 +338,11 @@
       flycheck-ledger = {
         enable = true;
         after = [ "ledger" ];
+      };
+
+      flyspell = {
+        enable = true;
+        extraPackages = [ pkgs.proselint ];
       };
 
       flyspell-correct = {
