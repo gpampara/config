@@ -299,6 +299,7 @@
           (setq exec-path-from-shell-arguments '("-l"))
           (exec-path-from-shell-initialize)
           (setenv "LANG" "en_US")
+          (setenv "LC_CTYPE" "en_US.UTF-8")
         '';
       };
 

@@ -8,7 +8,7 @@ let
 
   emacsPlus = pkgs.emacs.overrideAttrs(attrs: {
     buildInputs =
-      attrs.buildInputs ++ stdenv.lib.optionals stdenv.isLinux [
+      attrs.buildInputs ++ pkgs.lib.optionals stdenv.isLinux [
         pkgs.libvterm
       ];
 

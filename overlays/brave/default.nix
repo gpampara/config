@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, undmg }:
+{ pkgs, stdenv, fetchurl, undmg }:
 
 stdenv.mkDerivation rec {
   pname = "brave";
@@ -18,7 +18,7 @@ stdenv.mkDerivation rec {
     sha256 = "Y3wPQ9FpZpIUuZnY1ATdx08z2bRW2vY3UMJQFlI2eTI=";
   };
 
-  meta = with stdenv.lib; {
+  meta = with pkgs.lib; {
     description = "The Brave web browser";
     homepage = "https://brave.com";
     maintainers = [ "gpampara@gmail.com" ];
