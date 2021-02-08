@@ -882,7 +882,21 @@
         enable = true;
       };
 
-      warnings = { #TODO: needed?
+      tree-sitter = {
+        enable = true;
+        extraPackages = [ pkgs.tree-sitter ];
+        config = ''
+          (global-tree-sitter-mode)
+          (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
+        '';
+      };
+
+      tree-sitter-langs = {
+        enable = true;
+      };
+
+      warnings = {
+        #TODO: needed?
         enable = true;
       };
 
