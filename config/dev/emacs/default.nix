@@ -80,7 +80,7 @@
         enable = true;
         diminish = [ "company-mode" ];
         command = [ "company-mode" "company-doc-buffer" "global-company-mode" ];
-        hook = [ "(after-init . global-company-mode)"];
+        hook = [ "(after-init . global-company-mode)" ];
         extraConfig = ''
           :bind (:map company-mode-map
                       ([remap completion-at-point] . company-complete-common)
@@ -231,7 +231,14 @@
         command = [ "elm-mode" ];
         after = [ "company" ];
         hook = [ "(elm-mode . elm-format-on-save-mode)" ];
-        extraPackages = [ pkgs.elmPackages.elm-language-server ];
+        extraPackages = with pkgs; [
+          elmPackages.elm
+          elmPackages.elm-format
+          elmPackages.elm-test
+          elmPackages.elm-review
+
+          elm-language-server
+        ];
         config = ''
           (add-to-list 'company-backends 'company-elm)
         '';
@@ -569,7 +576,11 @@
         after = [ "company" ];
         extraPackages = [
           pkgs.rnix-lsp
+          pkgs.nixpkgs-fmt
         ];
+        config = ''
+          (setq nix-nixfmt-bin ${pkgs.nixpkgs-fmt})
+        '';
       };
 
       no-littering = {
@@ -700,7 +711,8 @@
         '';
       };
 
-      org-roam-bibtex = { # TODO: complete this
+      org-roam-bibtex = {
+        # TODO: complete this
         enable = false;
       };
 
@@ -740,11 +752,11 @@
 
       polymode = {
         enable = true;
-#        mode = [
-          #''("\\.Rnw\\'" . poly-noweb+r-mode)''
-#          ''("\\.Rtex\\'" . poly-noweb+r-mode)''
-#          ''("\\.Rlatex\\'" . poly-latex+R-mode)''
-#        ];
+        #        mode = [
+        #''("\\.Rnw\\'" . poly-noweb+r-mode)''
+        #          ''("\\.Rtex\\'" . poly-noweb+r-mode)''
+        #          ''("\\.Rlatex\\'" . poly-latex+R-mode)''
+        #        ];
       };
 
       popup-kill-ring = {

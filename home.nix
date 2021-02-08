@@ -39,12 +39,6 @@ in
     aspellDicts.en-computers
     aspellDicts.en-science
 
-    # Elm
-    elmPackages.elm
-    elmPackages.elm-format
-    elmPackages.elm-test
-    elmPackages.elm-review
-
     graphviz
     ledger
     jq
