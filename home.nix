@@ -68,6 +68,7 @@ in
     };
     extensions = [
       { id = "hdokiejnpimakedhajhdlcegeplioahd"; }
+      { id = "ekhagklcjbdpajgpjgmbionohlpdbjgc"; } # Zotero
     ];
   };
 
