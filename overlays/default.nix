@@ -1,6 +1,7 @@
 final: prev: {
   dmgPkgs = {
     brave = prev.callPackage ./brave {};
+    zotero = prev.callPackage ./zotero {};
   };
 
   elm-language-server =

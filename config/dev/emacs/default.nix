@@ -681,10 +681,10 @@
         command = [ "org-noter" ];
         after = [ "org" "pdf-view" ];
         config = ''
-          (setq org-noter-notes-window-location 'other-frame         ; The WM can handle splits
-                org-noter-always-create-frame nil                    ; Please stop opening frames
-                org-noter-hide-other nil                             ; I want to see the whole file
-                org-noter-notes-search-path (list org_notes)         ; Everything is relative to the main notes file
+          (setq org-noter-notes-window-location 'other-frame      ; The WM can handle splits
+                org-noter-always-create-frame nil                 ; Please stop opening frames
+                org-noter-hide-other nil                          ; I want to see the whole file
+                org-noter-notes-search-path (list org_notes)      ; Everything is relative to the main notes file
                 org-noter-default-notes-file-names '("notes.org")
                 org-noter-separate-notes-from-heading t
           )
@@ -741,14 +741,6 @@
         enable = true;
         after = [ "polymode" ];
       };
-
-      # poly-latex-R = {
-      #   enable = true;
-      #   after = [ "polymode" ];
-      #   config = ''
-      #     (add-to-list 'LaTeX-verbatim-environments "Rcode")
-      #   '';
-      # };
 
       polymode = {
         enable = true;

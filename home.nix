@@ -54,6 +54,10 @@ in
     tmux
     vagrant
     yarn
+    youtube-dl
+
+    # Install Zotero
+    (forSystem { linux = zotero; darwin = dmgPkgs.zotero; })
   ];
 
   programs.brave = {
