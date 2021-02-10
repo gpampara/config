@@ -2,6 +2,7 @@
 
 let
   username = "gpampara";
+  fullname = "Gary Pamparà";
   homeDirectory = "/Users/gpampara";
 
   forSystem = { linux, darwin }:
@@ -50,14 +51,13 @@ in
     ripgrep
     shellcheck
     # stack
-    tectonic # latex build process (experimental)
+    tectonic # latex build process (experimental) - Why can't this use the system latex?
     tmux
     vagrant
     yarn
     youtube-dl
 
-    # Install Zotero
-    (forSystem { linux = zotero; darwin = dmgPkgs.zotero; })
+    (forSystem { linux = zotero; darwin = dmgPkgs.zotero; })     # Install Zotero
   ];
 
   programs.brave = {
@@ -103,7 +103,7 @@ in
   programs.git = {
     package = pkgs.gitAndTools.gitFull;
     enable = true;
-    userName = "Gary Pamparà";
+    userName = fullname;
     aliases = {
       # https://github.com/not-an-aardvark/git-delete-squashed
       gone =''
