@@ -3,6 +3,7 @@
 let
   username = "gpampara";
   fullname = "Gary Pamparà";
+  emailAddr = "gpampara@gmail.com";
   homeDirectory = "/Users/gpampara";
 
   forSystem = { linux, darwin }:
