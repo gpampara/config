@@ -2,7 +2,7 @@
 
 stdenv.mkDerivation rec {
   pname = "brave";
-  version = "1.19.88";
+  version = "1.20.103";
 
   buildInputs = [ undmg ];
   sourceRoot = ".";
