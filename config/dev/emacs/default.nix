@@ -589,7 +589,7 @@
           pkgs.nixpkgs-fmt
         ];
         config = ''
-          (setq nix-nixfmt-bin ${pkgs.nixpkgs-fmt})
+          (setq nix-nixfmt-bin "${pkgs.nixpkgs-fmt}")
         '';
       };
 
