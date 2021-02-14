@@ -61,7 +61,7 @@ in
     youtube-dl
 
     (forSystem { linux = zotero; darwin = dmgPkgs.zotero; })     # Install Zotero
-    #(forSystem { linux = zathura; darwin = dmgPkgs.skim; })
+    (forSystem { linux = zathura; darwin = dmgPkgs.skim-pdf; })
   ]; #++ lib.optional pkgs.stdenv.isDarwin [];
 
   programs.brave = {
