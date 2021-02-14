@@ -1,6 +1,7 @@
 final: prev: {
   dmgPkgs = {
     brave = prev.callPackage ./brave {};
+    element = prev.callPackage ./element {};
     zotero = prev.callPackage ./zotero {};
   };
 

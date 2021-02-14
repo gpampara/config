@@ -41,6 +41,8 @@ in
     aspellDicts.en-computers
     aspellDicts.en-science
 
+    (forSystem { linux = element-desktop; darwin = dmgPkgs.element; })
+
     graphviz
     ledger
     jq
@@ -59,7 +61,8 @@ in
     youtube-dl
 
     (forSystem { linux = zotero; darwin = dmgPkgs.zotero; })     # Install Zotero
-  ];
+    #(forSystem { linux = zathura; darwin = dmgPkgs.skim; })
+  ]; #++ lib.optional pkgs.stdenv.isDarwin [];
 
   programs.brave = {
     enable = true;
