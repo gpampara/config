@@ -246,8 +246,7 @@
           elmPackages.elm-format
           elmPackages.elm-test
           elmPackages.elm-review
-
-          elm-language-server
+          elmPackages.elm-language-server
         ];
         config = ''
           (add-to-list 'company-backends 'company-elm)
