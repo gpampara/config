@@ -8,12 +8,16 @@
       url = github:rycee/home-manager/master;
       inputs.nixpkgs.follows = "/nixpkgs";
     };
+    #nur.url = github:nix-community/NUR;
   };
 
   outputs = { self, nixpkgs, home-manager, emacs-overlay, ... }@inputs: {
     workbook = home-manager.lib.homeManagerConfiguration {
       configuration = { ... }: {
-        nixpkgs.overlays = [ emacs-overlay.overlay (import ./overlays) ];
+        nixpkgs.overlays = [
+          emacs-overlay.overlay (import ./overlays)
+          #nur.overlay
+        ];
         imports = [
           ./home.nix
         ];

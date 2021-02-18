@@ -95,12 +95,6 @@
         '';
       };
 
-      company-org-roam = {
-        enable = true;
-        after = [ "org-roam" "company" ];
-        config = "(push 'company-org-roam company-backends)";
-      };
-
       consult = {
         enable = true;
         extraConfig = ''
