@@ -41,7 +41,10 @@ in
     aspellDicts.en-computers
     aspellDicts.en-science
 
+    bitwarden-cli
+
     (forSystem { linux = element-desktop; darwin = dmgPkgs.element; })
+    (forSystem { linux = slack; darwin = dmgPkgs.slack; })
 
     graphviz
     ledger
@@ -51,10 +54,12 @@ in
 
     #pijul
 
+    (forSystem { linux = mpv; darwin = dmgPkgs.iina; })
+
     ripgrep
     shellcheck
     # stack
-    tectonic # latex build process (experimental) - Why can't this use the system latex?
+    # tectonic # latex build process (experimental) - Why can't this use the system latex?
     tmux
     vagrant
     yarn
@@ -71,7 +76,7 @@ in
       linux = pkgs.brave;
     };
     extensions = [
-      { id = "hdokiejnpimakedhajhdlcegeplioahd"; }
+      { id = "nngceckbapebfimnlniiiahkandclblb"; } # Bitwarden
       { id = "ekhagklcjbdpajgpjgmbionohlpdbjgc"; } # Zotero
     ];
   };
