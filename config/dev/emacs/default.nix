@@ -1,8 +1,7 @@
 { pkgs, lib, config, ... }: {
 
-  imports = [
-    ./emacs-init.nix
-  ];
+  # Use the home-manager module for emacs provided in the flake.nix
+  # configuration: nur-no-pkgs.repos.rycee.hmModules.emacs-init
 
   programs.emacs.init = {
     enable = true;
@@ -283,10 +282,10 @@
         '';
       };
 
-      # embark-consult = {
-      #   enable = true;
-      #   after = [ "embark" "consult" ];
-      # };
+      embark-consult = {
+        enable = true;
+        after = [ "embark" "consult" ];
+      };
 
       envrc = {
         enable = true;
@@ -353,6 +352,7 @@
 
       flyspell = {
         enable = true;
+        command = [ "flyspell-mode" ];
         extraPackages = [ pkgs.proselint ];
       };
 
