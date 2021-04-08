@@ -6,7 +6,7 @@
 
   programs.emacs = {
     enable = true;
-    package = import ./emacsPlus { inherit pkgs; };
+    package = pkgs.emacsPgtkGcc;
   };
 
 }

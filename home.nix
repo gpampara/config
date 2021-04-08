@@ -44,7 +44,7 @@ in
     bitwarden-cli
 
     (forSystem { linux = element-desktop; darwin = dmgPkgs.element; })
-    (forSystem { linux = slack; darwin = dmgPkgs.slack; })
+    #(forSystem { linux = slack; darwin = dmgPkgs.slack; })
 
     graphviz
     ledger
@@ -55,6 +55,8 @@ in
     #pijul
 
     (forSystem { linux = mpv; darwin = dmgPkgs.iina; })
+    (forSystem { linux = xterm; darwin = dmgPkgs.iterm2; })
+    (forSystem { linux = dbeaver; darwin = dmgPkgs.postico; })
 
     ripgrep
     shellcheck
@@ -65,7 +67,7 @@ in
     yarn
     youtube-dl
 
-    (forSystem { linux = zotero; darwin = dmgPkgs.zotero; })     # Install Zotero
+    #(forSystem { linux = zotero; darwin = dmgPkgs.zotero; })     # Install Zotero
     (forSystem { linux = zathura; darwin = dmgPkgs.skim-pdf; })
   ]; #++ lib.optional pkgs.stdenv.isDarwin [];
 
@@ -78,6 +80,7 @@ in
     extensions = [
       { id = "nngceckbapebfimnlniiiahkandclblb"; } # Bitwarden
       { id = "ekhagklcjbdpajgpjgmbionohlpdbjgc"; } # Zotero
+      { id = "fjdmkanbdloodhegphphhklnjfngoffa"; }
     ];
   };
 
@@ -107,6 +110,17 @@ in
     };
 
     promptInit = builtins.readFile ./config/fish/fish_prompt.fish;
+    plugins = [
+      {
+        name = "fish-gruvbox";
+        src = pkgs.fetchFromGitHub {
+          owner = "Jomik";
+          repo = "fish-gruvbox";
+          rev = "d8c0463518fb95bed8818a1e7fe5da20cffe6fbd";
+          sha256 = "Z7IqrxFCme0T5Oo6JeCJm2eqVovfcypKPTml3xrRd0I=";
+        };
+      }
+    ];
   };
 
   programs.git = {

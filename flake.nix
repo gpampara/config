@@ -2,10 +2,10 @@
   description = "macOS configuration";
 
   inputs = {
-    nixpkgs.url = github:NixOS/nixpkgs/nixos-unstable;
-    emacs-overlay.url = github:nix-community/emacs-overlay;
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    emacs-overlay.url = "github:nix-community/emacs-overlay/master";
     home-manager = {
-      url = github:rycee/home-manager/master;
+      url = "github:rycee/home-manager/master";
       inputs.nixpkgs.follows = "/nixpkgs";
     };
     #nur.url = github:nix-community/NUR;
@@ -20,7 +20,7 @@
         ];
         imports = [
           ./home.nix
-        ];
+	];
       };
 
       system = "x86_64-darwin";
