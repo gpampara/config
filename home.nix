@@ -148,4 +148,9 @@ in
       };
     };
   };
+
+  # Custom config files
+  home.file.".aspell.conf".text = ''
+    data-dir ${homeDirectory}/.nix-profile/lib/aspell
+  '';
 }
