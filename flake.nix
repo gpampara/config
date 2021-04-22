@@ -32,7 +32,7 @@
       };
 
       system = "x86_64-darwin";
-      homeDirectory = "/Users/gpampara";
+      homeDirectory = /Users/gpampara;
       username = "gpampara";
     };
 

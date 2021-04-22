@@ -1,6 +1,11 @@
 (add-hook 'org-mode-hook #'org-indent-mode)
 (add-hook 'org-mode-hook #'flyspell-mode)
 
+;; Exclude holidays
+(setq holiday-bahai-holidays nil
+      holiday-hebrew-holidays nil
+      holiday-islamic-holidays nil)
+
 (setq org-agenda-include-diary t)
 
 (setq org-log-done 'time)

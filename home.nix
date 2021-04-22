@@ -20,7 +20,7 @@ in
   # Home Manager needs a bit of information about you and the
   # paths it should manage.
   home.username = username;
-  home.homeDirectory = homeDirectory;
+  home.homeDirectory = /Users/gpampara;
 
   # This value determines the Home Manager release that your
   # configuration is compatible with. This helps avoid breakage
@@ -46,6 +46,7 @@ in
     (forSystem { linux = element-desktop; darwin = dmgPkgs.element; })
     #(forSystem { linux = slack; darwin = dmgPkgs.slack; })
 
+    gnupg
     graphviz
     ledger
     jq
@@ -67,7 +68,7 @@ in
     yarn
     youtube-dl
 
-    #(forSystem { linux = zotero; darwin = dmgPkgs.zotero; })     # Install Zotero
+    (forSystem { linux = zotero; darwin = dmgPkgs.zotero; })     # Install Zotero
     (forSystem { linux = zathura; darwin = dmgPkgs.skim-pdf; })
   ]; #++ lib.optional pkgs.stdenv.isDarwin [];
 

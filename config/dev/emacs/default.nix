@@ -191,10 +191,10 @@
         '';
       };
 
-      disable-mouse = {
-        enable = true;
-        config = "(global-disable-mouse-mode)";
-      };
+      # disable-mouse = {
+      #   enable = true;
+      #   config = "(global-disable-mouse-mode)";
+      # };
 
       doom-modeline = {
         enable = true;
@@ -680,7 +680,7 @@
 
       # TODO verify the config for org-noter
       org-noter = {
-        enable = false;
+        enable = true;
         command = [ "org-noter" ];
         after = [ "org" "pdf-view" ];
         config = ''
@@ -733,6 +733,15 @@
       pcre2el = {
         enable = true;
         config = "(pcre-mode)";
+      };
+
+      pdf-tools = {
+        enable = true;
+        defer = true;
+        mode = [ ''("\\.pdf\\'" . pdf-view-mode)'' ];
+        config = ''
+          (pdf-tools-install)
+        '';
       };
 
       poly-R = {
@@ -943,4 +952,15 @@
       };
     };
   };
+
+
+  home.file.".emacs.d/init.el".text = lib.mkAfter ''
+    (load "${pkgs.fetchFromGitHub {
+      owner = "seanfarley";
+      repo = "emacs-bitwarden";
+      rev = "e03919ca68c32a8053ddea2ed05ecc5e454d8a43";
+      sha256 = "sha256-ooLgOwpJX9dgkWEev9xmPyDVPRx4ycyZQm+bggKAfa0=";
+    }}/bitwarden.el")
+  '';
+
 }
