@@ -49,11 +49,10 @@
         enable = true;
       };
 
-      auctex = {
+      latex = {
         enable = true;
-        after = [ "tex" "latex" "writegood-mode" "olivetti" ];
-        command = [ "latex-mode" "LaTeX-mode" "plain-tex-mode" ];
-        mode = [ ''("\\.tex\\'" . LaTeX-mode)'' ];
+        package = epkgs: epkgs.auctex;
+        mode = [ ''("\\.tex\\'" . latex-mode)'' ];
         bindLocal = {
           LaTeX-mode-map = {
             "M-q" = "ales/fill-paragraph";
@@ -109,13 +108,6 @@
       consult-selectrum = {
         enable = true;
         after = [ "selectrum" ];
-      };
-
-      ctrlf = {
-        enable = true;
-        config = ''
-          (ctrlf-mode 1)
-        '';
       };
 
       # Instead of moving to column 0, move the the beginning of the
@@ -723,6 +715,20 @@
         enable = true;
         after = [ "org" ];
         hook = [ "(org-mode . (lambda () (org-superstar-mode 1)))" ];
+      };
+
+      ox-beamer = {
+        enable = true;
+        after = [ "org" ];
+      };
+
+      ox-reveal = {
+        enable = true;
+        after = [ "org" ];
+        config = ''
+          (setq org-reveal-root "https://revealjs.com/")
+          (setq org-reveal-title-slide nil)
+        '';
       };
 
       page-break-lines = {
