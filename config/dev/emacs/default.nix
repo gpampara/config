@@ -17,7 +17,20 @@
     '';
 
     prelude = builtins.readFile ./prelude.el;
-    postlude = builtins.readFile ./postlude.el;
+
+    # TODO: The loading of mu4e could be done in a better way?
+    postlude =
+      let
+        mu4eConfig = builtins.readFile ./mu4e-config.el;
+        postludeFile = builtins.readFile ./postlude.el;
+      in
+      builtins.concatStringsSep "\n"
+        [
+          ''(defconst mu4e-load-path "${pkgs.mu}/share/emacs/site-lisp/mu4e" "Location of mu4e elisp")''
+          mu4eConfig
+          postludeFile
+        ];
+
 
     usePackage = {
 
@@ -95,19 +108,46 @@
 
       consult = {
         enable = true;
+        bind = {
+          #  M-s bindings (search-map)
+          "M-s f" = "consult-find";
+          "M-s L" = "consult-locate";
+          "M-s g" = "consult-grep";
+          "M-s G" = "consult-git-grep";
+          "M-s r" = "consult-ripgrep";
+          "M-s l" = "consult-line";
+          "M-s m" = "consult-multi-occur";
+          "M-s k" = "consult-keep-lines";
+          "M-s u" = "consult-focus-lines";
+        };
+        config = ''
+          ;; Optionally configure preview. The default value
+          ;; is 'any, such that any key triggers the preview.
+          ;; (setq consult-preview-key 'any)
+          ;; (setq consult-preview-key (kbd "M-."))
+          ;; (setq consult-preview-key (list (kbd "<S-down>") (kbd "<S-up>")))
+          ;; For some commands and buffer sources it is useful to configure the
+          ;; :preview-key on a per-command basis using the `consult-customize' macro.
+          (consult-customize
+            consult-ripgrep consult-git-grep consult-grep consult-bookmark consult-recent-file
+            consult--source-file consult--source-project-file consult--source-bookmark
+            :preview-key (kbd "M-."))
+
+          ;; Specify that searches with consult should start from the root of the project (if exists)
+          (setq consult-project-root-function #'projectile-project-root)
+
+          ;; Use smart-casing for ripgrep (i.e. case-insensitive search until uppercase character is provided)
+          (setq consult-ripgrep-command "rg -S --null --line-buffered --color=ansi --max-columns=1000 --no-heading --line-number . -e ARG OPTS")
+        '';
         extraConfig = ''
           :bind
           ([remap goto-line] . consult-goto-line)
         '';
+        extraPackages = [ pkgs.ripgrep ];
       };
 
       consult-flycheck = {
         enable = true;
-      };
-
-      consult-selectrum = {
-        enable = true;
-        after = [ "selectrum" ];
       };
 
       # Instead of moving to column 0, move the the beginning of the
@@ -251,27 +291,6 @@
         bind = {
           "C-S-a" = "embark-act";
         };
-        config = ''
-          ;; For Selectrum users:
-          (defun current-candidate+category ()
-            (when selectrum-active-p
-              (cons (selectrum--get-meta 'category)
-                    (selectrum-get-current-candidate))))
-
-          (add-hook 'embark-target-finders #'current-candidate+category)
-
-          (defun current-candidates+category ()
-            (when selectrum-active-p
-              (cons (selectrum--get-meta 'category)
-              (selectrum-get-current-candidates
-              ;; Pass relative file names for dired.
-              minibuffer-completing-file-name))))
-
-          (add-hook 'embark-candidate-collectors #'current-candidates+category)
-
-          ;; No unnecessary computation delay after injection.
-          (add-hook 'embark-setup-hook 'selectrum-set-selected-candidate)
-        '';
       };
 
       embark-consult = {
@@ -537,6 +556,7 @@
 
       marginalia = {
         enable = true;
+        after = [ "vertico" ];
         config = ''
           ;; Must be in the :init section of use-package such that the mode gets
           ;; enabled right away. Note that this forces loading the package.
@@ -831,27 +851,6 @@
         command = [ "rectclient-mode" ];
       };
 
-      rg = {
-        enable = true;
-        after = [ "wgrep" ];
-        extraPackages = [ pkgs.ripgrep ];
-        config = ''
-          (rg-enable-default-bindings)
-
-          (rg-define-search gp/rg-vc-or-dir
-            :query ask
-            :format regexp
-            :files "everything"
-            :dir (let ((vc (projectile-project-root)))
-                   (if vc
-                       vc                  ; search root project directory
-                     default-directory))   ; or from the current directory
-            :confirm prefix
-            :flags ("--hidden --smart-case -g !.git -g '!**/node_modules/**'")
-            :menu ("Custom" "k" "Project from root"))
-        '';
-      };
-
       s = { enable = true; };
 
       scala-mode = {
@@ -865,27 +864,6 @@
         ];
       };
 
-      selectrum = {
-        enable = true;
-        config = ''
-          (setq selectrum-refine-candidates-function #'orderless-filter)
-          (setq selectrum-highlight-candidates-function #'orderless-highlight-matches)
-          (selectrum-mode +1)
-        '';
-      };
-
-      selectrum-prescient = {
-        enable = true;
-        after = [ "selectrum" ];
-        config = ''
-          ;; to make sorting and filtering more intelligent
-          (selectrum-prescient-mode +1)
-
-          ;; to save your command history on disk, so the sorting gets more
-          ;; intelligent over time
-          (prescient-persist-mode +1)
-        '';
-      };
 
       # Manage the ssh-agent on the system by loading identities if and when required
       ssh-agency = {
@@ -900,10 +878,24 @@
       #    (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
       #  '';
       #};
-#
-#      tree-sitter-langs = {
-#        enable = true;
-#      };
+      #
+      #tree-sitter-langs = {
+      #  enable = true;
+      #};
+
+      savehist = {
+        enable = true;
+        init = ''
+          (savehist-mode)
+        '';
+      };
+
+      vertico = {
+        enable = true;
+        config = ''
+          (vertico-mode)
+        '';
+      };
 
       warnings = {
         #TODO: needed?

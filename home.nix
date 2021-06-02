@@ -6,6 +6,8 @@ let
   emailAddr = "gpampara@gmail.com";
   homeDirectory = "/Users/gpampara";
 
+  secrets = import ./secrets/secrets.nix;
+
   forSystem = { linux, darwin }:
     if pkgs.stdenv.isDarwin then darwin else linux;
 in
@@ -63,7 +65,7 @@ in
     shellcheck
     # stack
     # tectonic # latex build process (experimental) - Why can't this use the system latex?
-    tmux
+
     vagrant
     yarn
     youtube-dl
@@ -81,6 +83,7 @@ in
     extensions = [
       { id = "nngceckbapebfimnlniiiahkandclblb"; } # Bitwarden
       { id = "ekhagklcjbdpajgpjgmbionohlpdbjgc"; } # Zotero
+      { id = "edlhclhffmclbhgifomamlomnfolnepa"; } # Elm debug helper
       { id = "fjdmkanbdloodhegphphhklnjfngoffa"; }
     ];
   };
@@ -125,7 +128,6 @@ in
   };
 
   programs.git = {
-    package = pkgs.gitAndTools.gitFull;
     enable = true;
     userName = fullname;
     aliases = {
@@ -154,4 +156,34 @@ in
   home.file.".aspell.conf".text = ''
     data-dir ${homeDirectory}/.nix-profile/lib/aspell
   '';
+
+
+  # Accounts for email
+  programs.mu.enable = true;
+  programs.mbsync.enable = true;
+
+  accounts.email = {
+    accounts = {
+      "${secrets.email.work.address}" = {
+        primary = true;
+        flavor = secrets.email.work.flavor;
+        address = secrets.email.work.address;
+        userName = secrets.email.work.address;
+        realName = fullname;
+        passwordCommand = secrets.email.work.passwordCommand;
+        imap.tls = {
+          enable = true;
+          certificatesFile = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
+        };
+        smtp.tls.useStartTls = true;
+        mbsync = {
+          enable = true;
+          create = "both";
+          expunge = "both";
+          patterns = secrets.email.work.patterns;
+        };
+      };
+    };
+  };
+
 }
