@@ -9,4 +9,6 @@ final: prev: {
     slack = prev.callPackage ./slack {};
     zotero = prev.callPackage ./zotero {};
   };
+
+  nix-direnv = prev.nix-direnv.override { enableFlakes = true; };
 }

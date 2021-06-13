@@ -2,7 +2,7 @@
 
 stdenv.mkDerivation rec {
   pname = "brave";
-  version = "1.24.82";
+  version = "1.25.70";
 
   buildInputs = [ undmg ];
   sourceRoot = ".";
@@ -15,7 +15,7 @@ stdenv.mkDerivation rec {
   src = fetchurl {
     name = "Brave-Browser-x64-v${version}.dmg";
     url = "https://github.com/brave/brave-browser/releases/download/v${version}/Brave-Browser-x64.dmg";
-    sha256 = "65SFL0EjGKKUJ/f4xbBSQzyqyS8Dj07zX/WXjIt7LQU=";
+    sha256 = "lEhnSFn+c3UsVp9wp+MuhxOVgIAQdSFZyoLjj/z1kjA=";
   };
 
   meta = with pkgs.lib; {
