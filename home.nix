@@ -91,7 +91,7 @@ in
   # Enabling direnv will automatically add `eval (direnv hook fish)` to programs.fish.shellInit
   programs.direnv = {
     enable = true;
-    enableNixDirenvIntegration = true;
+    nix-direnv.enable = true;
   };
 
   programs.fish = {
