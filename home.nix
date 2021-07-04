@@ -52,6 +52,7 @@ in
     graphviz
     ledger
     jq
+    nerdfonts
     nodejs
     gitAndTools.git-crypt
 
