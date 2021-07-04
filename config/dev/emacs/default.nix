@@ -848,7 +848,8 @@
 
       restclient = {
         enable = true;
-        command = [ "rectclient-mode" ];
+        command = [ "restclient-mode" ];
+        mode = [ ''("\\.http\\'" . restclient-mode)'' ];
       };
 
       s = { enable = true; };
