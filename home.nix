@@ -54,6 +54,7 @@ in
     jq
     nerdfonts
     nodejs
+    nodePackages.node2nix
     gitAndTools.git-crypt
 
     #pijul
