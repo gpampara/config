@@ -713,11 +713,14 @@
         bind = {
           "C-c n l" = "org-roam";
           "C-c n t" = "org-roam-dailies-find-today";
-          "C-c n f" = "org-roam-find-file";
+          "C-c n f" = "org-roam-node-find";
           "C-c n i" = "org-roam-insert";
           "C-c n g" = "org-roam-graph";
         };
         extraPackages = [ pkgs.sqlite ];
+        init = ''
+          (setq org-roam-v2-ack t) ;; Now on org-roam v2
+        '';
         config = ''
           (setq org-roam-directory org-notes-directory)
           (setq org-roam-db-location (f-join org-root-directory "org-roam.db"))
