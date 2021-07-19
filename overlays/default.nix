@@ -10,8 +10,6 @@ final: prev: {
     zotero = prev.callPackage ./zotero {};
   };
 
-  nix-direnv = prev.nix-direnv.override { enableFlakes = true; };
-
   elmPackages = prev.elmPackages // {
     elm-language-server = (import ./elm-language-server { pkgs = final; })."@elm-tooling/elm-language-server";
   };

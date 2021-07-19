@@ -874,18 +874,18 @@
         enable = true;
       };
 
-      #tree-sitter = {
-      #  enable = true;
-      #  extraPackages = [ pkgs.tree-sitter ];
-      #  config = ''
-      #    (global-tree-sitter-mode)
-      #    (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
-      #  '';
-      #};
-      #
-      #tree-sitter-langs = {
-      #  enable = true;
-      #};
+      tree-sitter = {
+       enable = true;
+       extraPackages = [ pkgs.tree-sitter ];
+       config = ''
+         (global-tree-sitter-mode)
+         (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
+       '';
+      };
+
+      tree-sitter-langs = {
+       enable = true;
+      };
 
       savehist = {
         enable = true;
@@ -956,11 +956,20 @@
   };
 
 
+  # home.file.".emacs.d/init.el".text = lib.mkAfter ''
+  #   (load "${pkgs.fetchFromGitHub {
+  #     owner = "seanfarley";
+  #     repo = "emacs-bitwarden";
+  #     rev = "e03919ca68c32a8053ddea2ed05ecc5e454d8a43";
+  #     sha256 = "sha256-ooLgOwpJX9dgkWEev9xmPyDVPRx4ycyZQm+bggKAfa0=";
+  #   }}/bitwarden.el")
+  # '';
+
   home.file.".emacs.d/init.el".text = lib.mkAfter ''
     (load "${pkgs.fetchFromGitHub {
-      owner = "seanfarley";
+      owner = "zoechi";
       repo = "emacs-bitwarden";
-      rev = "e03919ca68c32a8053ddea2ed05ecc5e454d8a43";
+      rev = "03bd612dda6c0eef380b1ee5ecabff1e274e1f4b";
       sha256 = "sha256-ooLgOwpJX9dgkWEev9xmPyDVPRx4ycyZQm+bggKAfa0=";
     }}/bitwarden.el")
   '';
