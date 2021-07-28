@@ -223,11 +223,6 @@
         '';
       };
 
-      # disable-mouse = {
-      #   enable = true;
-      #   config = "(global-disable-mouse-mode)";
-      # };
-
       doom-modeline = {
         enable = true;
         config = ''
@@ -571,10 +566,6 @@
         '';
       };
 
-      modus-vivendi-theme = {
-        enable = false;
-      };
-
       multiple-cursors = {
         enable = true;
         bind = {
@@ -709,13 +700,15 @@
       org-roam = {
         enable = true;
         after = [ "emacsql" "emacsql-sqlite" ];
-        hook = [ "(after-init . org-roam-mode)" ];
         bind = {
-          "C-c n l" = "org-roam";
-          "C-c n t" = "org-roam-dailies-find-today";
+          "C-c n l" = "org-roam-buffer-toggle";
           "C-c n f" = "org-roam-node-find";
-          "C-c n i" = "org-roam-insert";
           "C-c n g" = "org-roam-graph";
+          "C-c n i" = "org-roam-node-insert";
+          "C-c n c" = "org-roam-capture";
+
+          # Dailies
+          "C-c n t" = "org-roam-dailies-capture-today";
         };
         extraPackages = [ pkgs.sqlite ];
         init = ''
@@ -724,8 +717,10 @@
         config = ''
           (setq org-roam-directory org-notes-directory)
           (setq org-roam-db-location (f-join org-root-directory "org-roam.db"))
-          (setq org-roam-graph-executable "${pkgs.graphviz}/bin/dot")
-          (setq org-roam-list-files-commands '(elisp)) ; Use elisp to recurse the current directory
+          ;;(setq org-roam-graph-executable "${pkgs.graphviz}/bin/dot")
+          ;;(setq org-roam-list-files-commands '(elisp)) ; Use elisp to recurse the current directory
+
+          (org-roam-setup)
         '';
       };
 
@@ -868,7 +863,6 @@
         ];
       };
 
-
       # Manage the ssh-agent on the system by loading identities if and when required
       ssh-agency = {
         enable = true;
@@ -884,7 +878,7 @@
       };
 
       tree-sitter-langs = {
-       enable = true;
+        enable = true;
       };
 
       savehist = {
