@@ -57,7 +57,7 @@ in
     nodePackages.node2nix
     gitAndTools.git-crypt
 
-    #pijul
+    pijul
 
     (forSystem { linux = mpv; darwin = dmgPkgs.iina; })
     (forSystem { linux = xterm; darwin = dmgPkgs.iterm2; })
