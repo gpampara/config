@@ -10,11 +10,11 @@
     overrides = self: super: rec {
       tree-sitter-grammars = pkgs.stdenv.mkDerivation rec {
         name = "tree-sitter-grammars";
-        version = "0.10.1";
+        version = "0.10.2";
         src = pkgs.fetchzip {
           name = "tree-sitter-grammars-macos-${version}.tar.gz";
           url = "https://github.com/ubolonton/tree-sitter-langs/releases/download/${version}/${src.name}";
-          sha256 = "sha256-no1X4LGiaMtu4rV7zIiwhECmgGvjdDSwIMHAWxAnaz4=";
+          sha256 = "sha256-VKpmtKfzEayIF42tDzjeF98BGvN7XlEqUpE6JzrEdU4=";
           stripRoot = false;
         };
         installPhase = ''
@@ -24,11 +24,12 @@
         '';
       };
 
-      tree-sitter-langs = super.emacs.pkgs.tree-sitter-langs.overrideAttrs (oldAttrs: {
-        postPatch = oldAttrs.postPatch or "" + ''
-        substituteInPlace ./tree-sitter-langs-build.el \
-        --replace "tree-sitter-langs-grammar-dir tree-sitter-langs--dir"  "tree-sitter-langs-grammar-dir \"${tree-sitter-grammars}/langs\""
-        '';
+      tree-sitter-langs = super.tree-sitter-langs.overrideAttrs (oldAttrs: {
+        postPatch =
+          oldAttrs.postPatch or "" + ''
+            substituteInPlace ./tree-sitter-langs-build.el \
+            --replace "tree-sitter-langs-grammar-dir tree-sitter-langs--dir"  "tree-sitter-langs-grammar-dir \"${tree-sitter-grammars}/langs\""
+          '';
       });
     };
   };
