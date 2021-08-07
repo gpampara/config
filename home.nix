@@ -115,19 +115,55 @@ in
     shellAbbrs = {
       "hm-rm-old-generations" = "home-manager generations | tail -n +2 | awk '{ print $5 }' | xargs home-manager remove-generations";
     };
-
-    plugins = [
-      {
-        name = "fish-gruvbox";
-        src = pkgs.fetchFromGitHub {
-          owner = "Jomik";
-          repo = "fish-gruvbox";
-          rev = "d8c0463518fb95bed8818a1e7fe5da20cffe6fbd";
-          sha256 = "Z7IqrxFCme0T5Oo6JeCJm2eqVovfcypKPTml3xrRd0I=";
-        };
-      }
-    ];
   };
+
+  xdg.configFile."fish/conf.d/dracula.fish".text = ''
+    # Dracula Color Palette
+    set -l foreground f8f8f2
+    set -l selection 44475a
+    set -l comment 6272a4
+    set -l red ff5555
+    set -l orange ffb86c
+    set -l yellow f1fa8c
+    set -l green 50fa7b
+    set -l purple bd93f9
+    set -l cyan 8be9fd
+    set -l pink ff79c6
+
+    # Syntax Highlighting Colors
+    set -g fish_color_normal $foreground
+    set -g fish_color_command $cyan
+    set -g fish_color_keyword $pink
+    set -g fish_color_quote $yellow
+    set -g fish_color_redirection $foreground
+    set -g fish_color_end $orange
+    set -g fish_color_error $red
+    set -g fish_color_param $purple
+    set -g fish_color_comment $comment
+    set -g fish_color_selection --background=$selection
+    set -g fish_color_search_match --background=$selection
+    set -g fish_color_operator $green
+    set -g fish_color_escape $pink
+    set -g fish_color_autosuggestion $comment
+
+    # Completion Pager Colors
+    set -g fish_pager_color_progress $comment
+    set -g fish_pager_color_prefix $cyan
+    set -g fish_pager_color_completion $foreground
+    set -g fish_pager_color_description $comment
+  '';
+
+    #xdg.configFile."fish/conf.d/dracula.fish".text =
+    # let
+    #   dracula = pkgs.fetchFromGitHub {
+    #     owner = "dracula";
+    #     repo = "fish";
+    #     rev = "28db361b55bb49dbfd7a679ebec9140be8c2d593";
+    #     sha256 = "sha256-ooLgOwpJX9dgkWEev9xmPyDVPRx4ycyZQm+bggKAfa0=";
+    #   };
+    # in
+    #   builtins.readFile "${dracula}/conf.d/dracula.fish";
+
 
   programs.starship = {
     enable = true;
