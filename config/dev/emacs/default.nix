@@ -884,7 +884,6 @@
       # tree-sitter Core APIs
       tsc = {
         enable = true;
-        after = [ "tree-sitter" ];
       };
 
       savehist = {
