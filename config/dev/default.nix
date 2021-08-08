@@ -31,6 +31,15 @@
             --replace "tree-sitter-langs-grammar-dir tree-sitter-langs--dir"  "tree-sitter-langs-grammar-dir \"${tree-sitter-grammars}/langs\""
           '';
       });
+
+      org-ql = super.org-ql.overrideAttrs (oldAttrs: {
+        patches = (oldAttrs.patches or []) ++ [
+          (pkgs.fetchpatch {
+            url = "https://patch-diff.githubusercontent.com/raw/alphapapa/org-ql/pull/216.patch";
+            sha256 = "wL5XEB/EARsG/qnFaYKSDH0mbZhtxVCKtM1C29fNHWo=";
+          })
+        ];
+      });
     };
   };
 

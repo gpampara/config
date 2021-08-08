@@ -697,6 +697,11 @@
         '';
       };
 
+      org-ql = {
+        enable = true;
+        after = [ "org" ];
+      };
+
       org-roam = {
         enable = true;
         after = [ "emacsql" "emacsql-sqlite" ];
