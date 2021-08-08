@@ -643,6 +643,7 @@
         enable = true;
         after = [ "org" ];
         defer = true;
+        config = builtins.readFile ./org-agenda-config.el;
       };
 
       org-chef = {
@@ -699,6 +700,10 @@
 
       org-ql = {
         enable = true;
+        config = ''
+          (require 'org-ql-search)
+          (require 'org-ql-view)
+        '';
       };
 
       org-roam = {
