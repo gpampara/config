@@ -699,7 +699,6 @@
 
       org-ql = {
         enable = true;
-        after = [ "org" ];
       };
 
       org-roam = {
