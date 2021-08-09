@@ -238,13 +238,13 @@ let
         sha512 = "41Cifkg6e8TylSpdtTpeLVMqvSBEVzTttHvERD741+pnZ8ANv0004MRL43QKPDlK9cGvNp6NZWZUBlbGXYxxng==";
       };
     };
-    "is-stream-2.0.0" = {
+    "is-stream-2.0.1" = {
       name = "is-stream";
       packageName = "is-stream";
-      version = "2.0.0";
+      version = "2.0.1";
       src = fetchurl {
-        url = "https://registry.npmjs.org/is-stream/-/is-stream-2.0.0.tgz";
-        sha512 = "XCoy+WlUr7d1+Z8GgSuXmpuUFC9fOhRXglJMx+dwLKTkL44Cjd4W1Z5P+BQZpr+cR93aGP4S/s7Ftw6Nd/kiEw==";
+        url = "https://registry.npmjs.org/is-stream/-/is-stream-2.0.1.tgz";
+        sha512 = "hFoiJiTl63nn+kstHGBtewWSKnQLpyb155KHheA1l39uvtO9nWIop1p3udqPcUd/xbF1VLMO4n7OI6p7RbngDg==";
       };
     };
     "isexe-2.0.0" = {
@@ -559,10 +559,10 @@ in
   "@elm-tooling/elm-language-server" = nodeEnv.buildNodePackage {
     name = "_at_elm-tooling_slash_elm-language-server";
     packageName = "@elm-tooling/elm-language-server";
-    version = "2.2.0";
+    version = "2.2.1";
     src = fetchurl {
-      url = "https://registry.npmjs.org/@elm-tooling/elm-language-server/-/elm-language-server-2.2.0.tgz";
-      sha512 = "oUm/qPaDqTZskQk4a3Qh+5tdwturJ/f2qIMcPV6Z4SiJJRgnEkVCVSoqTvE3icXBLGUkhliXrQzLLRzXzisCJw==";
+      url = "https://registry.npmjs.org/@elm-tooling/elm-language-server/-/elm-language-server-2.2.1.tgz";
+      sha512 = "cihWZw073jnxhFoF3TvaajlXQXDvjx4sYYHnDL4GNKYaTntkNmS3w/C65KMgF0b64lOQl0mABc1fikJf52Cs/g==";
     };
     dependencies = [
       sources."@nodelib/fs.scandir-2.1.5"
@@ -591,7 +591,7 @@ in
       sources."is-extglob-2.1.1"
       sources."is-glob-4.0.1"
       sources."is-number-7.0.0"
-      sources."is-stream-2.0.0"
+      sources."is-stream-2.0.1"
       sources."isexe-2.0.0"
       sources."merge-stream-2.0.0"
       sources."merge2-1.4.1"
