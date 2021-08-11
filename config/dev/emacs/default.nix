@@ -700,7 +700,6 @@
 
       org-ql = {
         enable = true;
-        defer = true;
         config = ''
           (require 'org-ql-search)
           (require 'org-ql-view)
@@ -716,7 +715,6 @@
           "C-c n g" = "org-roam-graph";
           "C-c n i" = "org-roam-node-insert";
           "C-c n c" = "org-roam-capture";
-
           # Dailies
           "C-c n j" = "org-roam-dailies-capture-today";
         };
@@ -727,17 +725,23 @@
         config = ''
           (setq org-roam-directory org-notes-directory)
           (setq org-roam-db-location (f-join org-root-directory "org-roam.db"))
-          ;;(setq org-roam-graph-executable "${pkgs.graphviz}/bin/dot")
-          ;;(setq org-roam-list-files-commands '(elisp)) ; Use elisp to recurse the current directory
+          (setq org-roam-dailies-directory "dailies")
 
-          (org-roam-setup)
+          (setq org-roam-dailies-capture-templates
+            '(("d" "default" entry
+               "* %?"
+               :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
+
+          (org-roam-db-autosync-mode)
+
+          (require 'org-roam-dailies)
         '';
       };
 
       org-roam-bibtex = {
         # TODO: complete this
         enable = false;
-        defer = true;
+        after = [ "org-roam" ];
       };
 
       org-superstar = {
