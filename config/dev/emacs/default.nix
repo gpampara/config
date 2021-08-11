@@ -652,35 +652,35 @@
         defer = 5; # defer loading for 5 seconds
       };
 
-      # TODO: look into alternatives for org journal. Using dailies from org-roam??
-      org-journal = {
-        enable = true;
-        after = [ "org" ];
-        bind = {
-          "C-c n j" = "org-journal-new-entry";
-        };
-        config = ''
-          (setq org-journal-enable-agenda-integration t
-                org-journal-file-type 'monthly)
+      # # TODO: look into alternatives for org journal. Using dailies from org-roam??
+      # org-journal = {
+      #   enable = true;
+      #   after = [ "org" ];
+      #   bind = {
+      #     "C-c n j" = "org-journal-new-entry";
+      #   };
+      #   config = ''
+      #     (setq org-journal-enable-agenda-integration t
+      #           org-journal-file-type 'monthly)
 
-          (setq org-journal-dir org-notes-directory)
-          ;;(org-journal-date-prefix "* ")
-          (setq org-journal-file-format "%Y-%m-%d.org")
-          (setq org-journal-date-format "%A, %d %B %Y")
+      #     (setq org-journal-dir org-notes-directory)
+      #     ;;(org-journal-date-prefix "* ")
+      #     (setq org-journal-file-format "%Y-%m-%d.org")
+      #     (setq org-journal-date-format "%A, %d %B %Y")
 
 
-          (defun org-journal-file-header-func (time)
-            "Custom function to create journal header."
-            (concat
-              (pcase org-journal-file-type
-                (`daily "#+TITLE: Daily Journal\n#+STARTUP: showeverything")
-                (`weekly "#+TITLE: Weekly Journal\n#+STARTUP: folded")
-                (`monthly "#+TITLE: Monthly Journal\n#+STARTUP: folded")
-                (`yearly "#+TITLE: Yearly Journal\n#+STARTUP: folded"))))
+      #     (defun org-journal-file-header-func (time)
+      #       "Custom function to create journal header."
+      #       (concat
+      #         (pcase org-journal-file-type
+      #           (`daily "#+TITLE: Daily Journal\n#+STARTUP: showeverything")
+      #           (`weekly "#+TITLE: Weekly Journal\n#+STARTUP: folded")
+      #           (`monthly "#+TITLE: Monthly Journal\n#+STARTUP: folded")
+      #           (`yearly "#+TITLE: Yearly Journal\n#+STARTUP: folded"))))
 
-          (setq org-journal-file-header 'org-journal-file-header-func)
-        '';
-      };
+      #     (setq org-journal-file-header 'org-journal-file-header-func)
+      #   '';
+      # };
 
       # TODO verify the config for org-noter
       org-noter = {
@@ -700,6 +700,7 @@
 
       org-ql = {
         enable = true;
+        defer = true;
         config = ''
           (require 'org-ql-search)
           (require 'org-ql-view)
@@ -717,7 +718,7 @@
           "C-c n c" = "org-roam-capture";
 
           # Dailies
-          "C-c n t" = "org-roam-dailies-capture-today";
+          "C-c n j" = "org-roam-dailies-capture-today";
         };
         extraPackages = [ pkgs.sqlite ];
         init = ''
@@ -736,6 +737,7 @@
       org-roam-bibtex = {
         # TODO: complete this
         enable = false;
+        defer = true;
       };
 
       org-superstar = {
