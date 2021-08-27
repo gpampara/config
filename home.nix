@@ -69,6 +69,9 @@ in
     # tectonic # latex build process (experimental) - Why can't this use the system latex?
 
     vagrant
+
+    wireguard-tools
+
     yarn
     youtube-dl
 
