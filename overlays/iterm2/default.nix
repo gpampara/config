@@ -2,7 +2,7 @@
 
 stdenv.mkDerivation rec {
   pname = "iterm2";
-  version = "3.4.8";
+  version = "3.4.10";
   underscoreVersion = lib.replaceStrings ["."] ["_"] version;
 
   buildInputs = [ unzip ];
@@ -16,13 +16,13 @@ stdenv.mkDerivation rec {
   src = fetchurl {
     name = "iTerm2-${underscoreVersion}.zip";
     url = "https://iterm2.com/downloads/stable/iTerm2-${underscoreVersion}.zip";
-    sha256 = "KeHPgN/zzWPiPkLXgZaddKf+06revHVtAAGULkC7N28=";
+    sha256 = "QKYhk1gt18VObyflCb24h+yGRRO1PUADdj2eFn5EqSE=";
   };
 
   meta = with pkgs.lib; {
-    description = "The modern media player for macOS";
-    homepage = "https://iina.io";
-    maintainers = [ "gpampara@gmail.com" ];
+    description = "iTerm2 is a replacement for Terminal and the successor to iTerm.";
+    homepage = "https://iterm2.com";
+    maintainers = [];
     platforms = platforms.darwin;
   };
 }

@@ -65,8 +65,7 @@ in
 
     ripgrep
     shellcheck
-    # stack
-    # tectonic # latex build process (experimental) - Why can't this use the system latex?
+    stack
 
     vagrant
 

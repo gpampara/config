@@ -10,17 +10,20 @@
     overrides = self: super: rec {
       tree-sitter-grammars = pkgs.stdenv.mkDerivation rec {
         name = "tree-sitter-grammars";
-        version = "0.10.4";
+        version = "0.10.7";
         src = pkgs.fetchzip {
           name = "tree-sitter-grammars-macos-${version}.tar.gz";
           url = "https://github.com/ubolonton/tree-sitter-langs/releases/download/${version}/${src.name}";
-          sha256 = "sha256-C8CzyFcAWEjMixx8vu2FzFI3vuWxfaimjUDXM50Innw=";
+          sha256 = "sha256-CxwANTXIvzR8moqCUXdp3jIV/qOo3cVSlcni3hVeUMM=";
           stripRoot = false;
         };
+        buildPhase = ''
+          mkdir -p $out/langs/bin
+          echo -n $version > $out/langs/bin/BUNDLE-VERSION
+        '';
         installPhase = ''
           install -d $out/langs/bin
           install -m444 * $out/langs/bin
-          echo -n $version > $out/langs/bin/BUNDLE-VERSION
         '';
       };
 
@@ -32,14 +35,14 @@
           '';
       });
 
-      org-ql = super.org-ql.overrideAttrs (oldAttrs: {
-        patches = (oldAttrs.patches or []) ++ [
-          (pkgs.fetchpatch {
-            url = "https://patch-diff.githubusercontent.com/raw/alphapapa/org-ql/pull/216.patch";
-            sha256 = "wL5XEB/EARsG/qnFaYKSDH0mbZhtxVCKtM1C29fNHWo=";
-          })
-        ];
-      });
+      # org-ql = super.org-ql.overrideAttrs (oldAttrs: {
+      #   patches = (oldAttrs.patches or []) ++ [
+      #     (pkgs.fetchpatch {
+      #       url = "https://patch-diff.githubusercontent.com/raw/alphapapa/org-ql/pull/216.patch";
+      #       sha256 = "wL5XEB/EARsG/qnFaYKSDH0mbZhtxVCKtM1C29fNHWo=";
+      #     })
+      #   ];
+      # });
     };
   };
 

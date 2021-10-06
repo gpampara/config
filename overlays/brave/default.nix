@@ -2,7 +2,7 @@
 
 stdenv.mkDerivation rec {
   pname = "brave";
-  version = "1.29.77";
+  version = "1.30.87";
   sha256 = "s4xAKUfAlV+x01se3x1PoCRYqYA9YwpXgh6xHfvwGUM=";
 
   buildInputs = [ undmg ];

@@ -474,15 +474,22 @@
         defer = true;
         after = [ "company" "flycheck" ];
         hook = [
+          "(sh-mode . lsp-deferred)"
           "(elm-mode . lsp-deferred)"
+          "(js-mode . lsp-deferred)"
           "(scala-mode . lsp-deferred)"
           "(nix-mode . lsp-deferred)"
           "(lsp-mode . lsp-enable-which-key-integration)"
+        ];
+        extraPackages = [
+          pkgs.nodePackages.bash-language-server
+          pkgs.nodePackages.typescript-language-server
         ];
         config = ''
           (setq lsp-diagnostics-provider :flycheck)
           (setq lsp-enable-xref t)
           (setq lsp-headerline-breadcrumb-enable nil)
+          (setq lsp-eldoc-render-all t)
 
           ;; Performance adjustments (https://emacs-lsp.github.io/lsp-mode/page/performance/)
           (setq read-process-output-max (* 1024 1024)) ;; 1mb
@@ -492,6 +499,8 @@
           (push "[/\\\\]node_modules$" lsp-file-watch-ignored)
           (push "[/\\\\]\\.yarn$" lsp-file-watch-ignored)
           (push "[/\\\\]\\.direnv$" lsp-file-watch-ignored)
+
+          (setq lsp-clients-typescript-tls-path "${pkgs.nodePackages.typescript-language-server}/bin/typescript-language-server")
         '';
       };
 
@@ -504,7 +513,9 @@
         enable = true;
         command = [ "lsp-ui-mode" ];
         config = ''
-          (setq lsp-ui-doc-delay 2)
+          (setq lsp-ui-peek-always-show t)
+          (setq lsp-ui-sideline-show-hover t)
+          (setq lsp-ui-doc-enable nil)
 
           (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
           (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
