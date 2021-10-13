@@ -2,8 +2,8 @@
 
 stdenv.mkDerivation rec {
   pname = "brave";
-  version = "1.30.87";
-  sha256 = "s4xAKUfAlV+x01se3x1PoCRYqYA9YwpXgh6xHfvwGUM=";
+  version = "1.30.89";
+  sha256 = "Kc7E18cecznDpl0Qwx6PfwhAjxNbonKf18n8Uu51eKU=";
 
   buildInputs = [ undmg ];
   sourceRoot = ".";
