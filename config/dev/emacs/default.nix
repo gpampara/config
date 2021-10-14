@@ -134,7 +134,11 @@
             :preview-key (kbd "M-."))
 
           ;; Specify that searches with consult should start from the root of the project (if exists)
-          (setq consult-project-root-function #'project-current)
+          ;;(setq consult-project-root-function #'projectile-project-root)
+          (setq consult-project-root-function
+                  (lambda ()
+                    (when-let (project (project-current))
+                      (car (project-roots project)))))
 
           ;; Use smart-casing for ripgrep (i.e. case-insensitive search until uppercase character is provided)
           (setq consult-ripgrep-command "rg -S --null --line-buffered --color=ansi --max-columns=1000 --no-heading --line-number . -e ARG OPTS")
