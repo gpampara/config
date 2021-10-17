@@ -992,7 +992,7 @@
   #   (load "${pkgs.fetchFromGitHub {
   #     owner = "seanfarley";
   #     repo = "emacs-bitwarden";
-  #     rev = "e03919ca68c32a8053ddea2ed05ecc5e454d8a43";
+  #     rev = "23fc8f5e785db8f7248d509da00cf434f04ffd34";
   #     sha256 = "sha256-ooLgOwpJX9dgkWEev9xmPyDVPRx4ycyZQm+bggKAfa0=";
   #   }}/bitwarden.el")
   # '';
