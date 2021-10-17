@@ -56,6 +56,7 @@ in
     nodejs
     nodePackages.node2nix
     gitAndTools.git-crypt
+    fzf
 
     pijul
 
