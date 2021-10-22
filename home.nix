@@ -83,6 +83,11 @@ in
     (forSystem { linux = zathura; darwin = dmgPkgs.skim-pdf; })
   ]; #++ lib.optional pkgs.stdenv.isDarwin [];
 
+
+  home.file.nixConf.text = ''
+    experimental-features = nix-command flakes
+  '';
+
   programs.brave = {
     enable = true;
     package = forSystem {
@@ -220,7 +225,7 @@ in
         address = secrets.email.work.address;
         userName = secrets.email.work.address;
         realName = fullname;
-        passwordCommand = secrets.email.work.passwordCommand;
+        passwordCommand = "echo ${secrets.email.work.password}";
         imap.tls = {
           enable = true;
           certificatesFile = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
@@ -235,10 +240,5 @@ in
       };
     };
   };
-
-
-  home.file.nixConf.text = ''
-    experimental-features = nix-command flakes
-  '';
 
 }
