@@ -9,9 +9,10 @@
       url = "github:rycee/home-manager/master";
       inputs.nixpkgs.follows = "/nixpkgs";
     };
+    declarative-cachix.url = "github:jonascarpay/declarative-cachix/master";
   };
 
-  outputs = { self, nixpkgs, nur, home-manager, emacs-overlay, ... }:
+  outputs = { self, nixpkgs, nur, home-manager, emacs-overlay, declarative-cachix, ... }:
     let
       system = "x86_64-darwin";
     in
@@ -34,6 +35,7 @@
               in
               [
                 nur-no-pkgs.repos.rycee.hmModules.emacs-init
+                declarative-cachix.homeManagerModules.declarative-cachix
                 ./home.nix
               ];
           };

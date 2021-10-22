@@ -1,12 +1,28 @@
 {
   "nodes": {
+    "declarative-cachix": {
+      "locked": {
+        "lastModified": 1625560633,
+        "narHash": "sha256-Uhg950dgJiytcaecOJ3KB2MWDOdtUEogVyon9m6J/3g=",
+        "owner": "jonascarpay",
+        "repo": "declarative-cachix",
+        "rev": "1986455ab3e55804458bf6e7d2a5f5b8a68defce",
+        "type": "github"
+      },
+      "original": {
+        "owner": "jonascarpay",
+        "ref": "master",
+        "repo": "declarative-cachix",
+        "type": "github"
+      }
+    },
     "emacs-overlay": {
       "locked": {
-        "lastModified": 1634608415,
-        "narHash": "sha256-PTOXRszdUOExzoTQWj77rXV9xr8BIam4yQ0gpTN4vJ0=",
+        "lastModified": 1634867970,
+        "narHash": "sha256-P5+mu7iruBbzku4Rk/OOht/ZgU6mYLj3+GX5TocJz2A=",
         "owner": "nix-community",
         "repo": "emacs-overlay",
-        "rev": "de982af2c9fb85001b5bea94efe64d8545ba5e55",
+        "rev": "343c8b190c66979d9a543c216148d417146db5c1",
         "type": "github"
       },
       "original": {
@@ -23,11 +39,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1634543124,
-        "narHash": "sha256-sPjP5GjZ0DgTgY8KljhGeix4L5ey7A3L1nm6lDffTh0=",
+        "lastModified": 1634743337,
+        "narHash": "sha256-CrevqYUr8MhfAken+vk4dz20z3auI/ytP7qsKITxlqw=",
         "owner": "rycee",
         "repo": "home-manager",
-        "rev": "b5d738b5a3f8c3738433e0aa6482afb4ac635380",
+        "rev": "91155a98ed126553deb8696b25556d782d2a5450",
         "type": "github"
       },
       "original": {
@@ -55,11 +71,11 @@
     },
     "nur": {
       "locked": {
-        "lastModified": 1634623175,
-        "narHash": "sha256-9eXGL5tCOWaBNtjSoenu8p2nsf1PpA99UiWve2yP6ZU=",
+        "lastModified": 1634758082,
+        "narHash": "sha256-dFxcwlhQ7U3jr/GQLwVcPWM0AJoC8jVn357sdfhTH0Y=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "33fb97c8b95b4dcdee251e259598cf5ef850df38",
+        "rev": "0c48d03109c52d1cb4d6b5e2e052cc3c7d10970e",
         "type": "github"
       },
       "original": {
@@ -70,6 +86,7 @@
     },
     "root": {
       "inputs": {
+        "declarative-cachix": "declarative-cachix",
         "emacs-overlay": "emacs-overlay",
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs",
