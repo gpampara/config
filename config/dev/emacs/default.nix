@@ -198,28 +198,28 @@
         '';
       };
 
-      dap-mode = {
-        enable = true;
-        after = [ "lsp-mode" ];
-        command = [ "dap-mode" "dap-auto-configure-mode" ];
-        config = ''
-          (dap-auto-configure-mode)
-        '';
-      };
+      # dap-mode = {
+      #   enable = true;
+      #   after = [ "lsp-mode" ];
+      #   command = [ "dap-mode" "dap-auto-configure-mode" ];
+      #   config = ''
+      #     (dap-auto-configure-mode)
+      #   '';
+      # };
 
-      dap-mouse = {
-        enable = true;
-        command = [ "dap-tooltip-mode" ];
-      };
+      # dap-mouse = {
+      #   enable = true;
+      #   command = [ "dap-tooltip-mode" ];
+      # };
 
-      dap-ui = {
-        enable = true;
-        after = [ "dap-mode" ];
-        command = [ "dap-ui-mode" ];
-        config = ''
-          (dap-ui-mode t)
-        '';
-      };
+      # dap-ui = {
+      #   enable = true;
+      #   after = [ "dap-mode" ];
+      #   command = [ "dap-ui-mode" ];
+      #   config = ''
+      #     (dap-ui-mode t)
+      #   '';
+      # };
 
       direnv = {
         enable = false;
@@ -255,6 +255,10 @@
           ;; Corrects (and improves) org-mode's native fontification.
           ;;(doom-themes-org-config)
         '';
+      };
+
+      eglot = {
+        enable = true;
       };
 
       elegant-agenda-mode = {
@@ -466,74 +470,75 @@
         '';
       };
 
-      lsp-diagnostics = {
-        enable = true;
-      };
+      # lsp-diagnostics = {
+      #   enable = true;
+      # };
 
-      lsp-metals = {
-        enable = true;
-        defer = true;
-        after = [ "lsp-mode" ];
-      };
+      # lsp-metals = {
+      #   enable = true;
+      #   defer = true;
+      #   after = [ "lsp-mode" ];
+      # };
 
-      lsp-mode = {
-        enable = true;
-        defer = true;
-        after = [ "company" "flycheck" ];
-        hook = [
-          "(sh-mode . lsp-deferred)"
-          "(elm-mode . lsp-deferred)"
-          "(js-mode . lsp-deferred)"
-          "(scala-mode . lsp-deferred)"
-          "(nix-mode . lsp-deferred)"
-          "(lsp-mode . lsp-enable-which-key-integration)"
-        ];
-        extraPackages = [
-          pkgs.nodePackages.bash-language-server
-          pkgs.nodePackages.typescript-language-server
-        ];
-        config = ''
-          (setq lsp-diagnostics-provider :flycheck)
-          (setq lsp-enable-xref t)
-          (setq lsp-headerline-breadcrumb-enable nil)
-          (setq lsp-eldoc-render-all t)
+      # lsp-mode = {
+      #   enable = true;
+      #   defer = true;
+      #   after = [ "company" "flycheck" ];
+      #   hook = [
+      #     "(sh-mode . lsp-deferred)"
+      #     "(elm-mode . lsp-deferred)"
+      #     "(js-mode . lsp-deferred)"
+      #     "(scala-mode . lsp-deferred)"
+      #     "(nix-mode . lsp-deferred)"
+      #     "(lsp-mode . lsp-enable-which-key-integration)"
+      #   ];
+      #   extraPackages = [
+      #     pkgs.nodePackages.bash-language-server
+      #     pkgs.nodePackages.typescript-language-server
+      #   ];
+      #   config = ''
+      #     (setq lsp-diagnostics-provider :flycheck)
+      #     (setq lsp-enable-xref t)
+      #     (setq lsp-headerline-breadcrumb-enable nil)
+      #     (setq lsp-eldoc-render-all t)
 
-          ;; Performance adjustments (https://emacs-lsp.github.io/lsp-mode/page/performance/)
-          (setq read-process-output-max (* 1024 1024)) ;; 1mb
-          (setq lsp-completion-provider :capf)
+      #     ;; Performance adjustments (https://emacs-lsp.github.io/lsp-mode/page/performance/)
+      #     (setq read-process-output-max (* 1024 1024)) ;; 1mb
+      #     (setq lsp-completion-provider :capf)
 
-          (push "[/\\\\]vendor$" lsp-file-watch-ignored)
-          (push "[/\\\\]node_modules$" lsp-file-watch-ignored)
-          (push "[/\\\\]\\.yarn$" lsp-file-watch-ignored)
-          (push "[/\\\\]\\.direnv$" lsp-file-watch-ignored)
+      #     (push "[/\\\\]vendor$" lsp-file-watch-ignored)
+      #     (push "[/\\\\]node_modules$" lsp-file-watch-ignored)
+      #     (push "[/\\\\]\\.yarn$" lsp-file-watch-ignored)
+      #     (push "[/\\\\]\\.direnv$" lsp-file-watch-ignored)
 
-          (setq lsp-clients-typescript-tls-path "${pkgs.nodePackages.typescript-language-server}/bin/typescript-language-server")
-        '';
-      };
+      #     (setq lsp-clients-typescript-tls-path "${pkgs.nodePackages.typescript-language-server}/bin/typescript-language-server")
+      #   '';
+      # };
 
-      lsp-modeline = {
-        enable = true;
-        after = [ "lsp-mode" ];
-      };
+      # lsp-modeline = {
+      #   enable = true;
+      #   after = [ "lsp-mode" ];
+      # };
 
-      lsp-ui = {
-        enable = true;
-        command = [ "lsp-ui-mode" ];
-        config = ''
-          (setq lsp-ui-peek-always-show t)
-          (setq lsp-ui-sideline-show-hover t)
-          (setq lsp-ui-doc-enable nil)
+      # lsp-ui = {
+      #   enable = true;
+      #   command = [ "lsp-ui-mode" ];
+      #   config = ''
+      #     ;;(setq lsp-ui-peek-always-show t)
+      #     ;;(setq lsp-ui-sideline-show-hover t)
+      #     (setq lsp-ui-doc-enable nil)
+      #     (setq lsp-ui-sideline-enable nil)
 
-          (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
-          (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
-        '';
-      };
+      #     (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
+      #     (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
+      #   '';
+      # };
 
-      lsp-ui-flycheck = {
-        enable = true;
-        command = [ "lsp-flycheck-enable" ];
-        after = [ "flycheck" "lsp-ui" ];
-      };
+      # lsp-ui-flycheck = {
+      #   enable = true;
+      #   command = [ "lsp-flycheck-enable" ];
+      #   after = [ "flycheck" "lsp-ui" ];
+      # };
 
       magit = {
         enable = true;
