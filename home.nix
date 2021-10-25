@@ -122,6 +122,10 @@ in
       if test -e ${homeDirectory}/.nix-profile/etc/profile.d/nix.sh
         fenv source ${homeDirectory}/.nix-profile/etc/profile.d/nix.sh
       end
+
+      # This was removed in https://github.com/nix-community/home-manager/commit/3e4fedc1d9c53a0fad0a4e5b63880ab13d1e249d
+      # but not sure why??
+      ${pkgs.direnv}/bin/direnv hook fish | source
     '';
 
     shellAbbrs = {

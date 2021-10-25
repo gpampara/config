@@ -259,6 +259,14 @@
 
       eglot = {
         enable = true;
+        extraPackages = [
+          pkgs.nodePackages.bash-language-server
+          pkgs.nodePackages.typescript-language-server
+        ];
+        config = ''
+          (add-hook 'sh-mode 'eglot-ensure)
+          (add-hook 'js-mode 'eglot-ensure)
+        '';
       };
 
       elegant-agenda-mode = {
@@ -280,7 +288,7 @@
           elmPackages.elm-language-server
         ];
         config = ''
-          (add-to-list 'company-backends 'company-elm)
+          (add-hook 'elm-mode 'eglot-ensure)
         '';
       };
 
@@ -349,10 +357,10 @@
         enable = true;
         diminish = [ "flycheck-mode" ];
         command = [ "global-flycheck-mode" ];
-        bind = {
-          "M-n" = "flycheck-next-error";
-          "M-p" = "flycheck-previous-error";
-        };
+        # bind = {
+        #   "M-n" = "flycheck-next-error";
+        #   "M-p" = "flycheck-previous-error";
+        # };
         config = ''
           ;; Only check buffer when mode is enabled or buffer is saved.
           (setq flycheck-check-syntax-automatically '(mode-enabled save))
@@ -609,6 +617,8 @@
         ];
         config = ''
           (setq nix-nixfmt-bin "${pkgs.nixpkgs-fmt}/bin/nixpkgs-fmt")
+
+          (add-hook 'nix-mode-hook 'eglot-ensure)
         '';
       };
 
@@ -899,6 +909,9 @@
         extraPackages = [
           pkgs.metals # language server
         ];
+        config = ''
+          (add-hook 'scala-mode-hook 'eglot-ensure)
+        '';
       };
 
       # Manage the ssh-agent on the system by loading identities if and when required
