@@ -2,7 +2,7 @@
 
 stdenv.mkDerivation rec {
   pname = "iterm2";
-  version = "3.4.10";
+  version = "3.4.12";
   underscoreVersion = lib.replaceStrings ["."] ["_"] version;
 
   buildInputs = [ unzip ];
@@ -16,7 +16,7 @@ stdenv.mkDerivation rec {
   src = fetchurl {
     name = "iTerm2-${underscoreVersion}.zip";
     url = "https://iterm2.com/downloads/stable/iTerm2-${underscoreVersion}.zip";
-    sha256 = "QKYhk1gt18VObyflCb24h+yGRRO1PUADdj2eFn5EqSE=";
+    sha256 = "IIOk0KN+YqfBj8per9rqJGvKjMzJgJTDOzjplGNC+yo=";
   };
 
   meta = with pkgs.lib; {
