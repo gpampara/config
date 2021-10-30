@@ -6,7 +6,7 @@
 
   programs.emacs = {
     enable = true;
-    package = pkgs.emacsPgtkGcc;
+    package = pkgs.emacsPgtk;
     overrides = self: super: rec {
       tree-sitter-grammars = pkgs.stdenv.mkDerivation rec {
         name = "tree-sitter-grammars";
