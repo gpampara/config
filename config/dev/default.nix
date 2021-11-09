@@ -4,9 +4,16 @@
     ./emacs
   ];
 
-  programs.emacs = {
+  programs.emacs =
+    let
+      patchedEmacsPgtk = pkgs.emacsPgtk.overrideAttrs(oldAttrs: {
+        # https://lists.gnu.org/archive/html/emacs-devel/2021-11/msg00672.html
+        patched = oldAttrs.patches ++ [ ./0001-Use-posix_spawn-if-possible-on-Darwin.patch ];
+      });
+    in
+      {
     enable = true;
-    package = pkgs.emacsPgtk;
+    package = patchedEmacsPgtk; #pkgs.emacsPgtk;
     overrides = self: super: rec {
       tree-sitter-grammars = pkgs.stdenv.mkDerivation rec {
         name = "tree-sitter-grammars";
@@ -34,15 +41,6 @@
             --replace "tree-sitter-langs-grammar-dir tree-sitter-langs--dir"  "tree-sitter-langs-grammar-dir \"${tree-sitter-grammars}/langs\""
           '';
       });
-
-      # org-ql = super.org-ql.overrideAttrs (oldAttrs: {
-      #   patches = (oldAttrs.patches or []) ++ [
-      #     (pkgs.fetchpatch {
-      #       url = "https://patch-diff.githubusercontent.com/raw/alphapapa/org-ql/pull/216.patch";
-      #       sha256 = "wL5XEB/EARsG/qnFaYKSDH0mbZhtxVCKtM1C29fNHWo=";
-      #     })
-      #   ];
-      # });
     };
   };
 
