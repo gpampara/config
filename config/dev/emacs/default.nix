@@ -279,7 +279,10 @@
         mode = [ ''"\\.elm\\'"'' ];
         command = [ "elm-mode" ];
         after = [ "company" ];
-        hook = [ "(elm-mode . elm-format-on-save-mode)" ];
+        hook = [
+          "(elm-mode . elm-format-on-save-mode)"
+          "(elm-mode . eglot-ensure)"
+        ];
         extraPackages = with pkgs; [
           elmPackages.elm
           elmPackages.elm-format
@@ -287,9 +290,6 @@
           elmPackages.elm-review
           elmPackages.elm-language-server
         ];
-        config = ''
-          (add-hook 'elm-mode 'eglot-ensure)
-        '';
       };
 
       emacsql = {
@@ -920,12 +920,12 @@
       };
 
       tree-sitter = {
-       enable = true;
-       extraPackages = [ pkgs.tree-sitter ];
-       config = ''
-         (global-tree-sitter-mode)
-         (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
-       '';
+        enable = true;
+        extraPackages = [ pkgs.tree-sitter ];
+        config = ''
+          (global-tree-sitter-mode)
+          (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
+        '';
       };
 
       tree-sitter-langs = {
