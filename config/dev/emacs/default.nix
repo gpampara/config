@@ -160,6 +160,7 @@
         enable = true;
         bind = {
           "C-a" = "crux-move-beginning-of-line";
+          "C-c t" = "crux-visit-term-buffer";
         };
       };
 
@@ -948,6 +949,13 @@
         enable = true;
         config = ''
           (vertico-mode)
+        '';
+      };
+
+      vterm = {
+        enable = true;
+        config = ''
+          (setq crux-term-func #'vterm)
         '';
       };
 

@@ -65,7 +65,6 @@ in
     pijul
 
     (forSystem { linux = mpv; darwin = dmgPkgs.iina; })
-    (forSystem { linux = xterm; darwin = dmgPkgs.iterm2; })
     (forSystem { linux = dbeaver; darwin = dmgPkgs.postico; })
 
     ripgrep
@@ -209,6 +208,28 @@ in
       };
     };
   };
+
+  programs.kitty =
+    let
+      draculaGH = pkgs.fetchFromGitHub {
+        owner = "dracula";
+        repo = "kitty";
+        rev = "6d6239abe975e168e6ffb8b19c03a997bbe88fe6";
+        sha256 = "EUS6/CPhx+OfoiW1sOrhJ8NFiNnmcfryBl8STt+nzLs=";
+      };
+      draculaConf = builtins.readFile (draculaGH + "/dracula.conf");
+      draculaDiffConf = builtins.readFile (draculaGH + "/diff.conf");
+    in
+      {
+        enable = true;
+        extraConfig = ''
+          font_size 12.0
+          cursor_blink_interval 0
+
+          ${draculaDiffConf}
+          ${draculaConf}
+        '';
+      };
 
   # Custom config files
   home.file.".aspell.conf".text = ''
