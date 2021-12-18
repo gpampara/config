@@ -16,7 +16,7 @@ final: prev: {
 
   # https://github.com/nix-community/nix-direnv/issues/113#issuecomment-921328351
   nixUnstable = prev.nixUnstable.override {
-    patches = [ ./unset-is-macho.patch ];
+    patches = [ ../patches/nix-ismacho.patch ];
   };
 
   vagrant = prev.vagrant.overrideAttrs(oldAttrs: {

@@ -206,6 +206,9 @@ in
       github = {
         user = username;
       };
+      merge = {
+        conflictstyle = "diff3";
+      };
     };
   };
 
