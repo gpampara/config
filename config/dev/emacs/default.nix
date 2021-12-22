@@ -251,10 +251,11 @@
                 doom-one-brighter-comments t
            )
 
-          (load-theme 'doom-gruvbox t)
+          ;;(load-theme 'doom-gruvbox t)
+          (load-theme 'doom-one t)
 
           ;; Corrects (and improves) org-mode's native fontification.
-          ;;(doom-themes-org-config)
+          (doom-themes-org-config)
         '';
       };
 
@@ -838,27 +839,6 @@
           "M-y" = "popup-kill-ring";
         };
       };
-
-      # projectile = {
-      #   enable = false;
-      #   diminish = [ "projectile-mode" ];
-      #   command = [ "projectile-mode" "projectile-project-root" ];
-      #   bindKeyMap = {
-      #     "C-c p" = "projectile-command-map";
-      #   };
-      #   config = ''
-      #     (setq projectile-completion-system 'default)
-      #     (setq projectile-indexing-method 'alien)
-      #     (setq projectile-switch-project-action 'magit-status)
-      #     (setq projectile-git-submodule-command nil) ;; Stupid submodule bullshit
-
-      #     ;; Always ignore node_modules
-      #     (push "node_modules" projectile-globally-ignored-directories)
-      #     (push ".yarn" projectile-globally-ignored-directories)
-
-      #     (projectile-mode +1)
-      #   '';
-      # };
 
       pulse = {
         enable = true;
