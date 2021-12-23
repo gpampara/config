@@ -71,6 +71,12 @@
             "M-q" = "ales/fill-paragraph";
           };
         };
+        hook = [
+          "(latex-mode . eglot-ensure)"
+        ];
+        extraPackages =
+          [ pkgs.lua53Packages.digestif # https://github.com/astoff/digestif
+          ];
         config = builtins.readFile ./auctex-config.el;
       };
 
