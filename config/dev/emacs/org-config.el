@@ -13,7 +13,6 @@
                            (?B . (:foreground "LightSteelBlue"))
                            (?C . (:foreground "OliveDrab"))))
 
-
 (setq agenda-files (list "thesis-todo.org"
                          "gtd.org"
                          "projects.org"
@@ -22,11 +21,9 @@
                          "call.org"
                          "birthdays.org"))
 
-
 (setq org-agenda-files (mapcar
                         (lambda (s) (f-join org-agenda-directory s))
                         agenda-files))
-
 
 (setq org-capture-templates
       `(("T" "Thesis todo" entry

@@ -74,6 +74,7 @@ in
     vagrant
 
     wireguard-tools
+    tailscale
 
     yarn
     youtube-dl
