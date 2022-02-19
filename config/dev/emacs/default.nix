@@ -75,7 +75,8 @@
           "(latex-mode . eglot-ensure)"
         ];
         extraPackages =
-          [ pkgs.lua53Packages.digestif # https://github.com/astoff/digestif
+          [
+            pkgs.lua53Packages.digestif # https://github.com/astoff/digestif
           ];
         config = builtins.readFile ./auctex-config.el;
       };
@@ -135,12 +136,13 @@
           ;; For some commands and buffer sources it is useful to configure the
           ;; :preview-key on a per-command basis using the `consult-customize' macro.
           (consult-customize
-            consult-ripgrep consult-git-grep consult-grep consult-bookmark consult-recent-file
-            consult--source-file consult--source-project-file consult--source-bookmark
+            consult-ripgrep consult-git-grep consult-grep
+            consult-bookmark consult-recent-file consult-xref
+            consult--source-bookmark consult--source-recent-file
+            consult--source-project-recent-file
             :preview-key (kbd "M-."))
 
           ;; Specify that searches with consult should start from the root of the project (if exists)
-          ;;(setq consult-project-root-function #'projectile-project-root)
           (setq consult-project-root-function
                   (lambda ()
                     (when-let (project (project-current))
@@ -262,6 +264,7 @@
           elmPackages.elm
           elmPackages.elm-format
           elmPackages.elm-test
+          elmPackages.elm-test-rs
           elmPackages.elm-review
           elmPackages.elm-language-server
         ];
@@ -896,6 +899,14 @@
         init = ''
           (savehist-mode)
         '';
+      };
+
+      typescript-mode = {
+        enable = true;
+        mode = [ ''"\\.ts\\'"'' ];
+        hook = [
+          "(typescript-mode . eglot-ensure)"
+        ];
       };
 
       vertico = {

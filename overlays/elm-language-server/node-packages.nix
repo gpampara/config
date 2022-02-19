@@ -67,13 +67,13 @@ let
         sha512 = "b8um+L1RzM3WDSzvhm6gIz1yfTbBt6YTlcEKAvsmqCZZFw46z626lVj9j1yEPW33H5H+lBQpZMP1k8l+78Ha0A==";
       };
     };
-    "chokidar-3.5.2" = {
+    "chokidar-3.5.3" = {
       name = "chokidar";
       packageName = "chokidar";
-      version = "3.5.2";
+      version = "3.5.3";
       src = fetchurl {
-        url = "https://registry.npmjs.org/chokidar/-/chokidar-3.5.2.tgz";
-        sha512 = "ekGhOnNVPgT77r4K/U3GDhu+FQ2S8TnK/s2KbIGXi0SZWuwkZ2QNyfWdZW+TVfn84DpEP7rLeCt2UI6bJ8GwbQ==";
+        url = "https://registry.npmjs.org/chokidar/-/chokidar-3.5.3.tgz";
+        sha512 = "Dr3sfKRP6oTcjf2JmUmFJfeVMvXBdegxB0iVQ5eb2V10uFJUCAS8OByZdVAyVb8xXNz3GjjTgj9kLWsZTqE6kw==";
       };
     };
     "cross-spawn-7.0.3" = {
@@ -418,13 +418,13 @@ let
         sha512 = "7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==";
       };
     };
-    "signal-exit-3.0.6" = {
+    "signal-exit-3.0.7" = {
       name = "signal-exit";
       packageName = "signal-exit";
-      version = "3.0.6";
+      version = "3.0.7";
       src = fetchurl {
-        url = "https://registry.npmjs.org/signal-exit/-/signal-exit-3.0.6.tgz";
-        sha512 = "sDl4qMFpijcGw22U5w63KmD3cZJfBuFlVNbVMKje2keoKML7X2UzWbc4XrmEbDwg0NXJc3yv4/ox7b+JWb57kQ==";
+        url = "https://registry.npmjs.org/signal-exit/-/signal-exit-3.0.7.tgz";
+        sha512 = "wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==";
       };
     };
     "slash-3.0.0" = {
@@ -508,13 +508,13 @@ let
         sha512 = "sdeUoAawceQdgIfTI+sdcwkiK2KU+2cbEYA0agzM2uqaUy2UpnnGHtWTHVEtS0ES4zHU0eMFRGN+oQgDxlD66A==";
       };
     };
-    "vscode-languageserver-textdocument-1.0.3" = {
+    "vscode-languageserver-textdocument-1.0.4" = {
       name = "vscode-languageserver-textdocument";
       packageName = "vscode-languageserver-textdocument";
-      version = "1.0.3";
+      version = "1.0.4";
       src = fetchurl {
-        url = "https://registry.npmjs.org/vscode-languageserver-textdocument/-/vscode-languageserver-textdocument-1.0.3.tgz";
-        sha512 = "ynEGytvgTb6HVSUwPJIAZgiHQmPCx8bZ8w5um5Lz+q5DjP0Zj8wTFhQpyg8xaMvefDytw2+HH5yzqS+FhsR28A==";
+        url = "https://registry.npmjs.org/vscode-languageserver-textdocument/-/vscode-languageserver-textdocument-1.0.4.tgz";
+        sha512 = "/xhqXP/2A2RSs+J8JNXpiiNVvvNM0oTosNVmQnunlKvq9o4mupHOBAnnzH0lwIPKazXKvAKsVp1kr+H/K4lgoQ==";
       };
     };
     "vscode-languageserver-types-3.16.0" = {
@@ -535,13 +535,13 @@ let
         sha512 = "EcswR2S8bpR7fD0YPeS7r2xXExrScVMxg4MedACaWHEtx9ftCF/qHG1xGkolzTPcEmjTavCQgbVzHUIdTMzFGA==";
       };
     };
-    "web-tree-sitter-0.20.2" = {
+    "web-tree-sitter-0.20.3" = {
       name = "web-tree-sitter";
       packageName = "web-tree-sitter";
-      version = "0.20.2";
+      version = "0.20.3";
       src = fetchurl {
-        url = "https://registry.npmjs.org/web-tree-sitter/-/web-tree-sitter-0.20.2.tgz";
-        sha512 = "beDt3JEETNzl4pBtpLuaVc36LAfkOouFZFktTVmY1g2Wjy+IPk2Zif1KCUhbyXtOx3khXtRViG99b0zqtbfW1A==";
+        url = "https://registry.npmjs.org/web-tree-sitter/-/web-tree-sitter-0.20.3.tgz";
+        sha512 = "zKGJW9r23y3BcJusbgvnOH2OYAW40MXAOi9bi3Gcc7T4Gms9WWgXF8m6adsJWpGJEhgOzCrfiz1IzKowJWrtYw==";
       };
     };
     "which-2.0.2" = {
@@ -559,10 +559,10 @@ in
   "@elm-tooling/elm-language-server" = nodeEnv.buildNodePackage {
     name = "_at_elm-tooling_slash_elm-language-server";
     packageName = "@elm-tooling/elm-language-server";
-    version = "2.4.0";
+    version = "2.4.1";
     src = fetchurl {
-      url = "https://registry.npmjs.org/@elm-tooling/elm-language-server/-/elm-language-server-2.4.0.tgz";
-      sha512 = "jGK8tQqA2HI4+f8uiUNk76Z0YbnfDQqy5g9/tJ2ung0f4Xd3WapJQBeAKFIniOAnRYwhL3EP8S25XThFp0bWiw==";
+      url = "https://registry.npmjs.org/@elm-tooling/elm-language-server/-/elm-language-server-2.4.1.tgz";
+      sha512 = "v8WU/LOrksaR1IO3WkcH5KCfS1ExDDNSE8Aqz/SYMlkZ4RF2aU418Pm54ppdiVX5AOTgHjc6U6mp5LXZocoEqw==";
     };
     dependencies = [
       sources."@nodelib/fs.scandir-2.1.5"
@@ -572,7 +572,7 @@ in
       sources."array-union-2.1.0"
       sources."binary-extensions-2.2.0"
       sources."braces-3.0.2"
-      sources."chokidar-3.5.2"
+      sources."chokidar-3.5.3"
       sources."cross-spawn-7.0.3"
       sources."dir-glob-3.0.1"
       sources."escape-string-regexp-4.0.0"
@@ -611,7 +611,7 @@ in
       sources."run-parallel-1.2.0"
       sources."shebang-command-2.0.0"
       sources."shebang-regex-3.0.0"
-      sources."signal-exit-3.0.6"
+      sources."signal-exit-3.0.7"
       sources."slash-3.0.0"
       sources."strip-final-newline-2.0.0"
       sources."to-regex-range-5.0.1"
@@ -621,10 +621,10 @@ in
       sources."vscode-jsonrpc-6.0.0"
       sources."vscode-languageserver-7.0.0"
       sources."vscode-languageserver-protocol-3.16.0"
-      sources."vscode-languageserver-textdocument-1.0.3"
+      sources."vscode-languageserver-textdocument-1.0.4"
       sources."vscode-languageserver-types-3.16.0"
       sources."vscode-uri-3.0.3"
-      sources."web-tree-sitter-0.20.2"
+      sources."web-tree-sitter-0.20.3"
       sources."which-2.0.2"
     ];
     buildInputs = globalBuildInputs;

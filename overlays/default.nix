@@ -14,11 +14,6 @@ final: prev: {
     elm-language-server = (import ./elm-language-server { pkgs = final; })."@elm-tooling/elm-language-server";
   };
 
-  # https://github.com/nix-community/nix-direnv/issues/113#issuecomment-921328351
-  nixUnstable = prev.nixUnstable.override {
-    patches = [ ../patches/nix-ismacho.patch ];
-  };
-
   vagrant = prev.vagrant.overrideAttrs(oldAttrs: {
     postInstall =
       let

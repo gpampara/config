@@ -40,8 +40,6 @@ in
 
   # General global packages for the user
   home.packages = with pkgs; [
-    nixUnstable
-
     aspell
     aspellDicts.en
     aspellDicts.en-computers
@@ -77,12 +75,11 @@ in
     tailscale
 
     yarn
-    youtube-dl
+    yt-dlp
 
     (forSystem { linux = zotero; darwin = dmgPkgs.zotero; })     # Install Zotero
     (forSystem { linux = zathura; darwin = dmgPkgs.skim-pdf; })
   ]; #++ lib.optional pkgs.stdenv.isDarwin [];
-
 
   home.file.nixConf.text = ''
     experimental-features = nix-command flakes
@@ -239,7 +236,6 @@ in
   home.file.".aspell.conf".text = ''
     data-dir ${homeDirectory}/.nix-profile/lib/aspell
   '';
-
 
   # Accounts for email
   programs.mu.enable = true;
