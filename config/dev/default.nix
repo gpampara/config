@@ -17,11 +17,11 @@
       overrides = self: super: rec {
         tree-sitter-grammars = pkgs.stdenv.mkDerivation rec {
           name = "tree-sitter-grammars";
-          version = "0.11.3";
+          version = "0.11.6";
           src = pkgs.fetchzip {
             name = "tree-sitter-grammars-macos-${version}.tar.gz";
             url = "https://github.com/ubolonton/tree-sitter-langs/releases/download/${version}/${src.name}";
-            sha256 = "sha256-UG4/qLQobFJgWiGHyLYEAU8R7e6ip0WM55KROo9Qnws=";
+            sha256 = "sha256-Daf4r8VvjXPKVZ7LzHFMIXLOerEhEqigNqnNtKyLPs8=";
             stripRoot = false;
           };
           buildPhase = ''

@@ -94,24 +94,24 @@
         mode = [ ''"\\.coffee\\'"'' ];
       };
 
-      company = {
-        enable = true;
-        diminish = [ "company-mode" ];
-        command = [ "company-mode" "company-doc-buffer" "global-company-mode" ];
-        hook = [ "(after-init . global-company-mode)" ];
-        extraConfig = ''
-          :bind (:map company-mode-map
-                      ([remap completion-at-point] . company-complete-common)
-                      ([remap complete-symbol] . company-complete-common))
-        '';
-        config = ''
-          (setq company-show-numbers t
-                company-tooltip-maximum-width 100
-                company-tooltip-minimum-width 20
-                ; Allow me to keep typing even if company disapproves.
-                company-require-match nil)
-        '';
-      };
+      # company = {
+      #   enable = true;
+      #   diminish = [ "company-mode" ];
+      #   command = [ "company-mode" "company-doc-buffer" "global-company-mode" ];
+      #   hook = [ "(after-init . global-company-mode)" ];
+      #   extraConfig = ''
+      #     :bind (:map company-mode-map
+      #                 ([remap completion-at-point] . company-complete-common)
+      #                 ([remap complete-symbol] . company-complete-common))
+      #   '';
+      #   config = ''
+      #     (setq company-show-numbers t
+      #           company-tooltip-maximum-width 100
+      #           company-tooltip-minimum-width 20
+      #           ; Allow me to keep typing even if company disapproves.
+      #           company-require-match nil)
+      #   '';
+      # };
 
       consult = {
         enable = true;
@@ -156,6 +156,10 @@
           ([remap goto-line] . consult-goto-line)
         '';
         extraPackages = [ pkgs.ripgrep ];
+      };
+
+      consult-eglot = {
+        enable = true;
       };
 
       consult-flycheck = {
@@ -203,7 +207,7 @@
       # };
 
       direnv = {
-        enable = false;
+        enable = true;
         after = [ "warnings" ];
         config = ''
           (add-to-list 'warning-suppress-types '(direnv))
@@ -248,6 +252,10 @@
         config = ''
           (add-hook 'sh-mode 'eglot-ensure)
           (add-hook 'js-mode 'eglot-ensure)
+
+          ;; Undo the Eglot modification of completion-category-defaults
+          (with-eval-after-load 'eglot
+            (setq completion-category-defaults nil))
         '';
       };
 
@@ -255,7 +263,7 @@
         enable = true;
         mode = [ ''"\\.elm\\'"'' ];
         command = [ "elm-mode" ];
-        after = [ "company" ];
+        #after = [ "company" ];
         hook = [
           "(elm-mode . elm-format-on-save-mode)"
           "(elm-mode . eglot-ensure)"
@@ -288,16 +296,6 @@
       embark-consult = {
         enable = true;
         after = [ "embark" "consult" ];
-      };
-
-      envrc = {
-        enable = true;
-        bindKeyMap = {
-          "C-c e" = "envrc-command-map";
-        };
-        config = ''
-          (envrc-global-mode)
-        '';
       };
 
       ess = {
@@ -558,23 +556,6 @@
         '';
       };
 
-      marginalia = {
-        enable = true;
-        after = [ "vertico" ];
-        config = ''
-          ;; Must be in the :init section of use-package such that the mode gets
-          ;; enabled right away. Note that this forces loading the package.
-          (marginalia-mode)
-
-          ;; Enable richer annotations for M-x.
-          ;; Only keybindings are shown by default, in order to reduce noise for this very common command.
-          ;; * marginalia-annotate-symbol: Annotate with the documentation string
-          ;; * marginalia-annotate-command-binding (default): Annotate only with the keybinding
-          ;; * marginalia-annotate-command-full: Annotate with the keybinding and the documentation string
-          ;; (setf (alist-get 'command marginalia-annotate-alist) #'marginalia-annotate-command-full)
-        '';
-      };
-
       multiple-cursors = {
         enable = true;
         bind = {
@@ -588,7 +569,7 @@
       nix-mode = {
         enable = true;
         mode = [ ''"\\.nix\\'"'' ];
-        after = [ "company" ];
+        #after = [ "company" ];
         extraPackages = [
           pkgs.rnix-lsp
           pkgs.nixpkgs-fmt
@@ -630,13 +611,6 @@
             (lambda()
               (push 'olivetti-mode polymode-move-these-vars-from-old-buffer) ;; Doesn't seem to work!
               (olivetti-mode t)))
-        '';
-      };
-
-      orderless = {
-        enable = true;
-        config = ''
-          (setq completion-styles '(orderless))
         '';
       };
 
@@ -878,8 +852,13 @@
 
       tree-sitter = {
         enable = true;
-        extraPackages = [ pkgs.tree-sitter ];
+        after = [ "tsc" "tree-sitter-langs" ];
+        extraPackages = [
+          pkgs.tree-sitter
+        ];
         config = ''
+          (setq tsc-dyn-get-from (:github))  ;; Only consider binaries and do not build from source
+
           (global-tree-sitter-mode)
           (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
         '';
@@ -907,13 +886,6 @@
         hook = [
           "(typescript-mode . eglot-ensure)"
         ];
-      };
-
-      vertico = {
-        enable = true;
-        config = ''
-          (vertico-mode)
-        '';
       };
 
       vterm = {
@@ -974,6 +946,109 @@
         enable = true;
         after = [ "yasnippet" ];
       };
+
+
+      # Completion
+      all-the-icons = {
+        enable = true;
+      };
+
+      all-the-icons-completion = {
+        enable = true;
+        after = [ "marginalia" "all-the-icons" ];
+        hook = [ "(marginalia-mode . all-the-icons-completion-marginalia-setup)" ];
+        config = ''
+          (all-the-icons-completion-mode)
+        '';
+      };
+
+      marginalia = {
+        enable = true;
+        after = [ "vertico" ];
+        config = ''
+          (setq marginalia-max-relative-age 0)
+
+          ;; Must be in the :init section of use-package such that the mode gets
+          ;; enabled right away. Note that this forces loading the package.
+          (marginalia-mode)
+
+          ;; Enable richer annotations for M-x.
+          ;; Only keybindings are shown by default, in order to reduce noise for this very common command.
+          ;; * marginalia-annotate-symbol: Annotate with the documentation string
+          ;; * marginalia-annotate-command-binding (default): Annotate only with the keybinding
+          ;; * marginalia-annotate-command-full: Annotate with the keybinding and the documentation string
+          ;; (setf (alist-get 'command marginalia-annotate-alist) #'marginalia-annotate-command-full)
+        '';
+      };
+
+      vertico = {
+        enable = true;
+        config = ''
+          ;; Prefix the current candidate with “» ”. From
+          ;; https://github.com/minad/vertico/wiki#prefix-current-candidate-with-arrow
+          (advice-add #'vertico--format-candidate :around
+            (lambda (orig cand prefix suffix index _start)
+              (setq cand (funcall orig cand prefix suffix index _start))
+              (concat
+               (if (= vertico--index index)
+                   (propertize "» " 'face 'vertico-current)
+                 "  ")
+               cand)))
+
+          (setq vertico-count 13   ;; Number of candidates to display
+                vertico-cycle nil)
+
+          (vertico-mode)
+        '';
+      };
+
+      orderless = {
+        enable = true;
+        config = ''
+          (setq completion-styles '(orderless flex)
+                completion-category-overrides '((eglot (styles . (orderless flex)))))
+        '';
+      };
+
+      corfu = {
+        enable = true;
+        config = ''
+          (setq corfu-auto t        ;; Only use `corfu' when calling `completion-at-point' or `indent-for-tab-command'
+                corfu-auto-prefix 2
+                corfu-auto-delay 0.25
+
+                corfu-min-width 80
+                corfu-max-width corfu-min-width       ; Always have the same width
+                corfu-count 14
+                corfu-scroll-margin 4
+                corfu-cycle nil)
+
+          (corfu-global-mode)
+        '';
+      };
+
+      kind-icon = {
+        enable = true;
+        after = [ "corfu" ];
+        config = ''
+          (setq kind-icon-use-icons t
+                kind-icon-default-face 'corfu-default    ;; Have background color be the same as `corfu' face background
+                kind-icon-blend-background nil           ;; Use midpoint color between foreground and background colors ("blended")?
+                kind-icon-blend-frac 0.08)
+
+          ;; Enable 'kind-icon'
+          (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter)
+        '';
+      };
+
+
+      cape = {
+        enable = true;
+
+      };
+
+
+
     };
   };
 

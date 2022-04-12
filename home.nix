@@ -57,6 +57,7 @@ in
     nerdfonts
     nodejs
     nodePackages.node2nix
+    #romcal
     gitAndTools.git-crypt
     fzf
 
@@ -77,7 +78,7 @@ in
     yarn
     yt-dlp
 
-    (forSystem { linux = zotero; darwin = dmgPkgs.zotero; })     # Install Zotero
+    (forSystem { linux = zotero; darwin = dmgPkgs.zotero; }) # Install Zotero
     (forSystem { linux = zathura; darwin = dmgPkgs.skim-pdf; })
   ]; #++ lib.optional pkgs.stdenv.isDarwin [];
 
@@ -165,16 +166,16 @@ in
     set -g fish_pager_color_description $comment
   '';
 
-    #xdg.configFile."fish/conf.d/dracula.fish".text =
-    # let
-    #   dracula = pkgs.fetchFromGitHub {
-    #     owner = "dracula";
-    #     repo = "fish";
-    #     rev = "28db361b55bb49dbfd7a679ebec9140be8c2d593";
-    #     sha256 = "sha256-ooLgOwpJX9dgkWEev9xmPyDVPRx4ycyZQm+bggKAfa0=";
-    #   };
-    # in
-    #   builtins.readFile "${dracula}/conf.d/dracula.fish";
+  #xdg.configFile."fish/conf.d/dracula.fish".text =
+  # let
+  #   dracula = pkgs.fetchFromGitHub {
+  #     owner = "dracula";
+  #     repo = "fish";
+  #     rev = "28db361b55bb49dbfd7a679ebec9140be8c2d593";
+  #     sha256 = "sha256-ooLgOwpJX9dgkWEev9xmPyDVPRx4ycyZQm+bggKAfa0=";
+  #   };
+  # in
+  #   builtins.readFile "${dracula}/conf.d/dracula.fish";
 
 
   programs.starship = {
@@ -187,9 +188,9 @@ in
     userName = fullname;
     aliases = {
       # https://github.com/not-an-aardvark/git-delete-squashed
-      gone =''
+      gone = ''
         ! ${pkgs.bash}/bin/bash -c 'git fetch -a -p && git for-each-ref refs/heads/ "--format=%(refname:short)" | grep -v master | grep -v main | while read branch; do mergeBase=$(git merge-base origin/master $branch) && [[ $(git cherry origin/master $(git commit-tree $(git rev-parse $branch\^{tree}) -p $mergeBase -m _)) == "-"* ]] && git branch -D $branch; done; echo ""'
-     '';
+      '';
 
       # list all aliases
       aliases = "!git config --get-regexp 'alias.*' | colrm 1 6 | sed 's/[ ]/ = /' | sort";
@@ -220,17 +221,34 @@ in
       };
       draculaConf = builtins.readFile (draculaGH + "/dracula.conf");
       draculaDiffConf = builtins.readFile (draculaGH + "/diff.conf");
-    in
-      {
-        enable = true;
-        extraConfig = ''
-          font_size 12.0
-          cursor_blink_interval 0
 
-          ${draculaDiffConf}
-          ${draculaConf}
-        '';
-      };
+      macosOptions = ''
+        map cmd+c        copy_to_clipboard
+        map cmd+v        paste_from_clipboard
+        map shift+insert paste_from_clipboard
+
+        mouse_map ctrl+left press ungrabbed,grabbed mouse_click_url
+
+        copy_on_select yes
+
+        macos_option_as_alt yes
+      '';
+
+      linuxOptions = ''
+      '';
+    in
+    {
+      enable = true;
+      extraConfig =
+        lib.strings.concatStringsSep "\n"
+          [ "font_size 12.0"
+            "cursor_blink_interval 0"
+            draculaDiffConf
+            draculaConf
+            (lib.strings.optionalString pkgs.stdenv.isDarwin macosOptions)
+            (lib.strings.optionalString pkgs.stdenv.isLinux linuxOptions)
+          ];
+    };
 
   # Custom config files
   home.file.".aspell.conf".text = ''

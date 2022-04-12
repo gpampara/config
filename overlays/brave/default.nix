@@ -1,15 +1,17 @@
-{ pkgs, stdenv, fetchurl, undmg }:
+{ pkgs, stdenv, fetchurl, undmg, rsync }:
 
 stdenv.mkDerivation rec {
   pname = "brave";
-  version = "1.34.81";
-  sha256 = "8EigjMXS6m8jcHnjXkybPCSFy7y19+fziU2TnB+xNKM=";
+  version = (import ./brave-version.info).version;
+  sha256 = "sha256-NWXhHPLIaqGJQVLl6gspqDWL5B2fflaTT8viNfWZvkU=";
 
-  buildInputs = [ undmg ];
+  buildInputs = [ undmg rsync ];
   sourceRoot = ".";
   phases = [ "unpackPhase" "installPhase" ];
   installPhase = ''
       mkdir -p "$out/Applications"
+      ls "Brave Browser.app/Contents/Frameworks/Brave Browser Framework.framework/Frameworks/Sparkle.framework/Versions/A/Resources"
+      rm -rf "Brave Browser.app/Contents/Frameworks/Brave Browser Framework.framework/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app"
       cp -r "Brave Browser.app" "$out/Applications/Brave Browser.app"
     '';
 

@@ -1,4 +1,5 @@
 final: prev: {
+
   dmgPkgs = {
     brave = prev.callPackage ./brave {};
     element = prev.callPackage ./element {};
@@ -13,6 +14,8 @@ final: prev: {
   elmPackages = prev.elmPackages // {
     elm-language-server = (import ./elm-language-server { pkgs = final; })."@elm-tooling/elm-language-server";
   };
+
+  romcal = prev.callPackage ./romcal {};
 
   vagrant = prev.vagrant.overrideAttrs(oldAttrs: {
     postInstall =

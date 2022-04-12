@@ -1,12 +1,5 @@
 (require 'f)
 
-(setq inhibit-startup-screen t)
-
-;; Stop creating backup and autosave files
-(setq make-backup-files nil)
-(setq auto-save-default nil)
-(setq create-lockfiles nil)
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Customise a few things if the current system is macOS
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -32,16 +25,101 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Some basic configuration changes
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq sentence-end-double-space nil)   ; Sentences _SHOULD_ end with only a point.
+(setq
+ ;; No need to see GNU agitprop.
+ inhibit-startup-screen t
+ ;; No need to remind me what a scratch buffer is.
+ initial-scratch-message nil
+ ;; Double-spaces after periods is morally wrong.
+ sentence-end-double-space nil
+ ;; Never ding at me, ever.
+ ring-bell-function 'ignore
+ ;; Save existing clipboard text into the kill ring before replacing it.
+ save-interprogram-paste-before-kill t
+ ;; Prompts should go in the minibuffer, not in a GUI.
+ use-dialog-box nil
+ ;; Fix undo in commands affecting the mark.
+ mark-even-if-inactive nil
+ ;; Let C-k delete the whole line.
+ kill-whole-line t
+ ;; search should be case-sensitive by default
+ ;;case-fold-search nil
+ ;; no need to prompt for the read command _every_ time
+ compilation-read-command nil
+ ;; scroll to first error
+ compilation-scroll-output 'first-error
+ ;; accept 'y' or 'n' instead of yes/no
+ ;; the documentation advises against setting this variable
+ ;; the documentation can get bent imo
+ use-short-answers t
+ ;; my source directory
+ ;;default-directory "~/src/"
+ ;; eke out a little more scrolling performance
+ fast-but-imprecise-scrolling t
+ ;; prefer newer elisp files
+ load-prefer-newer t
+ ;; when I say to quit, I mean quit
+ confirm-kill-processes nil
+ ;; if native-comp is having trouble, there's not very much I can do
+ native-comp-async-report-warnings-errors 'silent
+ ;; unicode ellipses are better
+ truncate-string-ellipsis "…"
+ ;; I want to close these fast, so switch to it so I can just hit 'q'
+ help-window-select t
+ ;; this certainly can't hurt anything
+ delete-by-moving-to-trash t
+ )
+
+
+;; Never mix tabs and spaces. Never use tabs, period.
+;; We need the setq-default here because this becomes
+;; a buffer-local variable when set.
+(setq-default indent-tabs-mode nil)
+
+;; It’s good that Emacs supports the wide variety of file encodings it does, but UTF-8 should be the default.
+(set-charset-priority 'unicode)
+(prefer-coding-system 'utf-8-unix)
+
+;; We also need to turn on a few modes to have behavior that’s even remotely modern.
+(delete-selection-mode t)
+;;(global-display-line-numbers-mode t)
+(column-number-mode)
+
+
+(require 'hl-line)
+(add-hook 'prog-mode-hook #'hl-line-mode)
+(add-hook 'text-mode-hook #'hl-line-mode)
+
+;; Stop creating backup and autosave files
+(setq
+ make-backup-files nil
+ auto-save-default nil
+ create-lockfiles nil)
+
 (setq require-final-newline t)         ; Ensure there is a final newline
 (setq confirm-kill-emacs 'y-or-n-p)    ; Confirm really quit emacs
-(defalias 'yes-or-no-p 'y-or-n-p)      ; Shorten yes/no prompts to y/n
+;;(defalias 'yes-or-no-p 'y-or-n-p)      ; Shorten yes/no prompts to y/n
+
+
+;; Corfu related
+;; TAB cycle if there are only few candidates
+(setq completion-cycle-threshold 3)
+
+;; Emacs 28: Hide commands in M-x which do not apply to the current mode.
+;; Corfu commands are hidden, since they are not supposed to be used via M-x.
+(setq read-extended-command-predicate
+      #'command-completion-default-include-p)
+
+;; Enable indentation+completion using the TAB key.
+;; `completion-at-point' is often bound to M-TAB.
+(setq tab-always-indent 'complete)
+
+
+
 
 ;; Always get rid of trailing whitespace. Always.
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
-;; I don't want tabs for indenting
-(setq-default indent-tabs-mode nil)
 
 ;; Use the "forward" uniquify scheme for buffer disambiguation
 (setq uniquify-buffer-name-style 'forward)
