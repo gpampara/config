@@ -162,10 +162,6 @@
         enable = true;
       };
 
-      consult-flycheck = {
-        enable = true;
-      };
-
       # Instead of moving to column 0, move the the beginning of the
       # text on the line.
       crux = {
@@ -329,39 +325,10 @@
         hook = [ "(prog-mode)" ];
       };
 
-      flycheck = {
+      flymake-aspell = {
         enable = true;
-        diminish = [ "flycheck-mode" ];
-        command = [ "global-flycheck-mode" ];
-        # bind = {
-        #   "M-n" = "flycheck-next-error";
-        #   "M-p" = "flycheck-previous-error";
-        # };
         config = ''
-          ;; Only check buffer when mode is enabled or buffer is saved.
-          (setq flycheck-check-syntax-automatically '(mode-enabled save))
-
-          ;; Enable flycheck in all eligible buffers.
-          (global-flycheck-mode)
-        '';
-      };
-
-      flycheck-ledger = {
-        enable = true;
-        after = [ "ledger" ];
-      };
-
-      flyspell = {
-        enable = true;
-        command = [ "flyspell-mode" ];
-        extraPackages = [ pkgs.proselint ];
-      };
-
-      flyspell-correct = {
-        enable = true;
-        after = [ "flyspell" ];
-        extraConfig = ''
-          :bind (:map flyspell-mode-map ("C-;" . flyspell-correct-wrapper))
+          (add-hook 'text-mode-hook #'flymake-aspell-setup)
         '';
       };
 
