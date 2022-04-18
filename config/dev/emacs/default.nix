@@ -498,7 +498,7 @@
         };
         config = ''
           ;; https://github.com/magit/magit/issues/2982#issuecomment-598493683
-          (setq magit-git-executable (executable-find "git"))
+          (setq magit-git-executable "${pkgs.git}/bin/git")
           (add-hook 'git-commit-setup-hook 'git-commit-turn-on-flyspell)
 
           ;; Define a custom transient menu option to fetch updates from upstream and remove local
