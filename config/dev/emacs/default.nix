@@ -508,18 +508,15 @@
 
           ;; http://whattheemacsd.com/setup-magit.el-01.html#comment-748135498
           ;; full screen magit-status
+          ;;
+          ;; Extended config here: https://jakemccrary.com/blog/2020/11/14/speeding-up-magit/
           (defadvice magit-status (around magit-fullscreen activate)
             (window-configuration-to-register :magit-fullscreen)
             ad-do-it
             (delete-other-windows))
-
-          (defun magit-quit-session ()
-            "Restores the previous window configuration and kills the magit buffer"
-            (interactive)
-            (kill-buffer)
+          (defadvice magit-quit-window (after magit-restore-screen activate)
             (jump-to-register :magit-fullscreen))
 
-          (define-key magit-status-mode-map (kbd "q") 'magit-quit-session)
         '';
       };
 
@@ -598,11 +595,11 @@
         config = builtins.readFile ./org-agenda-config.el;
       };
 
-      org-chef = {
-        enable = true;
-        after = [ "org" ];
-        defer = 5; # defer loading for 5 seconds
-      };
+      #org-chef = {
+      #  enable = true;
+      #  after = [ "org" ];
+      #  defer = 5; # defer loading for 5 seconds
+      #};
 
       # # TODO: look into alternatives for org journal. Using dailies from org-roam??
       # org-journal = {
@@ -824,7 +821,7 @@
           pkgs.tree-sitter
         ];
         config = ''
-          (setq tsc-dyn-get-from (:github))  ;; Only consider binaries and do not build from source
+          ;; (setq tsc-dyn-get-from (:github))  ;; Only consider binaries and do not build from source
 
           (global-tree-sitter-mode)
           (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
@@ -990,7 +987,7 @@
                 corfu-scroll-margin 4
                 corfu-cycle nil)
 
-          (corfu-global-mode)
+          (global-corfu-mode)
         '';
       };
 

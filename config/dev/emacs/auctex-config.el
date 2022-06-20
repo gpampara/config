@@ -41,7 +41,6 @@
 (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
 (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
 (add-hook 'LaTeX-mode-hook 'visual-line-mode)
-(add-hook 'LaTeX-mode-hook 'olivetti-mode)
 
 ;; Highlight the current line which works really well for writing
 (add-hook 'LaTeX-mode-hook 'hl-line-mode)

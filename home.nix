@@ -4,7 +4,7 @@ let
   username = "gpampara";
   fullname = "Gary Pamparà";
   emailAddr = "gpampara@gmail.com";
-  homeDirectory = "/Users/gpampara";
+  homeDirectory = "/Users/${username}";
 
   secrets = import ./secrets/secrets.nix;
 
@@ -20,23 +20,11 @@ in
     { name = "nix-community"; sha256 = "00lpx4znr4dd0cc4w4q8fl97bdp7q19z1d3p50hcfxy26jz5g21g"; }
   ];
 
+  home.username = username;
+  home.homeDirectory = homeDirectory;
+
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
-
-  # Home Manager needs a bit of information about you and the
-  # paths it should manage.
-  home.username = username;
-  home.homeDirectory = /Users/gpampara;
-
-  # This value determines the Home Manager release that your
-  # configuration is compatible with. This helps avoid breakage
-  # when a new Home Manager release introduces backwards
-  # incompatible changes.
-  #
-  # You can update Home Manager without changing this value. See
-  # the Home Manager release notes for a list of state version
-  # changes in each release.
-  home.stateVersion = "20.09";
 
   # General global packages for the user
   home.packages = with pkgs; [
@@ -54,7 +42,12 @@ in
     graphviz
     ledger
     jq
+
+    # fonts
     nerdfonts
+    jetbrains-mono
+    inter
+
     nodejs
     nodePackages.node2nix
     #romcal
@@ -72,7 +65,6 @@ in
 
     vagrant
 
-    wireguard-tools
     tailscale
 
     yarn
@@ -165,18 +157,6 @@ in
     set -g fish_pager_color_completion $foreground
     set -g fish_pager_color_description $comment
   '';
-
-  #xdg.configFile."fish/conf.d/dracula.fish".text =
-  # let
-  #   dracula = pkgs.fetchFromGitHub {
-  #     owner = "dracula";
-  #     repo = "fish";
-  #     rev = "28db361b55bb49dbfd7a679ebec9140be8c2d593";
-  #     sha256 = "sha256-ooLgOwpJX9dgkWEev9xmPyDVPRx4ycyZQm+bggKAfa0=";
-  #   };
-  # in
-  #   builtins.readFile "${dracula}/conf.d/dracula.fish";
-
 
   programs.starship = {
     enable = true;

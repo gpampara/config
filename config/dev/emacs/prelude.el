@@ -146,7 +146,6 @@
 (defconst org-notes-directory (f-join org-root-directory "roam") "Filesystem location of org-roam knowledge base.")
 (defconst zotero-bib-file (f-join org-root-directory "zotLib.bib") "Filesystem location of Zotero bibfile.")
 
-
 (defconst ledger-home-directory (f-join (getenv "HOME") "ledger") "Location of ledger files.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -218,3 +217,8 @@
 (global-set-key (kbd "M-u") 'upcase-dwim)
 (global-set-key (kbd "M-l") 'downcase-dwim)
 (global-set-key (kbd "M-c") 'capitalize-dwim)
+
+;; Fonts
+(set-face-attribute 'default nil :family "JetBrains Mono" :height 130)
+(set-face-attribute 'fixed-pitch nil :family "JetBrains Mono" :height 1.0) ;; relative to default
+(set-face-attribute 'variable-pitch nil :family "Inter" :height 1.05)

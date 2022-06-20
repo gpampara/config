@@ -4,8 +4,6 @@
   (interactive)
   (magit-run-git-async "gone"))
 
-
-
 (defun gp/writing-mode ()
   "Helper function to allow for better writing configutations using Olivetti mode."
   (interactive)
@@ -14,7 +12,6 @@
   (turn-on-visual-line-mode)
   (unless flyspell-mode
     (flyspell-mode)))
-
 
 ;; Ledger functions
 (defun gp/open-current-postings-file ()
