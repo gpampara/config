@@ -26,7 +26,8 @@
           "Open email"
           (lambda (&rest _) (mu4e))))))
 
-(dashboard-setup-startup-hook)
 
 ;; new agenda generator
 ;;(seq-mapcat (lambda (file) (org-agenda-get-day-entries file (calendar-current-date))) (org-agenda-files))
+
+(dashboard-setup-startup-hook)

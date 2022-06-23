@@ -8,8 +8,7 @@ let
 
   secrets = import ./secrets/secrets.nix;
 
-  forSystem = { linux, darwin }:
-    if pkgs.stdenv.isDarwin then darwin else linux;
+  util = pkgs.callPackage ./util.nix {};
 in
 {
   imports = [
@@ -35,7 +34,7 @@ in
 
     bitwarden-cli
 
-    (forSystem { linux = element-desktop; darwin = dmgPkgs.element; })
+    (util.forSystem { linux = element-desktop; darwin = dmgPkgs.element; })
     #(forSystem { linux = slack; darwin = dmgPkgs.slack; })
 
     gnupg
@@ -56,8 +55,8 @@ in
 
     pijul
 
-    (forSystem { linux = mpv; darwin = dmgPkgs.iina; })
-    (forSystem { linux = dbeaver; darwin = dmgPkgs.postico; })
+    (util.forSystem { linux = mpv; darwin = dmgPkgs.iina; })
+    (util.forSystem { linux = dbeaver; darwin = dmgPkgs.postico; })
 
     ripgrep
     shellcheck
@@ -70,8 +69,8 @@ in
     yarn
     yt-dlp
 
-    (forSystem { linux = zotero; darwin = dmgPkgs.zotero; }) # Install Zotero
-    (forSystem { linux = zathura; darwin = dmgPkgs.skim-pdf; })
+    (util.forSystem { linux = zotero; darwin = dmgPkgs.zotero; }) # Install Zotero
+    (util.forSystem { linux = zathura; darwin = dmgPkgs.skim-pdf; })
   ]; #++ lib.optional pkgs.stdenv.isDarwin [];
 
   home.file.nixConf.text = ''
@@ -80,7 +79,7 @@ in
 
   programs.brave = {
     enable = true;
-    package = forSystem {
+    package = util.forSystem {
       darwin = pkgs.dmgPkgs.brave;
       linux = pkgs.brave;
     };

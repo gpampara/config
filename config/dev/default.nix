@@ -6,14 +6,13 @@
 
   programs.emacs =
     let
-      patchedEmacsPgtk = pkgs.emacsPgtk.overrideAttrs (oldAttrs: {
-        # https://lists.gnu.org/archive/html/emacs-devel/2021-11/msg00672.html
-        #patched = oldAttrs.patches ++ [ ./0001-Use-posix_spawn-if-possible-on-Darwin.patch ];
-      });
+      util = pkgs.callPackage ../../util.nix {};
     in
     {
       enable = true;
-      package = patchedEmacsPgtk; #pkgs.emacsPgtk;
+      package = util.forSystem { linux = pkgs.emacsPgtk; darwin = pkgs.emacsMacport; };
+
+      #pkgs.emacsPgtk;
       # overrides = self: super: rec {
       #   tree-sitter-grammars = pkgs.stdenv.mkDerivation rec {
       #     name = "tree-sitter-grammars";
