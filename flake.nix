@@ -28,26 +28,25 @@
     in
     {
       homeManagerConfigurations.${username} = home-manager.lib.homeManagerConfiguration {
-        inherit pkgs system username;
-
-        configuration = { ... }: {
-          imports =
-            let
-              nur-no-pkgs = import nur {
-                nurpkgs = import nixpkgs {
-                  inherit system;
+        pkgs = pkgs; #nixpkgs.legacyPackages.${system};
+        modules =
+          let
+            nur-modules = import nur {
+              nurpkgs = nixpkgs.legacyPackages.${system};
+            };
+          in
+            [
+              nur-modules.repos.rycee.hmModules.emacs-init
+              declarative-cachix.homeManagerModules.declarative-cachix
+              ./home.nix
+              {
+                home = {
+                  inherit username;
+                  homeDirectory = toString /Users/${username};
+                  stateVersion = "22.05";
                 };
-              };
-            in
-              [
-                nur-no-pkgs.repos.rycee.hmModules.emacs-init
-                declarative-cachix.homeManagerModules.declarative-cachix
-                ./home.nix
-              ];
-        };
-
-        homeDirectory = toString /Users/${username};
-        stateVersion = "22.05";
+              }
+            ];
       };
     };
 }

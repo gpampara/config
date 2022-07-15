@@ -16,7 +16,7 @@ in
   ];
 
   caches.cachix = [
-    { name = "nix-community"; sha256 = "00lpx4znr4dd0cc4w4q8fl97bdp7q19z1d3p50hcfxy26jz5g21g"; }
+    { name = "nix-community"; sha256 = "1955r436fs102ny80wfzy99d4253bh2i1vv1x4d4sh0zx2ssmhrk"; }
   ];
 
   home.username = username;
@@ -156,6 +156,10 @@ in
     set -g fish_pager_color_completion $foreground
     set -g fish_pager_color_description $comment
   '';
+
+  # programs.ssh = {
+  #   enable = true;
+  # };
 
   programs.starship = {
     enable = true;
