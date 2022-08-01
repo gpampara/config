@@ -806,6 +806,17 @@
         ];
         config = ''
           (add-hook 'scala-mode-hook 'eglot-ensure)
+          ;; Override the default server program as nixpkgs has removed the alias 'metals-emacs'
+          ;; in https://github.com/NixOS/nixpkgs/pull/182087
+          (add-to-list 'eglot-server-programs '(scala-mode . ("metals")))
+        '';
+      };
+
+      stgit = {
+        enable = true;
+        config = ''
+          (setq stgit-git-program "${pkgs.git}/bin/git")
+          (setq stgit-stg-program "${pkgs.stgit}/bin/git")
         '';
       };
 

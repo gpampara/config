@@ -51,6 +51,10 @@ in
     nodePackages.node2nix
     #romcal
     gitAndTools.git-crypt
+    gitAndTools.git-gone
+    stgit
+    #git-branchless
+
     fzf
 
     pijul
@@ -170,11 +174,6 @@ in
     enable = true;
     userName = fullname;
     aliases = {
-      # https://github.com/not-an-aardvark/git-delete-squashed
-      gone = ''
-        ! ${pkgs.bash}/bin/bash -c 'git fetch -a -p && git for-each-ref refs/heads/ "--format=%(refname:short)" | grep -v master | grep -v main | while read branch; do mergeBase=$(git merge-base origin/master $branch) && [[ $(git cherry origin/master $(git commit-tree $(git rev-parse $branch\^{tree}) -p $mergeBase -m _)) == "-"* ]] && git branch -D $branch; done; echo ""'
-      '';
-
       # list all aliases
       aliases = "!git config --get-regexp 'alias.*' | colrm 1 6 | sed 's/[ ]/ = /' | sort";
 
@@ -215,6 +214,8 @@ in
         copy_on_select yes
 
         macos_option_as_alt yes
+
+        confirm_os_window_close -1
       '';
 
       linuxOptions = ''

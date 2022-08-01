@@ -11,8 +11,8 @@
   (setq mac-pass-command-to-system nil) ; Prevent the system interpretting commands
 
   ;; Start Emacs fullscreen
-  (setq ns-use-native-fullscreen t)
-  ;;(set-frame-parameter nil 'fullscreen 'maximized))
+  ;;(setq ns-use-native-fullscreen t)
+  (set-frame-parameter nil 'fullscreen 'maximized)
   (add-hook 'window-setup-hook 'toggle-frame-fullscreen t)
 
   ;; The version of `ls` on darwin does not support an option which is

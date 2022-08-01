@@ -2,7 +2,7 @@
 (defun gp/magit-fetch-and-prune-gone-remotes ()
   "Run the git alias 'gone' asynchronously within the magit interface."
   (interactive)
-  (magit-run-git-async "gone"))
+  (magit-run-git-async "gone" "-f"))
 
 (defun gp/writing-mode ()
   "Helper function to allow for better writing configutations using Olivetti mode."
