@@ -3,7 +3,7 @@
 stdenv.mkDerivation rec {
   pname = "brave";
   version = (import ./brave-version.info).version;
-  sha256 = "sha256-4LT13a+o5Hi18Oj9NujgQnGOjO85QAXv7bfLbNfqD5I=";
+  sha256 = "sha256-c+fGlBpyhKlo2EoiIda9u1zWjm1BzD90kP39Mc8B2A8=";
 
   buildInputs = [ undmg rsync ];
   sourceRoot = ".";

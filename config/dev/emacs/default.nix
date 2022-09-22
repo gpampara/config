@@ -220,32 +220,44 @@
         '';
       };
 
-      doom-themes = {
+      # doom-themes = {
+      #   enable = true;
+      #   config = ''
+      #     (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+      #           doom-themes-enable-italic t  ; if nil, italics is universally disabled
+
+      #           ;;doom-one specific settings
+      #           ;;doom-one-brighter-modeline nil
+      #           doom-one-brighter-comments t
+      #      )
+
+      #     ;;(load-theme 'doom-gruvbox t)
+      #     (load-theme 'doom-one t)
+
+      #     ;; Corrects (and improves) org-mode's native fontification.
+      #     (doom-themes-org-config)
+      #   '';
+      # };
+
+      ef-themes = {
         enable = true;
         config = ''
-          (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-                doom-themes-enable-italic t  ; if nil, italics is universally disabled
+          ;; Disable all other themes to avoid awkward blending:
+          (mapc #'disable-theme custom-enabled-themes)
 
-                ;;doom-one specific settings
-                ;;doom-one-brighter-modeline nil
-                doom-one-brighter-comments t
-           )
-
-          ;;(load-theme 'doom-gruvbox t)
-          (load-theme 'doom-one t)
-
-          ;; Corrects (and improves) org-mode's native fontification.
-          (doom-themes-org-config)
+          (load-theme 'ef-summer :no-confirm)
         '';
       };
 
       eglot = {
         enable = true;
         extraPackages = [
+          pkgs.jdt-language-server  # Java language server
           pkgs.nodePackages.bash-language-server
           pkgs.nodePackages.typescript-language-server
         ];
         config = ''
+          (add-hook 'java-mode 'eglot-ensure)
           (add-hook 'sh-mode 'eglot-ensure)
           (add-hook 'js-mode 'eglot-ensure)
 
@@ -516,8 +528,14 @@
             (delete-other-windows))
           (defadvice magit-quit-window (after magit-restore-screen activate)
             (jump-to-register :magit-fullscreen))
-
         '';
+      };
+
+      magit-delta = {
+        enable = true;
+        hook = [
+          "(magit-mode . magit-delta-mode)"
+        ];
       };
 
       multiple-cursors = {
@@ -816,7 +834,7 @@
         enable = true;
         config = ''
           (setq stgit-git-program "${pkgs.git}/bin/git")
-          (setq stgit-stg-program "${pkgs.stgit}/bin/git")
+          (setq stgit-stg-program "${pkgs.stgit}/bin/stg")
         '';
       };
 

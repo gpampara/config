@@ -2,7 +2,7 @@
 
 stdenv.mkDerivation rec {
   pname = "postico";
-  version = "1.5.20";
+  version = "1.5.21";
 
   buildInputs = [ unzip ];
   sourceRoot = ".";
@@ -15,7 +15,7 @@ stdenv.mkDerivation rec {
   src = fetchurl {
     name = "postico-${version}.zip";
     url = "https://s3-eu-west-1.amazonaws.com/eggerapps-downloads/postico-${version}.zip";
-    sha256 = "zt5Hw0BiCHzLdPP10q6rCJ53GbmB8T8UubKnn1wPD+k=";
+    sha256 = "sha256-37EWI+ZTnCpRJ6Dcdjm68G1ix3SxlRF6SbPg6vb3DtY=";
   };
 
   meta = with pkgs.lib; {

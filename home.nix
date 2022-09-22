@@ -47,13 +47,14 @@ in
     jetbrains-mono
     inter
 
-    nodejs
+    nodejs-14_x
     nodePackages.node2nix
     #romcal
+
+    delta
     gitAndTools.git-crypt
-    gitAndTools.git-gone
+
     stgit
-    #git-branchless
 
     fzf
 
@@ -125,6 +126,16 @@ in
     };
   };
 
+  xdg.configFile."fish/functions/goto.fish".text =
+    let
+      goto_src =
+        pkgs.fetchurl {
+          url = https://raw.githubusercontent.com/matusf/goto/master/functions/goto.fish;
+          sha256 = "sha256-nfXLRsi+f42e1r7nMkf7aiQmBGH7Qz4KjQdE/fDZ4V4=";
+        };
+    in
+      (builtins.readFile goto_src);
+
   xdg.configFile."fish/conf.d/dracula.fish".text = ''
     # Dracula Color Palette
     set -l foreground f8f8f2
@@ -179,6 +190,11 @@ in
 
       # WIP status of branches
       wip = "!git for-each-ref --sort='authordate:iso8601' --format=' %(color:green)%(authordate:relative)%09%(color:white)%(refname:short)' refs/heads | tail -r";
+
+      # https://github.com/not-an-aardvark/git-delete-squashed
+      gone = ''
+        !git checkout -q master && git for-each-ref refs/heads/ "--format=%(refname:short)" | while read branch; do mergeBase=$(git merge-base master $branch) && [[ $(git cherry master $(git commit-tree $(git rev-parse "$branch^{tree}") -p $mergeBase -m _)) == "-"* ]] && git branch -D $branch; done
+      '';
     };
     extraConfig = {
       user = {

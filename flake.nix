@@ -5,12 +5,15 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nur.url = "github:nix-community/NUR";
     emacs-overlay.url = "github:nix-community/emacs-overlay/master";
-    home-manager = {
-      url = "github:rycee/home-manager/master";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    home-manager.url = "github:rycee/home-manager/master";
     declarative-cachix.url = "github:jonascarpay/declarative-cachix/master";
   };
+
+  # Use the same version of nixpkgs as us
+  inputs.nur.inputs.nixpkgs.follows = "nixpkgs";
+  inputs.emacs-overlay.inputs.nixpkgs.follows = "nixpkgs";
+  inputs.home-manager.inputs.nixpkgs.follows = "nixpkgs";
+  inputs.declarative-cachix.inputs.nixpkgs.follows = "nixpkgs";
 
   outputs = { self, nixpkgs, nur, home-manager, emacs-overlay, declarative-cachix, ... }:
     let
@@ -32,7 +35,7 @@
         modules =
           let
             nur-modules = import nur {
-              nurpkgs = nixpkgs.legacyPackages.${system};
+              nurpkgs = pkgs; #nixpkgs.legacyPackages.${system};
             };
           in
             [
