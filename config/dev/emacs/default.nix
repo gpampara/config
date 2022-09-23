@@ -433,6 +433,13 @@
         '';
       };
 
+      markdown-mode = {
+        enable = true;
+        hook = [
+          "(markdown-mode . flyspell-mode)"
+        ];
+      };
+
       # lsp-diagnostics = {
       #   enable = true;
       # };
