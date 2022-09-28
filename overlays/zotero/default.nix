@@ -2,7 +2,7 @@
 
 stdenv.mkDerivation rec {
   pname = "zotero";
-  version = "5.0.96.2";
+  version = "6.0.13";
 
   buildInputs = [ undmg ];
   sourceRoot = ".";
@@ -15,7 +15,7 @@ stdenv.mkDerivation rec {
   src = fetchurl {
     name = "Zotero-${version}.dmg";
     url = "https://www.zotero.org/download/client/dl?channel=release&platform=mac&version=${version}";
-    sha256 = "uZkxkcv4nWK5vlQ+1/q5M0AhE87psw0+3tSHlEYZMJ4=";
+    sha256 = "sha256-fYkrhIA5Lvo10LfrzrlYTKxq0U3yfm39Y99m+/t0KXE=";
   };
 
   meta = with pkgs.lib; {
