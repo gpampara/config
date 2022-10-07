@@ -7,8 +7,9 @@ function update_brave_version () {
 
     if [ "${CURRENT_VERSION}" != "${VERSION}" ]; then
         echo "New version of Brave found, updating metadata..."
-        HASH=$(nix-prefetch-url "https://github.com/brave/brave-browser/releases/download/v${VERSION}/Brave-Browser-x64.dmg" "${CURRENT_HASH}" --type sha256 2>/dev/null)
-        echo "{ version = \"${VERSION}\"; sha256 = \"${HASH}\"; }" > ./overlays/brave/brave-version.info
+        STORE_PATH=$(nix-prefetch-url --print-path "https://github.com/brave/brave-browser/releases/download/v${VERSION}/Brave-Browser-x64.dmg" "${CURRENT_HASH}")
+        NEW_HASH=$(echo "${STORE_PATH}" | head -n 1)
+        echo "{ version = \"${VERSION}\"; sha256 = \"${NEW_HASH}\"; }" > ./overlays/brave/brave-version.info
     fi
 }
 

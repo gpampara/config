@@ -10,7 +10,7 @@
     in
     {
       enable = true;
-      package = pkgs.emacs; #util.forSystem { linux = pkgs.emacsPgtk; darwin = pkgs.emacsPgtk; #emacsMacport; };
+      package = pkgs.emacsNativeComp; #pkgs.emacs; #util.forSystem { linux = pkgs.emacsPgtk; darwin = pkgs.emacsPgtk; #emacsMacport; };
 
       #pkgs.emacsPgtk;
       # overrides = self: super: rec {
