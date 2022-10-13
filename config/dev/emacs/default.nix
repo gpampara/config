@@ -94,25 +94,6 @@
         mode = [ ''"\\.coffee\\'"'' ];
       };
 
-      # company = {
-      #   enable = true;
-      #   diminish = [ "company-mode" ];
-      #   command = [ "company-mode" "company-doc-buffer" "global-company-mode" ];
-      #   hook = [ "(after-init . global-company-mode)" ];
-      #   extraConfig = ''
-      #     :bind (:map company-mode-map
-      #                 ([remap completion-at-point] . company-complete-common)
-      #                 ([remap complete-symbol] . company-complete-common))
-      #   '';
-      #   config = ''
-      #     (setq company-show-numbers t
-      #           company-tooltip-maximum-width 100
-      #           company-tooltip-minimum-width 20
-      #           ; Allow me to keep typing even if company disapproves.
-      #           company-require-match nil)
-      #   '';
-      # };
-
       consult = {
         enable = true;
         bind = {
@@ -271,7 +252,6 @@
         enable = true;
         mode = [ ''"\\.elm\\'"'' ];
         command = [ "elm-mode" ];
-        #after = [ "company" ];
         hook = [
           "(elm-mode . elm-format-on-save-mode)"
           "(elm-mode . eglot-ensure)"
@@ -453,7 +433,7 @@
       # lsp-mode = {
       #   enable = true;
       #   defer = true;
-      #   after = [ "company" "flycheck" ];
+      #   after = [ "flycheck" ];
       #   hook = [
       #     "(sh-mode . lsp-deferred)"
       #     "(elm-mode . lsp-deferred)"
@@ -545,6 +525,10 @@
         ];
       };
 
+      minizinc-mode = {
+        enable = true;
+      };
+
       multiple-cursors = {
         enable = true;
         bind = {
@@ -558,7 +542,6 @@
       nix-mode = {
         enable = true;
         mode = [ ''"\\.nix\\'"'' ];
-        #after = [ "company" ];
         extraPackages = [
           pkgs.rnix-lsp
           pkgs.nixpkgs-fmt
@@ -850,28 +833,28 @@
         enable = true;
       };
 
-      tree-sitter = {
-        enable = true;
-        after = [ "tsc" "tree-sitter-langs" ];
-        extraPackages = [
-          pkgs.tree-sitter
-        ];
-        config = ''
-          ;; (setq tsc-dyn-get-from (:github))  ;; Only consider binaries and do not build from source
+      # tree-sitter = {
+      #   enable = true;
+      #   after = [ "tsc" "tree-sitter-langs" ];
+      #   extraPackages = [
+      #     pkgs.tree-sitter
+      #   ];
+      #   config = ''
+      #     ;; (setq tsc-dyn-get-from (:github))  ;; Only consider binaries and do not build from source
 
-          (global-tree-sitter-mode)
-          (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
-        '';
-      };
+      #     (global-tree-sitter-mode)
+      #     (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
+      #   '';
+      # };
 
-      tree-sitter-langs = {
-        enable = true;
-      };
+      # tree-sitter-langs = {
+      #   enable = true;
+      # };
 
-      # tree-sitter Core APIs
-      tsc = {
-        enable = true;
-      };
+      # # tree-sitter Core APIs
+      # tsc = {
+      #   enable = true;
+      # };
 
       savehist = {
         enable = true;

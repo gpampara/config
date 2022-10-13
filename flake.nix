@@ -10,10 +10,8 @@
   };
 
   # Use the same version of nixpkgs as us
-  inputs.nur.inputs.nixpkgs.follows = "nixpkgs";
   inputs.emacs-overlay.inputs.nixpkgs.follows = "nixpkgs";
   inputs.home-manager.inputs.nixpkgs.follows = "nixpkgs";
-  inputs.declarative-cachix.inputs.nixpkgs.follows = "nixpkgs";
 
   outputs = { self, nixpkgs, nur, home-manager, emacs-overlay, declarative-cachix, ... }:
     let
