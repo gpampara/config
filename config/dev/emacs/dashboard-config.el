@@ -30,4 +30,7 @@
 ;; new agenda generator
 ;;(seq-mapcat (lambda (file) (org-agenda-get-day-entries file (calendar-current-date))) (org-agenda-files))
 
+(setq dashboard-projects-switch-function (lambda (projectDir)
+                                           (magit-status projectDir)))
+
 (dashboard-setup-startup-hook)

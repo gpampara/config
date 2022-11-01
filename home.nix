@@ -39,6 +39,8 @@ in
 
     gnupg
     graphviz
+    helix
+
     ledger
     jq
 
@@ -53,8 +55,7 @@ in
 
     delta
     gitAndTools.git-crypt
-
-    stgit
+    difftastic
 
     fzf
 
@@ -67,8 +68,7 @@ in
     shellcheck
     stack
 
-    vagrant
-
+    #vagrant
     tailscale
 
     yarn

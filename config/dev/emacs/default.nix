@@ -820,14 +820,6 @@
         '';
       };
 
-      stgit = {
-        enable = true;
-        config = ''
-          (setq stgit-git-program "${pkgs.git}/bin/git")
-          (setq stgit-stg-program "${pkgs.stgit}/bin/stg")
-        '';
-      };
-
       # Manage the ssh-agent on the system by loading identities if and when required
       ssh-agency = {
         enable = true;
