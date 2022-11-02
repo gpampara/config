@@ -16,4 +16,6 @@ final: prev: {
   };
 
   romcal = prev.callPackage ./romcal {};
+
+  git-ps-rs = prev.callPackage ./git-ps-rs {};
 }

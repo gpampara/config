@@ -56,6 +56,7 @@ in
     delta
     gitAndTools.git-crypt
     difftastic
+    git-ps-rs
 
     fzf
 
