@@ -239,8 +239,10 @@
         ];
         config = ''
           (add-hook 'java-mode 'eglot-ensure)
+          ;;(add-hook 'java-ts-mode 'eglot-ensure)
           (add-hook 'sh-mode 'eglot-ensure)
           (add-hook 'js-mode 'eglot-ensure)
+          ;;(add-hook 'js-ts-mode 'eglot-ensure)
 
           ;; Undo the Eglot modification of completion-category-defaults
           (with-eval-after-load 'eglot
@@ -319,9 +321,7 @@
 
       flymake-aspell = {
         enable = true;
-        config = ''
-          (add-hook 'text-mode-hook #'flymake-aspell-setup)
-        '';
+        defer = true;
       };
 
       haskell-mode = {
@@ -415,8 +415,9 @@
 
       markdown-mode = {
         enable = true;
+        defer = true;
         hook = [
-          "(markdown-mode . flyspell-mode)"
+          "(markdown-mode . flymake-aspell-setup)"
         ];
       };
 
@@ -498,7 +499,8 @@
         config = ''
           ;; https://github.com/magit/magit/issues/2982#issuecomment-598493683
           (setq magit-git-executable "${pkgs.git}/bin/git")
-          (add-hook 'git-commit-setup-hook 'git-commit-turn-on-flyspell)
+          (add-hook 'git-commit-setup-hook 'flymake-aspell-setup)
+          ;;(add-hook 'git-commit-setup-hook 'git-commit-turn-on-flyspell)
 
           ;; Define a custom transient menu option to fetch updates from upstream and remove local
           ;; branches that not longer have a tracking branch on the remote
@@ -814,9 +816,6 @@
         ];
         config = ''
           (add-hook 'scala-mode-hook 'eglot-ensure)
-          ;; Override the default server program as nixpkgs has removed the alias 'metals-emacs'
-          ;; in https://github.com/NixOS/nixpkgs/pull/182087
-          (add-to-list 'eglot-server-programs '(scala-mode . ("metals")))
         '';
       };
 
@@ -825,29 +824,6 @@
         enable = true;
       };
 
-      # tree-sitter = {
-      #   enable = true;
-      #   after = [ "tsc" "tree-sitter-langs" ];
-      #   extraPackages = [
-      #     pkgs.tree-sitter
-      #   ];
-      #   config = ''
-      #     ;; (setq tsc-dyn-get-from (:github))  ;; Only consider binaries and do not build from source
-
-      #     (global-tree-sitter-mode)
-      #     (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
-      #   '';
-      # };
-
-      # tree-sitter-langs = {
-      #   enable = true;
-      # };
-
-      # # tree-sitter Core APIs
-      # tsc = {
-      #   enable = true;
-      # };
-
       savehist = {
         enable = true;
         init = ''
@@ -855,13 +831,13 @@
         '';
       };
 
-      typescript-mode = {
-        enable = true;
-        mode = [ ''"\\.ts\\'"'' ];
-        hook = [
-          "(typescript-mode . eglot-ensure)"
-        ];
-      };
+      #typescript-ts-mode = {
+      # enable = true;
+      # mode = [ ''"\\.ts\\'"'' ];
+      # hook = [
+      #    "(typescript-ts-mode . eglot-ensure)"
+      #  ];
+      #};
 
       vterm = {
         enable = true;
@@ -1027,23 +1003,12 @@
     };
   };
 
-
-  # home.file.".emacs.d/init.el".text = lib.mkAfter ''
-  #   (load "${pkgs.fetchFromGitHub {
-  #     owner = "seanfarley";
-  #     repo = "emacs-bitwarden";
-  #     rev = "23fc8f5e785db8f7248d509da00cf434f04ffd34";
-  #     sha256 = "sha256-ooLgOwpJX9dgkWEev9xmPyDVPRx4ycyZQm+bggKAfa0=";
-  #   }}/bitwarden.el")
-  # '';
-
   home.file.".emacs.d/init.el".text = lib.mkAfter ''
     (load "${pkgs.fetchFromGitHub {
-      owner = "zoechi";
+      owner = "seanfarley";
       repo = "emacs-bitwarden";
-      rev = "03bd612dda6c0eef380b1ee5ecabff1e274e1f4b";
+      rev = "02d6410003a42e7fbeb4aa109aba949eea553706";
       sha256 = "sha256-ooLgOwpJX9dgkWEev9xmPyDVPRx4ycyZQm+bggKAfa0=";
     }}/bitwarden.el")
   '';
-
 }

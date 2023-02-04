@@ -8,7 +8,7 @@ let
 
   secrets = import ./secrets/secrets.nix;
 
-  util = pkgs.callPackage ./util.nix {};
+  util = pkgs.callPackage ./util.nix { };
 in
 {
   imports = [
@@ -16,7 +16,7 @@ in
   ];
 
   caches.cachix = [
-    { name = "nix-community"; sha256 = "1955r436fs102ny80wfzy99d4253bh2i1vv1x4d4sh0zx2ssmhrk"; }
+    { name = "nix-community"; sha256 = "1rgbl9hzmpi5x2xx9777sf6jamz5b9qg72hkdn1vnhyqcy008xwg"; }
   ];
 
   home.username = username;
@@ -34,8 +34,9 @@ in
 
     bitwarden-cli
 
-    (util.forSystem { linux = element-desktop; darwin = dmgPkgs.element; })
-    #(forSystem { linux = slack; darwin = dmgPkgs.slack; })
+    dos2unix
+
+    #(util.forSystem { linux = element-desktop; darwin = dmgPkgs.element; })
 
     gnupg
     graphviz
@@ -49,7 +50,7 @@ in
     jetbrains-mono
     inter
 
-    nodejs-14_x
+    nodejs
     nodePackages.node2nix
     #romcal
 
@@ -57,6 +58,7 @@ in
     gitAndTools.git-crypt
     difftastic
     git-ps-rs
+    gh # github cli tool
 
     fzf
 
@@ -69,7 +71,6 @@ in
     shellcheck
     stack
 
-    #vagrant
     tailscale
 
     yarn
@@ -79,9 +80,15 @@ in
     (util.forSystem { linux = zathura; darwin = dmgPkgs.skim-pdf; })
   ]; #++ lib.optional pkgs.stdenv.isDarwin [];
 
-  home.file.nixConf.text = ''
-    experimental-features = nix-command flakes
-  '';
+  nix = {
+    package = pkgs.nix;
+    extraOptions = ''
+      connect-timeout = 5
+      log-lines = 25
+
+      experimental-features = nix-command flakes
+    '';
+  };
 
   programs.brave = {
     enable = true;
@@ -94,6 +101,7 @@ in
       { id = "ekhagklcjbdpajgpjgmbionohlpdbjgc"; } # Zotero
       { id = "edlhclhffmclbhgifomamlomnfolnepa"; } # Elm debug helper
       { id = "fjdmkanbdloodhegphphhklnjfngoffa"; }
+      { id = "gighmmpiobklfepjocnamgkkbiglidom"; } # Ad blocker
     ];
   };
 
@@ -135,7 +143,7 @@ in
           sha256 = "sha256-nfXLRsi+f42e1r7nMkf7aiQmBGH7Qz4KjQdE/fDZ4V4=";
         };
     in
-      (builtins.readFile goto_src);
+    (builtins.readFile goto_src);
 
   xdg.configFile."fish/conf.d/dracula.fish".text = ''
     # Dracula Color Palette
@@ -172,10 +180,6 @@ in
     set -g fish_pager_color_completion $foreground
     set -g fish_pager_color_description $comment
   '';
-
-  # programs.ssh = {
-  #   enable = true;
-  # };
 
   programs.starship = {
     enable = true;
@@ -231,8 +235,7 @@ in
         copy_on_select yes
 
         macos_option_as_alt yes
-
-        confirm_os_window_close -1
+        macos_quit_when_last_window_closed no
       '';
 
       linuxOptions = ''
@@ -240,10 +243,18 @@ in
     in
     {
       enable = true;
+      package = util.forSystem
+        {
+          linux = pkgs.kitty;
+          darwin = pkgs.hello;
+        };
       extraConfig =
         lib.strings.concatStringsSep "\n"
-          [ "font_size 12.0"
+          [
+            "font_size 12.0"
             "cursor_blink_interval 0"
+            "cursor_shape block"
+            "shell_integration enabled,no-cursor"
             draculaDiffConf
             draculaConf
             (lib.strings.optionalString pkgs.stdenv.isDarwin macosOptions)

@@ -44,7 +44,7 @@
                 home = {
                   inherit username;
                   homeDirectory = toString /Users/${username};
-                  stateVersion = "22.05";
+                  stateVersion = "22.11";
                 };
               }
             ];

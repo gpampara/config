@@ -3,7 +3,7 @@
 let
   braveVersion = import ./brave-version.info;
 in
-stdenv.mkDerivation rec {
+stdenv.mkDerivation {
   pname = "brave";
   version = braveVersion.version;
   sha256 = braveVersion.sha256;
@@ -19,9 +19,9 @@ stdenv.mkDerivation rec {
     '';
 
   src = fetchurl {
-    inherit sha256;
-    name = "Brave-Browser-x64-v${version}.dmg";
-    url = "https://github.com/brave/brave-browser/releases/download/v${version}/Brave-Browser-x64.dmg";
+    inherit (braveVersion) sha256;
+    name = "Brave-Browser-x64-v${braveVersion.version}.dmg";
+    url = "https://github.com/brave/brave-browser/releases/download/v${braveVersion.version}/Brave-Browser-x64.dmg";
   };
 
   meta = with pkgs.lib; {

@@ -1,17 +1,20 @@
 { lib, fetchFromGitHub, rustPlatform, libgpg-error, gpgme, pkg-config, openssl, stdenv, darwin }:
 
-rustPlatform.buildRustPackage rec {
+let
+  version = "6.4.0";
+in
+rustPlatform.buildRustPackage {
   pname = "git-ps-rs";
-  version = "6.3.1";
+  version = version;
 
   src = fetchFromGitHub {
     owner = "uptech";
     repo = "git-ps-rs";
     rev = version;
-    sha256 = "sha256-bUwlpUDgIIZa43Qda57Pi4pwXoO8UVKz0BbYqegK/xE=";
+    sha256 = "sha256-OWxdXXQivqLmT/8Kfc41Zz0s9GIWHH4Zp2TT1aytX0U=";
   };
 
-  cargoSha256 = "sha256-nqwrhteX8HlZZQA3KPJCxrcwjvciXJtBJ3JTNrLGNT4=";
+  cargoSha256 = "sha256-/fFKp9qrc0BhSdWgtQaa20nMlCegZai9M0YTL29c22c=";
 
   nativeBuildInputs = [
     gpgme # for gpgme-config

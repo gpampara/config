@@ -37,7 +37,7 @@
       reftex-cite-format 'natbib)
 
 (add-hook 'LaTeX-mode-hook 'LaTeX-preview-setup)
-(add-hook 'LaTeX-mode-hook 'flyspell-mode)
+(add-hook 'LaTeX-mode-hook 'flymake-aspell-setup)
 (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
 (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
 (add-hook 'LaTeX-mode-hook 'visual-line-mode)

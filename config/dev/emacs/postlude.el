@@ -9,9 +9,7 @@
   (interactive)
   (olivetti-mode)
   (olivetti-set-width 110)
-  (turn-on-visual-line-mode)
-  (unless flyspell-mode
-    (flyspell-mode)))
+  (turn-on-visual-line-mode))
 
 ;; Ledger functions
 (defun gp/open-current-postings-file ()

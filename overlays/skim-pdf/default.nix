@@ -1,8 +1,8 @@
 { pkgs, stdenv, fetchurl, undmg }:
 
 let
-  version = "1.6.8";
-  sha256 = "tl45IB3pjMcus3WN+gdQERQ6memk/7fZXDFghjfskQw=";
+  version = "1.6.13";
+  sha256 = "sha256-ppZ2bCGbovdIe/YFS2yUr3i9SenUp6IQ/ABxk++FxvE=";
 in
 stdenv.mkDerivation rec {
   inherit version;

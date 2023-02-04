@@ -2,7 +2,7 @@
 
 stdenv.mkDerivation rec {
   pname = "iina";
-  version = "1.3.0";
+  version = "1.3.1";
 
   buildInputs = [ undmg ];
   sourceRoot = ".";
@@ -15,7 +15,7 @@ stdenv.mkDerivation rec {
   src = fetchurl {
     name = "IINA.v${version}.dmg";
     url = "https://dl-portal.iina.io/IINA.v${version}.dmg";
-    sha256 = "tQxBaCgAXh7sDcgGbJYe/MOJ5r4aWllVQepi1I0xo5E=";
+    sha256 = "sha256-xkZkKiiEywUWkiFw4PbUmQsStB1iRLCNU/MY27lRjC8=";
   };
 
   meta = with pkgs.lib; {
