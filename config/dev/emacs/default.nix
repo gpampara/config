@@ -121,7 +121,7 @@
             consult-bookmark consult-recent-file consult-xref
             consult--source-bookmark consult--source-recent-file
             consult--source-project-recent-file
-            :preview-key (kbd "M-."))
+            :preview-key "M-.")
 
           ;; Specify that searches with consult should start from the root of the project (if exists)
           (setq consult-project-root-function
@@ -262,7 +262,6 @@
           elmPackages.elm
           elmPackages.elm-format
           elmPackages.elm-test
-          elmPackages.elm-test-rs
           elmPackages.elm-review
           elmPackages.elm-language-server
         ];
@@ -767,6 +766,17 @@
         bind = {
           "M-y" = "popup-kill-ring";
         };
+      };
+
+      project = {
+        enable = true;
+        package = epkgs: epkgs.project; # Need to update this version???
+        command = [ "project-root" ];
+        bindKeyMap = { "C-x p" = "project-prefix-map"; };
+        bindLocal.project-prefix-map = { "m" = "magit-project-status"; };
+        config = ''
+          (add-to-list 'project-switch-commands '(magit-project-status "Magit") t)
+        '';
       };
 
       pulse = {

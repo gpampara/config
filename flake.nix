@@ -2,10 +2,11 @@
   description = "macOS configuration";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    #nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
+    home-manager.url = "github:rycee/home-manager/release-22.11";
     nur.url = "github:nix-community/NUR";
     emacs-overlay.url = "github:nix-community/emacs-overlay/master";
-    home-manager.url = "github:rycee/home-manager/master";
     declarative-cachix.url = "github:jonascarpay/declarative-cachix/master";
   };
 

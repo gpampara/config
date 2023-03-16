@@ -16,7 +16,7 @@ in
   ];
 
   caches.cachix = [
-    { name = "nix-community"; sha256 = "1rgbl9hzmpi5x2xx9777sf6jamz5b9qg72hkdn1vnhyqcy008xwg"; }
+    { name = "nix-community"; sha256 = "0m6kb0a0m3pr6bbzqz54x37h5ri121sraj1idfmsrr6prknc7q3x"; }
   ];
 
   home.username = username;
