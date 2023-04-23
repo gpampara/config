@@ -418,6 +418,13 @@
         hook = [
           "(markdown-mode . flymake-aspell-setup)"
         ];
+        extraPackages = with pkgs; [
+          marksman # markdown lsp
+        ];
+        config = ''
+          (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman")))
+          (add-hook 'markdown-mode-hook #'eglot-ensure)
+        '';
       };
 
       # lsp-diagnostics = {
@@ -770,7 +777,9 @@
 
       project = {
         enable = true;
-        package = epkgs: epkgs.project; # Need to update this version???
+        # package = epkgs: epkgs.elpaPackages.project.overrideAttrs(old: {
+        #   version = "0.9.8";
+        # }); # Need to update this version???
         command = [ "project-root" ];
         bindKeyMap = { "C-x p" = "project-prefix-map"; };
         bindLocal.project-prefix-map = { "m" = "magit-project-status"; };

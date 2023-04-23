@@ -2,7 +2,7 @@
   description = "macOS configuration";
 
   inputs = {
-    #nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
     home-manager.url = "github:rycee/home-manager/release-22.11";
     nur.url = "github:nix-community/NUR";
@@ -14,7 +14,7 @@
   inputs.emacs-overlay.inputs.nixpkgs.follows = "nixpkgs";
   inputs.home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
-  outputs = { self, nixpkgs, nur, home-manager, emacs-overlay, declarative-cachix, ... }:
+  outputs = { self, nixpkgs, nixpkgs-unstable, nur, home-manager, emacs-overlay, declarative-cachix, ... }:
     let
       username = "gpampara";
       system = "x86_64-darwin";
@@ -36,8 +36,12 @@
             nur-modules = import nur {
               nurpkgs = pkgs; #nixpkgs.legacyPackages.${system};
             };
+            defaults = { pkgs, ... }: {
+              _module.args.nixpkgs-unstable = import nixpkgs-unstable { inherit (pkgs.stdenv.targetPlatform) system; };
+            };
           in
             [
+              defaults
               nur-modules.repos.rycee.hmModules.emacs-init
               declarative-cachix.homeManagerModules.declarative-cachix
               ./home.nix

@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, nixpkgs-unstable, ... }:
 
 let
   username = "gpampara";
@@ -62,7 +62,8 @@ in
 
     fzf
 
-    pijul
+    #pijul
+    nixpkgs-unstable.sapling
 
     (util.forSystem { linux = mpv; darwin = dmgPkgs.iina; })
     (util.forSystem { linux = dbeaver; darwin = dmgPkgs.postico; })
