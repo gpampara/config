@@ -63,6 +63,7 @@ in
     fzf
 
     #pijul
+    jujutsu
     nixpkgs-unstable.sapling
 
     (util.forSystem { linux = mpv; darwin = dmgPkgs.iina; })
