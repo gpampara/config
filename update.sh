@@ -10,9 +10,10 @@ function update_brave_version () {
     if [ "${CURRENT_VERSION}" != "${VERSION}" ]; then
         echo "New version of Brave found, updating metadata..."
         if [ -z "$CURRENT_HASH" ]; then
-            NEW_HASH=$(nix-prefetch-url "https://github.com/brave/brave-browser/releases/download/v${VERSION}/Brave-Browser-x64.dmg")
+            echo "The current hash is empty - this indicates an error"
+            exit 1
         else
-            NEW_HASH=$(nix-prefetch-url "https://github.com/brave/brave-browser/releases/download/v${VERSION}/Brave-Browser-x64.dmg" "${CURRENT_HASH}")
+            NEW_HASH=$(nix-prefetch-url "https://github.com/brave/brave-browser/releases/download/v${VERSION}/Brave-Browser-x64.dmg")
         fi
 
         echo "{ version = \"${VERSION}\"; sha256 = \"${NEW_HASH}\"; }" > ./overlays/brave/brave-version.info
@@ -27,20 +28,19 @@ function update_kitty () {
 
     # Try prefetch because it's a noop if already exists
     if [ -z "$CURRENT_HASH" ]; then
-        NEW_HASH=$(nix-prefetch-url "$LATEST")
+        echo "The current hash is empty - this indicates an error"
+        exit 1
     else
-        NEW_HASH=$(nix-prefetch-url "$LATEST" "$CURRENT_HASH")
+        NEW_HASH=$(nix-prefetch-url "$LATEST")
     fi
     echo "{ version = \"${VERSION}\"; sha256 = \"${NEW_HASH}\"; }" > ./overlays/kitty/kitty-version.info
 }
 
-SELECTED=$(nix flake metadata --json --quiet | jq -r '.locks.nodes.root.inputs | keys | . + ["all", "brave"] | .[]' | fzf)
+SELECTED=$(nix flake metadata --json --quiet | jq -r '.locks.nodes.root.inputs | keys | . + ["inputs", "brave"] | .[]' | fzf)
 
 if [ -z "$SELECTED" ]; then
     exit 1;
-elif [ "$SELECTED" == "all" ]; then
-    update_brave_version
-#    update_kitty
+elif [ "$SELECTED" == "inputs" ]; then
     nix flake update
 elif [ "$SELECTED" == "brave" ]; then
     update_brave_version

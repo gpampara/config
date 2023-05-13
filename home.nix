@@ -63,7 +63,7 @@ in
     fzf
 
     #pijul
-    jujutsu
+    #jujutsu
     nixpkgs-unstable.sapling
 
     (util.forSystem { linux = mpv; darwin = dmgPkgs.iina; })
@@ -191,6 +191,10 @@ in
   programs.git = {
     enable = true;
     userName = fullname;
+    ignores = [
+      "node_modules"
+      ".DS_Store"
+    ];
     aliases = {
       # list all aliases
       aliases = "!git config --get-regexp 'alias.*' | colrm 1 6 | sed 's/[ ]/ = /' | sort";
@@ -214,6 +218,10 @@ in
         conflictstyle = "diff3";
       };
     };
+  };
+
+  programs.jujutsu = {
+    enable = true;
   };
 
   programs.kitty =

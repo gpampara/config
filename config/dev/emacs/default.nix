@@ -536,7 +536,7 @@
       meow = {
         enable = true;
         config = ''
-          (defun meow-setup ()
+(defun meow-setup ()
   (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
   (meow-motion-overwrite-define-key
    '("j" . meow-next)
@@ -915,6 +915,18 @@
         mode = [ ''("\\.http\\'" . restclient-mode)'' ];
       };
 
+      rust-mode = {
+        enable = true;
+        mode = [ ''"\\.rs\\'"'' ];
+        command = [ "rust-mode" ];
+        hook = [
+          "(rust-mode . eglot-ensure)"
+        ];
+        extraPackages = [
+          pkgs.rust-analyzer
+        ];
+      };
+
       s = { enable = true; };
 
       scala-mode = {
@@ -1104,13 +1116,10 @@
         '';
       };
 
-
       cape = {
         enable = true;
 
       };
-
-
 
     };
   };
