@@ -418,8 +418,8 @@
         hook = [
           "(markdown-mode . flymake-aspell-setup)"
         ];
-        extraPackages = with pkgs; [
-          marksman # markdown lsp
+        extraPackages = [
+          pkgs.marksman # markdown lsp
         ];
         config = ''
           (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman")))

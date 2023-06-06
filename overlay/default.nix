@@ -4,7 +4,6 @@ final: prev: {
     brave = prev.callPackage ./brave {};
     #element = prev.callPackage ./element {};
     iina = prev.callPackage ./iina {};
-    postico = prev.callPackage ./postico {};
     skim-pdf = prev.callPackage ./skim-pdf {};
     zotero = prev.callPackage ./zotero {};
     kitty = prev.callPackage ./kitty {};
@@ -15,6 +14,4 @@ final: prev: {
   };
 
   romcal = prev.callPackage ./romcal {};
-
-  git-ps-rs = prev.callPackage ./git-ps-rs {};
 }

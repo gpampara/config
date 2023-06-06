@@ -1,6 +1,6 @@
-{ pkgs, ... }: 
+{ pkgs, ... }:
 let
-  util = pkgs.callPackage ../../util.nix { };
+  util = pkgs.callPackage ../util.nix { };
 in{
 
   imports = [
@@ -13,6 +13,6 @@ in{
       package = util.forSystem {
         darwin = pkgs.emacsMacport;
         linux = pkgs.emacsGit;
-      };    
+      };
     };
 }

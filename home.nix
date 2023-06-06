@@ -1,86 +1,103 @@
-{ config, lib, pkgs, nixpkgs-unstable, ... }:
+{ config, pkgs, ... }:
 
 let
-  username = "gpampara";
   fullname = "Gary Pamparà";
   emailAddr = "gpampara@gmail.com";
-  homeDirectory = "/Users/${username}";
 
   secrets = import ./secrets/secrets.nix;
-
-  util = pkgs.callPackage ./util.nix { };
+  util = pkgs.callPackage ./util.nix {};
 in
 {
-  imports = [
-    ./config/dev
-  ];
-
   caches.cachix = [
     { name = "nix-community"; sha256 = "0m6kb0a0m3pr6bbzqz54x37h5ri121sraj1idfmsrr6prknc7q3x"; }
   ];
 
-  home.username = username;
-  home.homeDirectory = homeDirectory;
+  # Home Manager needs a bit of information about you and the paths it should
+  # manage.
+  #home.username = username;
+  #home.homeDirectory = homeDirectory;
 
-  # Let Home Manager install and manage itself.
-  programs.home-manager.enable = true;
+  # This value determines the Home Manager release that your configuration is
+  # compatible with. This helps avoid breakage when a new Home Manager release
+  # introduces backwards incompatible changes.
+  #
+  # You should not change this value, even if you update Home Manager. If you do
+  # want to update the value, then make sure to first check the Home Manager
+  # release notes.
+  home.stateVersion = "23.05"; # Please read the comment before changing.
 
-  # General global packages for the user
-  home.packages = with pkgs; [
-    aspell
-    aspellDicts.en
-    aspellDicts.en-computers
-    aspellDicts.en-science
+  # The home.packages option allows you to install Nix packages into your
+  # environment.
+  home.packages = [
+    # # Adds the 'hello' command to your environment. It prints a friendly
+    # # "Hello, world!" when run.
+    # pkgs.hello
 
-    bitwarden-cli
+    # # It is sometimes useful to fine-tune packages, for example, by applying
+    # # overrides. You can do that directly here, just don't forget the
+    # # parentheses. Maybe you want to install Nerd Fonts with a limited number of
+    # # fonts?
+    # (pkgs.nerdfonts.override { fonts = [ "FantasqueSansMono" ]; })
 
-    dos2unix
+    # # You can also create simple shell scripts directly inside your
+    # # configuration. For example, this adds a command 'my-hello' to your
+    # # environment:
+    # (pkgs.writeShellScriptBin "my-hello" ''
+    #   echo "Hello, ${config.home.username}!"
+    # '')
+    pkgs.aspell
+    pkgs.aspellDicts.en
+    pkgs.aspellDicts.en-computers
+    pkgs.aspellDicts.en-science
+
+    pkgs.bitwarden-cli
+
+    pkgs.dos2unix
 
     #(util.forSystem { linux = element-desktop; darwin = dmgPkgs.element; })
 
-    gnupg
-    graphviz
-    helix
+    pkgs.gnupg
+    pkgs.graphviz
+    pkgs.helix
 
-    ledger
-    jq
+    pkgs.ledger
+    pkgs.jq
 
     # fonts
-    nerdfonts
-    jetbrains-mono
-    inter
+    pkgs.nerdfonts
+    pkgs.jetbrains-mono
+    pkgs.inter
 
-    nodejs
-    nodePackages.node2nix
+    pkgs.nodejs
+    pkgs.nodePackages.node2nix
     #romcal
 
-    delta
-    gitAndTools.git-crypt
-    difftastic
-    git-ps-rs
-    gh # github cli tool
+    pkgs.delta
+    pkgs.gitAndTools.git-crypt
+    pkgs.difftastic
+    pkgs.git-ps-rs
+    pkgs.gh # github cli tool
 
-    fzf
+    pkgs.fzf
 
     #pijul
     #jujutsu
-    nixpkgs-unstable.sapling
+    #nixpkgs-unstable.sapling
 
-    (util.forSystem { linux = mpv; darwin = dmgPkgs.iina; })
-    (util.forSystem { linux = dbeaver; darwin = dmgPkgs.postico; })
+    (util.forSystem { linux = pkgs.mpv; darwin = pkgs.dmgPkgs.iina; })
 
-    ripgrep
-    shellcheck
-    stack
+    pkgs.ripgrep
+    pkgs.shellcheck
+    pkgs.stack
 
-    tailscale
+    pkgs.tailscale
 
-    yarn
-    yt-dlp
+    pkgs.yarn
+    pkgs.yt-dlp
 
-    (util.forSystem { linux = zotero; darwin = dmgPkgs.zotero; }) # Install Zotero
-    (util.forSystem { linux = zathura; darwin = dmgPkgs.skim-pdf; })
-  ]; #++ lib.optional pkgs.stdenv.isDarwin [];
+    (util.forSystem { linux = pkgs.zotero; darwin = pkgs.dmgPkgs.zotero; }) # Install Zotero
+    (util.forSystem { linux = pkgs.zathura; darwin = pkgs.dmgPkgs.skim-pdf; })
+  ];
 
   nix = {
     package = pkgs.nix;
@@ -123,8 +140,8 @@ in
       set -p fish_function_path ${pkgs.fishPlugins.foreign-env}/share/fish/vendor_functions.d
 
       # nix
-      if test -e ${homeDirectory}/.nix-profile/etc/profile.d/nix.sh
-        fenv source ${homeDirectory}/.nix-profile/etc/profile.d/nix.sh
+      if test -e ${config.home.homeDirectory}/.nix-profile/etc/profile.d/nix.sh
+        fenv source ${config.home.homeDirectory}/.nix-profile/etc/profile.d/nix.sh
       end
 
       # This was removed in https://github.com/nix-community/home-manager/commit/3e4fedc1d9c53a0fad0a4e5b63880ab13d1e249d
@@ -212,7 +229,7 @@ in
         useConfigOnly = true;
       };
       github = {
-        user = username;
+        user = config.home.username;
       };
       merge = {
         conflictstyle = "diff3";
@@ -222,6 +239,7 @@ in
 
   programs.jujutsu = {
     enable = true;
+    package = pkgs.jujutsu;
   };
 
   programs.kitty =
@@ -259,7 +277,7 @@ in
           darwin = pkgs.hello;
         };
       extraConfig =
-        lib.strings.concatStringsSep "\n"
+        pkgs.lib.strings.concatStringsSep "\n"
           [
             "font_size 12.0"
             "cursor_blink_interval 0"
@@ -267,17 +285,17 @@ in
             "shell_integration enabled,no-cursor"
             draculaDiffConf
             draculaConf
-            (lib.strings.optionalString pkgs.stdenv.isDarwin macosOptions)
-            (lib.strings.optionalString pkgs.stdenv.isLinux linuxOptions)
+            (pkgs.lib.strings.optionalString pkgs.stdenv.isDarwin macosOptions)
+            (pkgs.lib.strings.optionalString pkgs.stdenv.isLinux linuxOptions)
           ];
     };
 
   # Custom config files
   home.file.".aspell.conf".text = ''
-    data-dir ${homeDirectory}/.nix-profile/lib/aspell
+    data-dir ${config.home.homeDirectory}/.nix-profile/lib/aspell
   '';
 
-  # Accounts for email
+    # Accounts for email
   programs.mu.enable = true;
   programs.mbsync.enable = true;
 
@@ -305,4 +323,36 @@ in
     };
   };
 
+
+  # Home Manager is pretty good at managing dotfiles. The primary way to manage
+  # plain files is through 'home.file'.
+  home.file = {
+    # # Building this configuration will create a copy of 'dotfiles/screenrc' in
+    # # the Nix store. Activating the configuration will then make '~/.screenrc' a
+    # # symlink to the Nix store copy.
+    # ".screenrc".source = dotfiles/screenrc;
+
+    # # You can also set the file content immediately.
+    # ".gradle/gradle.properties".text = ''
+    #   org.gradle.console=verbose
+    #   org.gradle.daemon.idletimeout=3600000
+    # '';
+  };
+
+  # You can also manage environment variables but you will have to manually
+  # source
+  #
+  #  ~/.nix-profile/etc/profile.d/hm-session-vars.sh
+  #
+  # or
+  #
+  #  /etc/profiles/per-user/gpampara/etc/profile.d/hm-session-vars.sh
+  #
+  # if you don't want to manage your shell through Home Manager.
+  home.sessionVariables = {
+    # EDITOR = "emacs";
+  };
+
+  # Let Home Manager install and manage itself.
+  programs.home-manager.enable = true;
 }
