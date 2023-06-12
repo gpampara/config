@@ -151,6 +151,7 @@ in
 
     shellAbbrs = {
       "hm-rm-old-generations" = "home-manager generations | tail -n +2 | awk '{ print $5 }' | xargs home-manager remove-generations";
+      "hm-update" = "cd ~/.config/home-manager; bash update.sh; cd -";
     };
   };
 
