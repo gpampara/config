@@ -459,7 +459,10 @@ in {
           (setq package-quickstart t
                 package-quickstart-file "hm-package-quickstart.el")
         '' else ''
-          (setq package-enable-at-startup nil)
+          (setq package-enable-at-startup nil
+                ;; let's be really sure package.el isn't used
+                use-package-ensure-function 'ignore
+                package-archives nil)
         ''}
 
         ;; Avoid expensive frame resizing. Inspired by Doom Emacs.
