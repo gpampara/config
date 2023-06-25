@@ -6,7 +6,7 @@
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     nixpkgs.url = "github:NixOS/nixpkgs/release-23.05";
     home-manager = {
-      url = "github:nix-community/home-manager";
+      url = "github:nix-community/home-manager/release-23.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     emacs-overlay = {
@@ -21,7 +21,8 @@
       system = "x86_64-darwin";
       username = "gpampara";
       pkgs = nixpkgs.legacyPackages.${system};
-    in {
+    in
+    {
       homeConfigurations.${username} = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
 

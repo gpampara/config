@@ -1123,13 +1123,12 @@
 
     };
   };
-
-  home.file.".emacs.d/init.el".text = lib.mkAfter ''
-    (load "${pkgs.fetchFromGitHub {
-      owner = "seanfarley";
-      repo = "emacs-bitwarden";
-      rev = "02d6410003a42e7fbeb4aa109aba949eea553706";
-      sha256 = "sha256-ooLgOwpJX9dgkWEev9xmPyDVPRx4ycyZQm+bggKAfa0=";
-    }}/bitwarden.el")
-  '';
+  # home.file.".emacs.d/init.el".text = lib.mkAfter ''
+  #   (load "${pkgs.fetchFromGitHub {
+  #     owner = "seanfarley";
+  #     repo = "emacs-bitwarden";
+  #     rev = "02d6410003a42e7fbeb4aa109aba949eea553706";
+  #     sha256 = "sha256-ooLgOwpJX9dgkWEev9xmPyDVPRx4ycyZQm+bggKAfa0=";
+  #   }}/bitwarden.el")
+  # '';
 }

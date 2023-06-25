@@ -82,7 +82,7 @@ in
 
     #pijul
     #jujutsu
-    #nixpkgs-unstable.sapling
+    #unstable.sapling
 
     (util.forSystem { linux = pkgs.mpv; darwin = pkgs.dmgPkgs.iina; })
 
