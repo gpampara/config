@@ -14,6 +14,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     declarative-cachix.url = "github:jonascarpay/declarative-cachix/master";
+    sops-nix = {
+      url = "github:Mic92/sops-nix/master";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs@{ nixpkgs, home-manager, ... }:
@@ -43,6 +47,7 @@
           ./config
           ./modules/emacs-init.nix
           inputs.declarative-cachix.homeManagerModules.declarative-cachix
+          inputs.sops-nix.homeManagerModules.sops
         ];
 
         # Optionally use extraSpecialArgs

@@ -4,13 +4,22 @@ let
   fullname = "Gary Pamparà";
   emailAddr = "gpampara@gmail.com";
 
-  secrets = import ./secrets/secrets.nix;
   util = pkgs.callPackage ./util.nix {};
 in
 {
   caches.cachix = [
     { name = "nix-community"; sha256 = "0m6kb0a0m3pr6bbzqz54x37h5ri121sraj1idfmsrr6prknc7q3x"; }
   ];
+
+  sops = {
+    age.keyFile = "${config.home.homeDirectory}/.age-key.txt";
+    defaultSopsFile = ./secrets/secrets.yaml;
+    secrets = {
+      work-email-pass = {
+        path = "%r/work-email-password.txt";
+      };
+    };
+  };
 
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
@@ -45,6 +54,9 @@ in
     # (pkgs.writeShellScriptBin "my-hello" ''
     #   echo "Hello, ${config.home.username}!"
     # '')
+    pkgs.sops
+    pkgs.age
+
     pkgs.aspell
     pkgs.aspellDicts.en
     pkgs.aspellDicts.en-computers
@@ -302,13 +314,13 @@ in
 
   accounts.email = {
     accounts = {
-      "${secrets.email.work.address}" = {
+      circuithub = {
         primary = true;
-        flavor = secrets.email.work.flavor;
-        address = secrets.email.work.address;
-        userName = secrets.email.work.address;
+        flavor = "gmail.com";
+        address = "garyp@circuithub.com";
+        userName = "garyp@circuithub.com";
         realName = fullname;
-        passwordCommand = "echo ${secrets.email.work.password}";
+        passwordCommand = "cat ${config.sops.secrets.work-email-pass.path}";
         imap.tls = {
           enable = true;
           certificatesFile = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
@@ -318,7 +330,14 @@ in
           enable = true;
           create = "both";
           expunge = "both";
-          patterns = secrets.email.work.patterns;
+          patterns = [
+            "*"
+            "![Gmail]*"
+            "[Gmail]/Sent Mail"
+            "[Gmail]/Starred"
+            "[Gmail]/All Mail"
+            "[Gmail]/Trash"
+          ];
         };
       };
     };
