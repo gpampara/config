@@ -226,7 +226,7 @@
           ;; Disable all other themes to avoid awkward blending:
           (mapc #'disable-theme custom-enabled-themes)
 
-          (load-theme 'ef-summer :no-confirm)
+          (load-theme 'ef-spring :no-confirm)
         '';
       };
 
@@ -1118,7 +1118,31 @@
 
       cape = {
         enable = true;
+      };
 
+      org-gtd = {
+        enable = true;
+        after = [ "org" ];
+        bind = {
+          "C-c d c" = "org-gtd-capture";
+          "C-c d e" = "org-gtd-engage";
+          "C-c d p" = "org-gtd-process-inbox";
+          "C-c d n" = "org-gtd-show-all-next";
+          "C-c d s" = "org-gtd-review-stuck-projects";
+        };
+        config = ''
+          (setq org-gtd-directory (f-join org-root-directory "gtd"))
+
+          (define-key org-gtd-clarify-map (kbd "C-c c") #'org-gtd-organize)
+        '';
+      };
+
+      org-edna = {
+        enable = true;
+        config = ''
+          (setq org-edna-use-inheritance t)
+          (org-edna-mode 1)
+        '';
       };
 
     };

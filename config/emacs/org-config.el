@@ -12,9 +12,7 @@
                            (?B . (:foreground "LightSteelBlue"))
                            (?C . (:foreground "OliveDrab"))))
 
-(setq agenda-files (list "thesis-todo.org"
-                         "gtd.org"
-                         "projects.org"
+(setq agenda-files (list "projects.org"
                          "work.org"
                          "calendar.org"
                          "call.org"
@@ -25,10 +23,7 @@
                         agenda-files))
 
 (setq org-capture-templates
-      `(("T" "Thesis todo" entry
-         (file+headline ,(f-join org-agenda-directory "thesis-todo.org") "Thesis Tasks")
-         "* TODO %?\n  %i\n  %a")
-        ("t" "Todo" entry
+      `(("t" "Todo" entry
          (file+headline ,(f-join org-agenda-directory "gtd.org") "Tasks")
          "* TODO %?\n  %i\n  %a")
         ("p" "Project Todo" entry
