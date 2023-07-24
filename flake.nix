@@ -18,6 +18,7 @@
       url = "github:Mic92/sops-nix/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nix-colors.url = "github:misterio77/nix-colors";
   };
 
   outputs = inputs@{ nixpkgs, home-manager, ... }:
@@ -48,10 +49,12 @@
           ./modules/emacs-init.nix
           inputs.declarative-cachix.homeManagerModules.declarative-cachix
           inputs.sops-nix.homeManagerModules.sops
+          inputs.nix-colors.homeManagerModules.default
         ];
 
         # Optionally use extraSpecialArgs
         # to pass through arguments to home.nix
+        extraSpecialArgs = { inherit (inputs) nix-colors; };
       };
     };
 }

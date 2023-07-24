@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, nix-colors, ... }:
 
 let
   fullname = "Gary Pamparà";
@@ -66,8 +66,6 @@ in
 
     pkgs.dos2unix
 
-    #(util.forSystem { linux = element-desktop; darwin = dmgPkgs.element; })
-
     pkgs.gnupg
     pkgs.graphviz
     pkgs.helix
@@ -91,10 +89,6 @@ in
     pkgs.gh # github cli tool
 
     pkgs.fzf
-
-    #pijul
-    #jujutsu
-    #unstable.sapling
 
     (util.forSystem { linux = pkgs.mpv; darwin = pkgs.dmgPkgs.iina; })
 
@@ -120,6 +114,8 @@ in
       experimental-features = nix-command flakes
     '';
   };
+
+  colorScheme = nix-colors.colorSchemes.dracula;
 
   programs.brave = {
     enable = true;
@@ -165,6 +161,10 @@ in
       "hm-rm-old-generations" = "home-manager generations | tail -n +2 | awk '{ print $5 }' | xargs home-manager remove-generations";
       "hm-update" = "cd ~/.config/home-manager; bash update.sh; cd -";
     };
+
+    # interactiveShellInit = ''
+    #   sh ${shellThemeFromScheme { scheme = config.colorScheme; }}
+    # '';
   };
 
   xdg.configFile."fish/functions/goto.fish".text =
@@ -176,42 +176,6 @@ in
         };
     in
     (builtins.readFile goto_src);
-
-  xdg.configFile."fish/conf.d/dracula.fish".text = ''
-    # Dracula Color Palette
-    set -l foreground f8f8f2
-    set -l selection 44475a
-    set -l comment 6272a4
-    set -l red ff5555
-    set -l orange ffb86c
-    set -l yellow f1fa8c
-    set -l green 50fa7b
-    set -l purple bd93f9
-    set -l cyan 8be9fd
-    set -l pink ff79c6
-
-    # Syntax Highlighting Colors
-    set -g fish_color_normal $foreground
-    set -g fish_color_command $cyan
-    set -g fish_color_keyword $pink
-    set -g fish_color_quote $yellow
-    set -g fish_color_redirection $foreground
-    set -g fish_color_end $orange
-    set -g fish_color_error $red
-    set -g fish_color_param $purple
-    set -g fish_color_comment $comment
-    set -g fish_color_selection --background=$selection
-    set -g fish_color_search_match --background=$selection
-    set -g fish_color_operator $green
-    set -g fish_color_escape $pink
-    set -g fish_color_autosuggestion $comment
-
-    # Completion Pager Colors
-    set -g fish_pager_color_progress $comment
-    set -g fish_pager_color_prefix $cyan
-    set -g fish_pager_color_completion $foreground
-    set -g fish_pager_color_description $comment
-  '';
 
   programs.starship = {
     enable = true;
@@ -257,15 +221,6 @@ in
 
   programs.kitty =
     let
-      draculaGH = pkgs.fetchFromGitHub {
-        owner = "dracula";
-        repo = "kitty";
-        rev = "6d6239abe975e168e6ffb8b19c03a997bbe88fe6";
-        sha256 = "EUS6/CPhx+OfoiW1sOrhJ8NFiNnmcfryBl8STt+nzLs=";
-      };
-      draculaConf = builtins.readFile (draculaGH + "/dracula.conf");
-      draculaDiffConf = builtins.readFile (draculaGH + "/diff.conf");
-
       macosOptions = ''
         map cmd+c        copy_to_clipboard
         map cmd+v        paste_from_clipboard
@@ -289,15 +244,54 @@ in
           linux = pkgs.kitty;
           darwin = pkgs.hello;
         };
+      settings = {
+        font_size = "12.0";
+        cursor_blink_interval = 0;
+        cursor_shape = "block";
+        shell_integration = "enabled,no-cursor";
+
+        # Colour config
+        background = "#${config.colorScheme.colors.base00}";
+        foreground = "#${config.colorScheme.colors.base05}";
+        selection_background = "#${config.colorScheme.colors.base05}";
+        selection_foreground = "#${config.colorScheme.colors.base00}";
+
+        url_color = "#${config.colorScheme.colors.base04}";
+        cursor = "#${config.colorScheme.colors.base05}";
+        cursor_text_color = "background";
+
+        active_border_color = "#${config.colorScheme.colors.base03}";
+        inactive_border_color = "#${config.colorScheme.colors.base01}";
+
+        active_tab_background = "#${config.colorScheme.colors.base00}";
+        active_tab_foreground = "#${config.colorScheme.colors.base05}";
+        inactive_tab_background = "#${config.colorScheme.colors.base01}";
+        inactive_tab_foreground = "#${config.colorScheme.colors.base04}";
+        tab_bar_background = "#${config.colorScheme.colors.base01}";
+
+        # normal
+        color0 = "#${config.colorScheme.colors.base00}";
+        color1 = "#${config.colorScheme.colors.base08}";
+        color2 = "#${config.colorScheme.colors.base0B}";
+        color3 = "#${config.colorScheme.colors.base0A}";
+        color4 = "#${config.colorScheme.colors.base0D}";
+        color5 = "#${config.colorScheme.colors.base0E}";
+        color6 = "#${config.colorScheme.colors.base0C}";
+        color7 = "#${config.colorScheme.colors.base05}";
+
+        #bright
+        color8 = "#${config.colorScheme.colors.base03}";
+        color9 = "#${config.colorScheme.colors.base09}";
+        color10 = "#${config.colorScheme.colors.base01}";
+        color11 = "#${config.colorScheme.colors.base02}";
+        color12 = "#${config.colorScheme.colors.base04}";
+        color13 = "#${config.colorScheme.colors.base06}";
+        color14 = "#${config.colorScheme.colors.base0F}";
+        color15 = "#${config.colorScheme.colors.base07}";
+      };
       extraConfig =
         pkgs.lib.strings.concatStringsSep "\n"
           [
-            "font_size 12.0"
-            "cursor_blink_interval 0"
-            "cursor_shape block"
-            "shell_integration enabled,no-cursor"
-            draculaDiffConf
-            draculaConf
             (pkgs.lib.strings.optionalString pkgs.stdenv.isDarwin macosOptions)
             (pkgs.lib.strings.optionalString pkgs.stdenv.isLinux linuxOptions)
           ];

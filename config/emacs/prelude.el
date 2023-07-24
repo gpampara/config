@@ -144,6 +144,8 @@
 (defconst org-root-directory (f-join (getenv "HOME") "org"))
 (defconst org-agenda-directory (f-join org-root-directory "agenda") "Filesystem location of agenda files.")
 (defconst org-notes-directory (f-join org-root-directory "roam") "Filesystem location of org-roam knowledge base.")
+(defconst org-gtd-directory (f-join org-root-directory "gtd"))
+
 (defconst zotero-bib-file (f-join org-root-directory "zotLib.bib") "Filesystem location of Zotero bibfile.")
 
 (defconst ledger-home-directory (f-join (getenv "HOME") "ledger") "Location of ledger files.")

@@ -1130,23 +1130,21 @@
           "C-c d n" = "org-gtd-show-all-next";
           "C-c d s" = "org-gtd-review-stuck-projects";
         };
-        config = ''
-          (setq org-gtd-directory (f-join org-root-directory "gtd"))
-
-          (define-key org-gtd-clarify-map (kbd "C-c c") #'org-gtd-organize)
-        '';
-      };
-
-      org-edna = {
-        enable = true;
+        bindLocal = {
+          org-gtd-clarify-map = {
+            "C-c c" = "org-gtd-organize";
+          };
+        };
         config = ''
           (setq org-edna-use-inheritance t)
           (org-edna-mode 1)
+
+          (org-gtd-mode)
         '';
       };
-
     };
   };
+
   # home.file.".emacs.d/init.el".text = lib.mkAfter ''
   #   (load "${pkgs.fetchFromGitHub {
   #     owner = "seanfarley";

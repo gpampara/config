@@ -13,26 +13,17 @@
                            (?C . (:foreground "OliveDrab"))))
 
 (setq agenda-files (list "projects.org"
-                         "work.org"
-                         "calendar.org"
-                         "call.org"
                          "birthdays.org"))
 
 (setq org-agenda-files (mapcar
                         (lambda (s) (f-join org-agenda-directory s))
                         agenda-files))
 
-(setq org-capture-templates
-      `(("t" "Todo" entry
-         (file+headline ,(f-join org-agenda-directory "gtd.org") "Tasks")
-         "* TODO %?\n  %i\n  %a")
-        ("p" "Project Todo" entry
-         (file+headline ,(f-join org-agenda-directory "projects.org") "Tasks")
-         "* TODO %?\n  %i\n  %a")
-        ("w" "Work Todo" entry
-         (file+headline ,(f-join org-agenda-directory "work.org") "Tasks")
-         "* TODO %?\n  %i\n  %a")
-        ("c" "Call someone" entry
-         (file+headline ,(f-join org-agenda-directory "call.org") "To call")
-         "* TODO %?\n  %i\n")
-        ))
+;; (setq org-capture-templates
+;;       `(("w" "Work Todo" entry
+;;          (file+headline ,(f-join org-agenda-directory "work.org") "Tasks")
+;;          "* TODO %?\n  %i\n  %a")
+;;         ("c" "Call someone" entry
+;;          (file+headline ,(f-join org-agenda-directory "call.org") "To call")
+;;          "* TODO %?\n  %i\n")
+;;         ))
