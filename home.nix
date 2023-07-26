@@ -1,4 +1,4 @@
-{ config, pkgs, nix-colors, ... }:
+{ config, pkgs, nix-colors, nixpkgsUnstable, ... }:
 
 let
   fullname = "Gary Pamparà";
@@ -97,8 +97,6 @@ in
     pkgs.stack
 
     pkgs.tailscale
-
-    pkgs.yarn
     pkgs.yt-dlp
 
     (util.forSystem { linux = pkgs.zotero; darwin = pkgs.dmgPkgs.zotero; }) # Install Zotero
@@ -216,7 +214,7 @@ in
 
   programs.jujutsu = {
     enable = true;
-    package = pkgs.jujutsu;
+    package = nixpkgsUnstable.pkgs.jujutsu;
   };
 
   programs.kitty =

@@ -3,7 +3,7 @@
 
   inputs = {
     # Specify the source of Home Manager and Nixpkgs.
-    #unstable.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgsUnstable.url = "github:nixos/nixpkgs/nixos-unstable";
     nixpkgs.url = "github:NixOS/nixpkgs/release-23.05";
     home-manager = {
       url = "github:nix-community/home-manager/release-23.05";
@@ -21,7 +21,7 @@
     nix-colors.url = "github:misterio77/nix-colors";
   };
 
-  outputs = inputs@{ nixpkgs, home-manager, ... }:
+  outputs = inputs@{ nixpkgs, nixpkgsUnstable, home-manager, ... }:
     let
       system = "x86_64-darwin";
       username = "gpampara";
@@ -54,7 +54,10 @@
 
         # Optionally use extraSpecialArgs
         # to pass through arguments to home.nix
-        extraSpecialArgs = { inherit (inputs) nix-colors; };
+        extraSpecialArgs = {
+          inherit (inputs) nix-colors;
+          nixpkgsUnstable = inputs.nixpkgsUnstable.legacyPackages.${system};
+        };
       };
     };
 }
