@@ -4,9 +4,14 @@ let
   fullname = "Gary Pamparà";
   emailAddr = "gpampara@gmail.com";
 
-  util = pkgs.callPackage ./util.nix {};
+  util = pkgs.callPackage ./util.nix { };
 in
 {
+  imports = [
+    ./config
+    ./modules/emacs-init.nix
+  ];
+
   caches.cachix = [
     { name = "nix-community"; sha256 = "0m6kb0a0m3pr6bbzqz54x37h5ri121sraj1idfmsrr6prknc7q3x"; }
   ];
@@ -85,12 +90,12 @@ in
     pkgs.delta
     pkgs.gitAndTools.git-crypt
     pkgs.difftastic
-    pkgs.git-ps-rs
+    nixpkgsUnstable.pkgs.git-ps-rs
     pkgs.gh # github cli tool
 
     pkgs.fzf
 
-    (util.forSystem { linux = pkgs.mpv; darwin = pkgs.dmgPkgs.iina; })
+    (util.forSystem { linux = pkgs.mpv; darwin = nixpkgsUnstable.pkgs.iina; })
 
     pkgs.ripgrep
     pkgs.shellcheck
@@ -101,6 +106,8 @@ in
 
     (util.forSystem { linux = pkgs.zotero; darwin = pkgs.dmgPkgs.zotero; }) # Install Zotero
     (util.forSystem { linux = pkgs.zathura; darwin = pkgs.dmgPkgs.skim-pdf; })
+
+    nixpkgsUnstable.pkgs.flix
   ];
 
   nix = {
@@ -113,7 +120,7 @@ in
     '';
   };
 
-  colorScheme = nix-colors.colorSchemes.dracula;
+  colorScheme = nix-colors.colorSchemes.gruvbox-material-dark-hard;
 
   programs.brave = {
     enable = true;
@@ -160,9 +167,13 @@ in
       "hm-update" = "cd ~/.config/home-manager; bash update.sh; cd -";
     };
 
-    # interactiveShellInit = ''
-    #   sh ${shellThemeFromScheme { scheme = config.colorScheme; }}
-    # '';
+    interactiveShellInit =
+      let
+        nix-colors-lib = nix-colors.lib.contrib { inherit pkgs; };
+      in
+      ''
+        ${pkgs.bash}/bin/bash ${nix-colors-lib.shellThemeFromScheme { scheme = config.colorScheme; }}
+      '';
   };
 
   xdg.configFile."fish/functions/goto.fish".text =
@@ -240,52 +251,13 @@ in
       package = util.forSystem
         {
           linux = pkgs.kitty;
-          darwin = pkgs.hello;
+          darwin = pkgs.kitty;
         };
       settings = {
         font_size = "12.0";
         cursor_blink_interval = 0;
         cursor_shape = "block";
         shell_integration = "enabled,no-cursor";
-
-        # Colour config
-        background = "#${config.colorScheme.colors.base00}";
-        foreground = "#${config.colorScheme.colors.base05}";
-        selection_background = "#${config.colorScheme.colors.base05}";
-        selection_foreground = "#${config.colorScheme.colors.base00}";
-
-        url_color = "#${config.colorScheme.colors.base04}";
-        cursor = "#${config.colorScheme.colors.base05}";
-        cursor_text_color = "background";
-
-        active_border_color = "#${config.colorScheme.colors.base03}";
-        inactive_border_color = "#${config.colorScheme.colors.base01}";
-
-        active_tab_background = "#${config.colorScheme.colors.base00}";
-        active_tab_foreground = "#${config.colorScheme.colors.base05}";
-        inactive_tab_background = "#${config.colorScheme.colors.base01}";
-        inactive_tab_foreground = "#${config.colorScheme.colors.base04}";
-        tab_bar_background = "#${config.colorScheme.colors.base01}";
-
-        # normal
-        color0 = "#${config.colorScheme.colors.base00}";
-        color1 = "#${config.colorScheme.colors.base08}";
-        color2 = "#${config.colorScheme.colors.base0B}";
-        color3 = "#${config.colorScheme.colors.base0A}";
-        color4 = "#${config.colorScheme.colors.base0D}";
-        color5 = "#${config.colorScheme.colors.base0E}";
-        color6 = "#${config.colorScheme.colors.base0C}";
-        color7 = "#${config.colorScheme.colors.base05}";
-
-        #bright
-        color8 = "#${config.colorScheme.colors.base03}";
-        color9 = "#${config.colorScheme.colors.base09}";
-        color10 = "#${config.colorScheme.colors.base01}";
-        color11 = "#${config.colorScheme.colors.base02}";
-        color12 = "#${config.colorScheme.colors.base04}";
-        color13 = "#${config.colorScheme.colors.base06}";
-        color14 = "#${config.colorScheme.colors.base0F}";
-        color15 = "#${config.colorScheme.colors.base07}";
       };
       extraConfig =
         pkgs.lib.strings.concatStringsSep "\n"
@@ -300,7 +272,7 @@ in
     data-dir ${config.home.homeDirectory}/.nix-profile/lib/aspell
   '';
 
-    # Accounts for email
+  # Accounts for email
   programs.mu.enable = true;
   programs.mbsync.enable = true;
 

@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, nixpkgsUnstable, ... }:
 let
   util = pkgs.callPackage ../util.nix { };
 in{
@@ -11,7 +11,7 @@ in{
     {
       enable = true;
       package = util.forSystem {
-        darwin = pkgs.emacsMacport;
+        darwin = nixpkgsUnstable.pkgs.emacs29-macport;
         linux = pkgs.emacsGit;
       };
     };

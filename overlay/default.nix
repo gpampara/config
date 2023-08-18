@@ -2,11 +2,8 @@ final: prev: {
 
   dmgPkgs = {
     brave = prev.callPackage ./brave {};
-    #element = prev.callPackage ./element {};
-    iina = prev.callPackage ./iina {};
     skim-pdf = prev.callPackage ./skim-pdf {};
     zotero = prev.callPackage ./zotero {};
-    kitty = prev.callPackage ./kitty {};
   };
 
   elmPackages = prev.elmPackages // {

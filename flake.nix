@@ -44,12 +44,10 @@
               homeDirectory = "/Users/${username}";
             };
           }
-          ./home.nix
-          ./config
-          ./modules/emacs-init.nix
           inputs.declarative-cachix.homeManagerModules.declarative-cachix
           inputs.sops-nix.homeManagerModules.sops
           inputs.nix-colors.homeManagerModules.default
+          ./home.nix
         ];
 
         # Optionally use extraSpecialArgs
