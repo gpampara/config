@@ -497,7 +497,7 @@ in {
         (epkgs.trivialBuild {
           pname = "hm-init";
           src = pkgs.writeText "hm-init.el" initFile;
-          packageRequires = [ epkgs.use-package ] ++ packages
+          packageRequires = [ epkgs.use-package epkgs.treesit-grammars.with-all-grammars ] ++ packages
             ++ optional hasBind epkgs.bind-key
             ++ optional hasDiminish epkgs.diminish
             ++ optional hasChords epkgs.use-package-chords;

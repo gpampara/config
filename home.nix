@@ -73,7 +73,7 @@ in
 
     pkgs.gnupg
     pkgs.graphviz
-    pkgs.helix
+    #pkgs.helix
 
     pkgs.ledger
     pkgs.jq
@@ -87,7 +87,6 @@ in
     pkgs.nodePackages.node2nix
     #romcal
 
-    pkgs.delta
     pkgs.gitAndTools.git-crypt
     pkgs.difftastic
     nixpkgsUnstable.pkgs.git-ps-rs
@@ -108,6 +107,7 @@ in
     (util.forSystem { linux = pkgs.zathura; darwin = pkgs.dmgPkgs.skim-pdf; })
 
     nixpkgsUnstable.pkgs.flix
+    nixpkgsUnstable.pkgs.nix-update
   ];
 
   nix = {
@@ -194,6 +194,7 @@ in
   programs.git = {
     enable = true;
     userName = fullname;
+    delta = { enable = true; };
     ignores = [
       "node_modules"
       ".DS_Store"
@@ -209,6 +210,8 @@ in
       gone = ''
         !git checkout -q master && git for-each-ref refs/heads/ "--format=%(refname:short)" | while read branch; do mergeBase=$(git merge-base master $branch) && [[ $(git cherry master $(git commit-tree $(git rev-parse "$branch^{tree}") -p $mergeBase -m _)) == "-"* ]] && git branch -D $branch; done
       '';
+
+      file-log = "log --follow -p -- ";
     };
     extraConfig = {
       user = {
@@ -228,44 +231,31 @@ in
     package = nixpkgsUnstable.pkgs.jujutsu;
   };
 
-  programs.kitty =
-    let
-      macosOptions = ''
-        map cmd+c        copy_to_clipboard
-        map cmd+v        paste_from_clipboard
-        map shift+insert paste_from_clipboard
+  programs.wezterm = {
+    enable = true;
+    extraConfig = ''
+      local act = wezterm.action
+      local config = {}
 
-        mouse_map ctrl+left press ungrabbed,grabbed mouse_click_url
+      config.initial_cols = 175
+      config.initial_rows = 52
 
-        copy_on_select yes
+      config.hide_tab_bar_if_only_one_tab = true
 
-        macos_option_as_alt yes
-        macos_quit_when_last_window_closed no
-      '';
+      function DoSplit ()
+        local pane_count = wezterm.MuxTab.panes_with_info()
 
-      linuxOptions = ''
-      '';
-    in
-    {
-      enable = true;
-      package = util.forSystem
-        {
-          linux = pkgs.kitty;
-          darwin = pkgs.kitty;
-        };
-      settings = {
-        font_size = "12.0";
-        cursor_blink_interval = 0;
-        cursor_shape = "block";
-        shell_integration = "enabled,no-cursor";
-      };
-      extraConfig =
-        pkgs.lib.strings.concatStringsSep "\n"
-          [
-            (pkgs.lib.strings.optionalString pkgs.stdenv.isDarwin macosOptions)
-            (pkgs.lib.strings.optionalString pkgs.stdenv.isLinux linuxOptions)
-          ];
-    };
+      end
+
+      config.keys = {
+        { key = '{', mods = 'CTRL|SHIFT', action = act.ActivatePaneDirection 'Prev' },
+        { key = '}', mods = 'CTRL|SHIFT', action = act.ActivatePaneDirection 'Next' },
+        -- { key = 'Enter', mods = 'CMD', action = },
+      }
+
+      return config
+    '';
+  };
 
   # Custom config files
   home.file.".aspell.conf".text = ''
