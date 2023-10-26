@@ -20,7 +20,7 @@ function update_brave_version () {
     fi
 }
 
-SELECTED=$(nix flake metadata --json --quiet | jq -r '.locks.nodes.root.inputs | keys | . + ["inputs", "brave"] | .[]' | fzf)
+SELECTED=$(nix flake metadata --json --quiet | jq -r '.locks.nodes.root.inputs | keys | . += ["inputs", "brave"] | .[]' | fzf)
 
 if [ -z "$SELECTED" ]; then
     exit 1;

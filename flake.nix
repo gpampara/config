@@ -26,7 +26,7 @@
       username = "gpampara";
     in
     {
-      homeConfigurations."${username}@Garys-MacBook-Pro.local" = home-manager.lib.homeManagerConfiguration {
+      homeConfigurations."${username}" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages."x86_64-darwin";
 
         # Specify your home configuration modules here, for example,

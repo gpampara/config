@@ -107,6 +107,7 @@
           "M-s m" = "consult-multi-occur";
           "M-s k" = "consult-keep-lines";
           "M-s u" = "consult-focus-lines";
+          "M-y"   = "consult-yank-pop";
         };
         config = ''
           ;; Optionally configure preview. The default value
@@ -782,7 +783,7 @@
           "C-c n i" = "org-roam-node-insert";
           "C-c n c" = "org-roam-capture";
           # Dailies
-          "C-c n j" = "org-roam-dailies-capture-today";
+          "C-c n j" = "org-roam-dailies-goto-today";
         };
         extraPackages = [ pkgs.sqlite ];
         init = ''
@@ -866,14 +867,6 @@
         #          ''("\\.Rtex\\'" . poly-noweb+r-mode)''
         #          ''("\\.Rlatex\\'" . poly-latex+R-mode)''
         #        ];
-      };
-
-      popup-kill-ring = {
-        enable = true;
-        command = [ "popup-kill-ring" ];
-        bind = {
-          "M-y" = "popup-kill-ring";
-        };
       };
 
       project = {
@@ -962,14 +955,6 @@
           (savehist-mode)
         '';
       };
-
-      #typescript-ts-mode = {
-      # enable = true;
-      # mode = [ ''"\\.ts\\'"'' ];
-      # hook = [
-      #    "(typescript-ts-mode . eglot-ensure)"
-      #  ];
-      #};
 
       # This will probably be obsolete in Emacs 30
       treesit-auto = {
@@ -1135,29 +1120,6 @@
 
       cape = {
         enable = true;
-      };
-
-      org-gtd = {
-        enable = true;
-        after = [ "org" ];
-        bind = {
-          "C-c d c" = "org-gtd-capture";
-          "C-c d e" = "org-gtd-engage";
-          "C-c d p" = "org-gtd-process-inbox";
-          "C-c d n" = "org-gtd-show-all-next";
-          "C-c d s" = "org-gtd-review-stuck-projects";
-        };
-        bindLocal = {
-          org-gtd-clarify-map = {
-            "C-c c" = "org-gtd-organize";
-          };
-        };
-        config = ''
-          (setq org-edna-use-inheritance t)
-          (org-edna-mode 1)
-
-          (org-gtd-mode)
-        '';
       };
     };
   };

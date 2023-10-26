@@ -232,5 +232,7 @@
 ;;(add-to-list 'auto-mode-alist '("\\.py[iw]?\\'" . python-ts-mode))
 ;;(add-to-list 'auto-mode-alist '("\\.java\\'" . java-ts-mode))
 
+(add-to-list 'auto-mode-alist '("\\.astro\\'" . js-ts-mode))
+
 ;; Force the native fullscreen?
 (add-to-list 'default-frame-alist '(fullscreen . fullboth))

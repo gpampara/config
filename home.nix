@@ -101,6 +101,7 @@ in
     pkgs.stack
 
     pkgs.tailscale
+    pkgs.tigervnc
     pkgs.yt-dlp
 
     (util.forSystem { linux = pkgs.zotero; darwin = pkgs.dmgPkgs.zotero; }) # Install Zotero
@@ -111,7 +112,7 @@ in
   ];
 
   nix = {
-    package = pkgs.nix;
+    package = pkgs.nixFlakes;
     extraOptions = ''
       connect-timeout = 5
       log-lines = 25
@@ -212,6 +213,8 @@ in
       '';
 
       file-log = "log --follow -p -- ";
+
+      recent = ''branch --sort=-committerdate --format="%(committerdate:relative)%09%(refname:short)"'';
     };
     extraConfig = {
       user = {
@@ -233,6 +236,7 @@ in
 
   programs.wezterm = {
     enable = true;
+    package = util.forSystem { linux = pkgs.wezterm; darwin = pkgs.hello; };
     extraConfig = ''
       local act = wezterm.action
       local config = {}
