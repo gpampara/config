@@ -1,3 +1,4 @@
+
 { config, pkgs, nix-colors, nixpkgsUnstable, ... }:
 
 let
@@ -134,7 +135,8 @@ in
       { id = "ekhagklcjbdpajgpjgmbionohlpdbjgc"; } # Zotero
       { id = "edlhclhffmclbhgifomamlomnfolnepa"; } # Elm debug helper
       { id = "fjdmkanbdloodhegphphhklnjfngoffa"; }
-      { id = "gighmmpiobklfepjocnamgkkbiglidom"; } # Ad blocker
+      #{ id = "gighmmpiobklfepjocnamgkkbiglidom"; } # Ad blocker
+      { id = "cjpalhdlnbpafiamejdnhcphjbkeiagm"; } # ublock origin
     ];
   };
 
@@ -195,7 +197,8 @@ in
   programs.git = {
     enable = true;
     userName = fullname;
-    delta = { enable = true; };
+    # delta.enable = true;
+    difftastic.enable = true;
     ignores = [
       "node_modules"
       ".DS_Store"
