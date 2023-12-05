@@ -221,18 +221,9 @@
 (global-set-key (kbd "M-c") 'capitalize-dwim)
 
 ;; Fonts
-(set-face-attribute 'default nil :family "JetBrains Mono" :height 130)
-(set-face-attribute 'fixed-pitch nil :family "JetBrains Mono" :height 1.0) ;; relative to default
-(set-face-attribute 'variable-pitch nil :family "Inter" :height 1.05)
-
-;; Prefer the treesit modes
-;;(add-to-list 'auto-mode-alist '("\\.js[mx]?\\'" . js-ts-mode))
-;;(add-to-list 'auto-mode-alist '("\\.css\\'" . css-ts-mode))
-;;(add-to-list 'auto-mode-alist '("\\.json\\'" . json-ts-mode))
-;;(add-to-list 'auto-mode-alist '("\\.py[iw]?\\'" . python-ts-mode))
-;;(add-to-list 'auto-mode-alist '("\\.java\\'" . java-ts-mode))
-
-(add-to-list 'auto-mode-alist '("\\.astro\\'" . js-ts-mode))
+(set-face-attribute 'default nil :family "JetBrainsMono Nerd Font" :height 130)
+(set-face-attribute 'fixed-pitch nil :family "JetBrainsMono Nerd Font" :height 1.0) ;; relative to default
+;;(set-face-attribute 'variable-pitch nil :family "Inter" :height 1.05)
 
 ;; Force the native fullscreen?
 (add-to-list 'default-frame-alist '(fullscreen . fullboth))

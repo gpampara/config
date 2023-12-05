@@ -21,13 +21,13 @@
     # TODO: The loading of mu4e could be done in a better way?
     postlude =
       let
-        mu4eConfig = builtins.readFile ./mu4e-config.el;
+        # mu4eConfig = builtins.readFile ./mu4e-config.el;
         postludeFile = builtins.readFile ./postlude.el;
       in
       builtins.concatStringsSep "\n"
         [
-          ''(defconst mu4e-load-path "${pkgs.mu}/share/emacs/site-lisp/mu4e" "Location of mu4e elisp")''
-          mu4eConfig
+          # ''(defconst mu4e-load-path "${pkgs.mu}/share/emacs/site-lisp/mu4e" "Location of mu4e elisp")''
+          # mu4eConfig
           postludeFile
         ];
 
@@ -55,6 +55,19 @@
           (add-to-list 'aw-dispatch-alist '(?\; hydra-window-frame/body) t)
 
           (ace-window-display-mode t)
+        '';
+      };
+
+      astro-ts-mode = {
+        enable = true;
+        extraPackages = [
+          pkgs.nodePackages.astro-language-server
+          pkgs.nodePackages.typescript
+        ];
+        config = ''
+          (with-eval-after-load 'eglot
+            (add-to-list 'eglot-server-programs
+              `(astro-ts-mode . ("${pkgs.nodePackages.astro-language-server}/bin/astro-ls" "--stdio" :initializationOptions (:typescript (:tsdk "${pkgs.nodePackages.typescript}/lib/node_modules/typescript/lib"))))))
         '';
       };
 
@@ -1000,6 +1013,7 @@
         enable = true;
         config = ''
           (setq treesit-auto-install 'prompt)
+          (treesit-auto-add-to-auto-mode-alist 'all)
           (global-treesit-auto-mode)
         '';
       };

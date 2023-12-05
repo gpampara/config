@@ -10,8 +10,9 @@ in{
   programs.emacs =
     {
       enable = true;
+      extraPackages = epkgs: [ epkgs.treesit-grammars.with-all-grammars ];
       package = util.forSystem {
-        darwin = nixpkgsUnstable.pkgs.emacs29-macport;
+        darwin = pkgs.emacs29-macport;
         linux = pkgs.emacsGit;
       };
     };

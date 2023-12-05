@@ -19,12 +19,12 @@
 (setq dashboard-set-navigator t)
 
 ;; Format: "(icon title help action face prefix suffix)"
-(setq dashboard-navigator-buttons
-      `(;; line1
-        ((,(all-the-icons-octicon "mail" :height 1.1 :v-adjust 0.0)
-          "Email"
-          "Open email"
-          (lambda (&rest _) (mu4e))))))
+;; (setq dashboard-navigator-buttons
+;;       `(;; line1
+;;         ((,(all-the-icons-octicon "mail" :height 1.1 :v-adjust 0.0)
+;;           "Email"
+;;           "Open email"
+;;           (lambda (&rest _) (mu4e))))))
 
 
 ;; new agenda generator

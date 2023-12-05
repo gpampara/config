@@ -1,16 +1,14 @@
-
 { config, pkgs, nix-colors, nixpkgsUnstable, ... }:
 
 let
   fullname = "Gary Pamparà";
   emailAddr = "gpampara@gmail.com";
 
-  util = pkgs.callPackage ./util.nix { };
+  util = pkgs.callPackage ./util.nix {};
 in
 {
   imports = [
     ./config
-    ./modules/emacs-init.nix
   ];
 
   caches.cachix = [
@@ -39,7 +37,7 @@ in
   # You should not change this value, even if you update Home Manager. If you do
   # want to update the value, then make sure to first check the Home Manager
   # release notes.
-  home.stateVersion = "23.05"; # Please read the comment before changing.
+  home.stateVersion = "23.11"; # Please read the comment before changing.
 
   # The home.packages option allows you to install Nix packages into your
   # environment.
@@ -81,8 +79,6 @@ in
 
     # fonts
     pkgs.nerdfonts
-    pkgs.jetbrains-mono
-    pkgs.inter
 
     pkgs.nodejs
     pkgs.nodePackages.node2nix
@@ -99,7 +95,7 @@ in
 
     pkgs.ripgrep
     pkgs.shellcheck
-    pkgs.stack
+    #pkgs.stack
 
     pkgs.tailscale
     pkgs.tigervnc
@@ -109,7 +105,7 @@ in
     (util.forSystem { linux = pkgs.zathura; darwin = pkgs.dmgPkgs.skim-pdf; })
 
     nixpkgsUnstable.pkgs.flix
-    nixpkgsUnstable.pkgs.nix-update
+    #nixpkgsUnstable.pkgs.nix-update
   ];
 
   nix = {
