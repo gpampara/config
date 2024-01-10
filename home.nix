@@ -89,15 +89,13 @@ in
     nixpkgsUnstable.pkgs.git-ps-rs
     pkgs.gh # github cli tool
 
-    pkgs.fzf
-
     (util.forSystem { linux = pkgs.mpv; darwin = nixpkgsUnstable.pkgs.iina; })
 
     pkgs.ripgrep
     pkgs.shellcheck
     #pkgs.stack
 
-    pkgs.tailscale
+    #(util.forSystem { linux = pkgs.tailscale; darwin = null; })
     pkgs.tigervnc
     pkgs.yt-dlp
 
@@ -105,7 +103,6 @@ in
     (util.forSystem { linux = pkgs.zathura; darwin = pkgs.dmgPkgs.skim-pdf; })
 
     nixpkgsUnstable.pkgs.flix
-    #nixpkgsUnstable.pkgs.nix-update
   ];
 
   nix = {
@@ -118,7 +115,7 @@ in
     '';
   };
 
-  colorScheme = nix-colors.colorSchemes.gruvbox-material-dark-hard;
+  colorScheme = nix-colors.colorSchemes.catppuccin-mocha;
 
   programs.brave = {
     enable = true;
@@ -183,9 +180,16 @@ in
           sha256 = "sha256-nfXLRsi+f42e1r7nMkf7aiQmBGH7Qz4KjQdE/fDZ4V4=";
         };
     in
-    (builtins.readFile goto_src);
+      (builtins.readFile goto_src);
+
+  #programs.ssh
 
   programs.starship = {
+    enable = true;
+    enableFishIntegration = true;
+  };
+
+  programs.fzf = {
     enable = true;
     enableFishIntegration = true;
   };

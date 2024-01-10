@@ -59,7 +59,7 @@
       };
 
       astro-ts-mode = {
-        enable = true;
+        enable = false;
         extraPackages = [
           pkgs.nodePackages.astro-language-server
           pkgs.nodePackages.typescript
@@ -75,6 +75,30 @@
         enable = true;
       };
 
+      auto-dark = {
+        enable = true;
+        after = [ "catppuccin-theme" ];
+        config = ''
+          (setq auto-dark-dark-theme 'catppuccin)
+          (setq auto-dark-light-theme 'catppuccin)
+
+          (add-hook 'auto-dark-dark-mode-hook
+            (lambda ()
+              (setq catppuccin-flavor 'mocha)
+              (catppuccin-reload)))
+
+          (add-hook 'auto-dark-light-mode-hook
+            (lambda ()
+              (setq catppuccin-flavor 'latte)
+              (catppuccin-reload)))
+
+          (if (eq system-type 'darwin)
+              (setq auto-dark-allow-osascript t))
+
+          (auto-dark-mode 1)
+        '';
+      };
+
       latex = {
         enable = true;
         package = epkgs: epkgs.auctex;
@@ -85,7 +109,8 @@
           };
         };
         hook = [
-          "(latex-mode . eglot-ensure)"
+          "(latex-mode . lsp-deferred)"
+          #"(latex-mode . eglot-ensure)"
         ];
         extraPackages =
           [
@@ -102,6 +127,16 @@
         };
       };
 
+      catppuccin-theme = {
+        enable = true;
+        config = ''
+          (load-theme 'catppuccin :no-confirm)
+
+          (setq catppuccin-flavor 'latte) ;; or 'latte, 'macchiato, or 'mocha
+          (catppuccin-reload)
+        '';
+      };
+
       coffee-mode = {
         enable = true;
         mode = [ ''"\\.coffee\\'"'' ];
@@ -116,25 +151,25 @@
           "C-c m" = "consult-man";
           "C-c i" = "consult-info";
           # C-x bindings in `ctl-x-map'
-          "C-x M-:" = "consult-complex-command";     # orig. repeat-complex-command
-          "C-x b" = "consult-buffer";                # orig. switch-to-buffer
+          "C-x M-:" = "consult-complex-command"; # orig. repeat-complex-command
+          "C-x b" = "consult-buffer"; # orig. switch-to-buffer
           "C-x 4 b" = "consult-buffer-other-window"; # orig. switch-to-buffer-other-window
-          "C-x 5 b" = "consult-buffer-other-frame";  # orig. switch-to-buffer-other-frame
-          "C-x t b" = "consult-buffer-other-tab";    # orig. switch-to-buffer-other-tab
-          "C-x r b" = "consult-bookmark";            # orig. bookmark-jump
-          "C-x p b" = "consult-project-buffer";      # orig. project-switch-to-buffer
+          "C-x 5 b" = "consult-buffer-other-frame"; # orig. switch-to-buffer-other-frame
+          "C-x t b" = "consult-buffer-other-tab"; # orig. switch-to-buffer-other-tab
+          "C-x r b" = "consult-bookmark"; # orig. bookmark-jump
+          "C-x p b" = "consult-project-buffer"; # orig. project-switch-to-buffer
           # Custom M-# bindings for fast register access
           "M-#" = "consult-register-load";
-          "M-'" = "consult-register-store";          # orig. abbrev-prefix-mark (unrelated)
+          "M-'" = "consult-register-store"; # orig. abbrev-prefix-mark (unrelated)
           "C-M-#" = "consult-register";
           # Other custom bindings
-          "M-y" = "consult-yank-pop";                # orig. yank-pop
+          "M-y" = "consult-yank-pop"; # orig. yank-pop
           # M-g bindings in `goto-map'
           "M-g e" = "consult-compile-error";
-          "M-g f" = "consult-flymake";               # Alternative: consult-flycheck
-          "M-g g" = "consult-goto-line";             # orig. goto-line
-          "M-g M-g" = "consult-goto-line";           # orig. goto-line
-          "M-g o" = "consult-outline";               # Alternative: consult-org-heading
+          "M-g f" = "consult-flymake"; # Alternative: consult-flycheck
+          "M-g g" = "consult-goto-line"; # orig. goto-line
+          "M-g M-g" = "consult-goto-line"; # orig. goto-line
+          "M-g o" = "consult-outline"; # Alternative: consult-org-heading
           "M-g m" = "consult-mark";
           "M-g k" = "consult-global-mark";
           "M-g i" = "consult-imenu";
@@ -154,16 +189,16 @@
         };
         bindLocal = {
           isearch-mode-map = {
-            "M-e" = "consult-isearch-history";         # orig. isearch-edit-string
-            "M-s e" = "consult-isearch-history";       # orig. isearch-edit-string
-            "M-s l" = "consult-line";                  # needed by consult-line to detect isearch
-            "M-s L" = "consult-line-multi";            # needed by consult-line to detect isearch
+            "M-e" = "consult-isearch-history"; # orig. isearch-edit-string
+            "M-s e" = "consult-isearch-history"; # orig. isearch-edit-string
+            "M-s l" = "consult-line"; # needed by consult-line to detect isearch
+            "M-s L" = "consult-line-multi"; # needed by consult-line to detect isearch
           };
 
           # Minibuffer history
           minibuffer-local-map = {
-            "M-s" = "consult-history";                 # orig. next-matching-history-element
-            "M-r" = "consult-history";                 # orig. previous-matching-history-element
+            "M-s" = "consult-history"; # orig. next-matching-history-element
+            "M-r" = "consult-history"; # orig. previous-matching-history-element
           };
         };
         config = ''
@@ -199,9 +234,9 @@
         extraPackages = [ pkgs.ripgrep ];
       };
 
-      consult-eglot = {
-        enable = true;
-      };
+      # consult-eglot = {
+      #   enable = true;
+      # };
 
       # Instead of moving to column 0, move the the beginning of the
       # text on the line.
@@ -243,6 +278,13 @@
       #   '';
       # };
 
+      devdocs = {
+        enable = true;
+        bind = {
+          "C-x C-d" = "devdocs-search";
+        };
+      };
+
       direnv = {
         enable = true;
         after = [ "warnings" ];
@@ -281,7 +323,7 @@
       # };
 
       ef-themes = {
-        enable = true;
+        enable = false;
         config = ''
           ;; Disable all other themes to avoid awkward blending:
           (mapc #'disable-theme custom-enabled-themes)
@@ -290,25 +332,25 @@
         '';
       };
 
-      eglot = {
-        enable = true;
-        extraPackages = [
-          pkgs.jdt-language-server  # Java language server
-          pkgs.nodePackages.bash-language-server
-          pkgs.nodePackages.typescript-language-server
-        ];
-        config = ''
-          (add-hook 'java-mode 'eglot-ensure)
-          ;;(add-hook 'java-ts-mode 'eglot-ensure)
-          (add-hook 'sh-mode 'eglot-ensure)
-          (add-hook 'js-mode 'eglot-ensure)
-          ;;(add-hook 'js-ts-mode 'eglot-ensure)
+      # eglot = {
+      #   enable = true;
+      #   extraPackages = [
+      #     pkgs.jdt-language-server # Java language server
+      #     pkgs.nodePackages.bash-language-server
+      #     pkgs.nodePackages.typescript-language-server
+      #   ];
+      #   config = ''
+      #     (add-hook 'java-mode 'eglot-ensure)
+      #     ;;(add-hook 'java-ts-mode 'eglot-ensure)
+      #     (add-hook 'sh-mode 'eglot-ensure)
+      #     (add-hook 'js-mode 'eglot-ensure)
+      #     ;;(add-hook 'js-ts-mode 'eglot-ensure)
 
-          ;; Undo the Eglot modification of completion-category-defaults
-          (with-eval-after-load 'eglot
-            (setq completion-category-defaults nil))
-        '';
-      };
+      #     ;; Undo the Eglot modification of completion-category-defaults
+      #     (with-eval-after-load 'eglot
+      #       (setq completion-category-defaults nil))
+      #   '';
+      # };
 
       elm-mode = {
         enable = true;
@@ -316,7 +358,7 @@
         command = [ "elm-mode" ];
         hook = [
           "(elm-mode . elm-format-on-save-mode)"
-          "(elm-mode . eglot-ensure)"
+        #  "(elm-mode . eglot-ensure)"
         ];
         extraPackages = with pkgs; [
           elmPackages.elm
@@ -477,14 +519,15 @@
         defer = true;
         hook = [
           "(markdown-mode . flymake-aspell-setup)"
+          "(markdown-mode . lsp-deferred)"
         ];
         extraPackages = [
           pkgs.marksman # markdown lsp
         ];
-        config = ''
-          (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman")))
-          (add-hook 'markdown-mode-hook #'eglot-ensure)
-        '';
+        # config = ''
+        #   (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman")))
+        #   (add-hook 'markdown-mode-hook #'eglot-ensure)
+        # '';
       };
 
       # lsp-diagnostics = {
@@ -497,59 +540,74 @@
       #   after = [ "lsp-mode" ];
       # };
 
-      # lsp-mode = {
-      #   enable = true;
-      #   defer = true;
-      #   after = [ "flycheck" ];
-      #   hook = [
-      #     "(sh-mode . lsp-deferred)"
-      #     "(elm-mode . lsp-deferred)"
-      #     "(js-mode . lsp-deferred)"
-      #     "(scala-mode . lsp-deferred)"
-      #     "(nix-mode . lsp-deferred)"
-      #     "(lsp-mode . lsp-enable-which-key-integration)"
-      #   ];
-      #   extraPackages = [
-      #     pkgs.nodePackages.bash-language-server
-      #     pkgs.nodePackages.typescript-language-server
-      #   ];
-      #   config = ''
-      #     (setq lsp-diagnostics-provider :flycheck)
-      #     (setq lsp-enable-xref t)
-      #     (setq lsp-headerline-breadcrumb-enable nil)
-      #     (setq lsp-eldoc-render-all t)
+      lsp-mode = {
+        enable = true;
+        defer = true;
+        #after = [ "flycheck" ];
+        hook = [
+          "(sh-mode . lsp-deferred)"
+          "(elm-mode . lsp-deferred)"
+          "(java-mode . lsp-deferred)"
+          "(js-mode . lsp-deferred)"
+          "(scala-mode . lsp-deferred)"
+          "(nix-mode . lsp-deferred)"
+          "(lsp-mode . lsp-enable-which-key-integration)"
+          "(lsp-completion-mode . my/lsp-mode-setup-completion)"
+        ];
+        extraPackages = [
+          pkgs.nodePackages.bash-language-server
+          pkgs.nodePackages.typescript-language-server
+          pkgs.typescript
+        ];
+        init = ''
+        (defun my/orderless-dispatch-flex-first (_pattern index _total)
+          (and (eq index 0) 'orderless-flex))
 
-      #     ;; Performance adjustments (https://emacs-lsp.github.io/lsp-mode/page/performance/)
-      #     (setq read-process-output-max (* 1024 1024)) ;; 1mb
-      #     (setq lsp-completion-provider :capf)
+        (defun my/lsp-mode-setup-completion ()
+          (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+            '(orderless))
+          ;; Optionally configure the first word as flex filtered.
+          (add-hook 'orderless-style-dispatchers #'my/orderless-dispatch-flex-first nil 'local)
+          ;; Optionally configure the cape-capf-buster.
+          (setq-local completion-at-point-functions (list (cape-capf-buster #'lsp-completion-at-point))))
+        '';
+        config = ''
+          (setq lsp-completion-provider :none) ;; we use Corfu!
+          ;; (setq lsp-diagnostics-provider :flycheck)
+          (setq lsp-enable-xref t)
+          (setq lsp-headerline-breadcrumb-enable nil)
+          (setq lsp-eldoc-render-all t)
 
-      #     (push "[/\\\\]vendor$" lsp-file-watch-ignored)
-      #     (push "[/\\\\]node_modules$" lsp-file-watch-ignored)
-      #     (push "[/\\\\]\\.yarn$" lsp-file-watch-ignored)
-      #     (push "[/\\\\]\\.direnv$" lsp-file-watch-ignored)
+          ;; Performance adjustments (https://emacs-lsp.github.io/lsp-mode/page/performance/)
+          (setq read-process-output-max (* 1024 1024)) ;; 1mb
 
-      #     (setq lsp-clients-typescript-tls-path "${pkgs.nodePackages.typescript-language-server}/bin/typescript-language-server")
-      #   '';
-      # };
+          (push "[/\\\\]vendor$" lsp-file-watch-ignored)
+          (push "[/\\\\]node_modules$" lsp-file-watch-ignored)
+          (push "[/\\\\]\\.yarn$" lsp-file-watch-ignored)
+          (push "[/\\\\]\\.direnv$" lsp-file-watch-ignored)
 
-      # lsp-modeline = {
-      #   enable = true;
-      #   after = [ "lsp-mode" ];
-      # };
+          (setq lsp-clients-typescript-tls-path "${pkgs.nodePackages.typescript-language-server}/bin/typescript-language-server")
+        '';
+      };
 
-      # lsp-ui = {
-      #   enable = true;
-      #   command = [ "lsp-ui-mode" ];
-      #   config = ''
-      #     ;;(setq lsp-ui-peek-always-show t)
-      #     ;;(setq lsp-ui-sideline-show-hover t)
-      #     (setq lsp-ui-doc-enable nil)
-      #     (setq lsp-ui-sideline-enable nil)
+      lsp-modeline = {
+        enable = true;
+        after = [ "lsp-mode" ];
+      };
 
-      #     (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
-      #     (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
-      #   '';
-      # };
+      lsp-ui = {
+        enable = true;
+        command = [ "lsp-ui-mode" ];
+        config = ''
+          ;;(setq lsp-ui-peek-always-show t)
+          ;;(setq lsp-ui-sideline-show-hover t)
+          (setq lsp-ui-doc-enable nil)
+          (setq lsp-ui-sideline-enable nil)
+
+          (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
+          (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
+        '';
+      };
 
       # lsp-ui-flycheck = {
       #   enable = true;
@@ -597,93 +655,93 @@
       meow = {
         enable = true;
         config = ''
-(defun meow-setup ()
-  (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
-  (meow-motion-overwrite-define-key
-   '("j" . meow-next)
-   '("k" . meow-prev)
-   '("<escape>" . ignore))
-  (meow-leader-define-key
-   ;; SPC j/k will run the original command in MOTION state.
-   '("j" . "H-j")
-   '("k" . "H-k")
-   ;; Use SPC (0-9) for digit arguments.
-   '("1" . meow-digit-argument)
-   '("2" . meow-digit-argument)
-   '("3" . meow-digit-argument)
-   '("4" . meow-digit-argument)
-   '("5" . meow-digit-argument)
-   '("6" . meow-digit-argument)
-   '("7" . meow-digit-argument)
-   '("8" . meow-digit-argument)
-   '("9" . meow-digit-argument)
-   '("0" . meow-digit-argument)
-   '("/" . meow-keypad-describe-key)
-   '("?" . meow-cheatsheet))
-  (meow-normal-define-key
-   '("0" . meow-expand-0)
-   '("9" . meow-expand-9)
-   '("8" . meow-expand-8)
-   '("7" . meow-expand-7)
-   '("6" . meow-expand-6)
-   '("5" . meow-expand-5)
-   '("4" . meow-expand-4)
-   '("3" . meow-expand-3)
-   '("2" . meow-expand-2)
-   '("1" . meow-expand-1)
-   '("-" . negative-argument)
-   '(";" . meow-reverse)
-   '("," . meow-inner-of-thing)
-   '("." . meow-bounds-of-thing)
-   '("[" . meow-beginning-of-thing)
-   '("]" . meow-end-of-thing)
-   '("a" . meow-append)
-   '("A" . meow-open-below)
-   '("b" . meow-back-word)
-   '("B" . meow-back-symbol)
-   '("c" . meow-change)
-   '("d" . meow-delete)
-   '("D" . meow-backward-delete)
-   '("e" . meow-next-word)
-   '("E" . meow-next-symbol)
-   '("f" . meow-find)
-   '("g" . meow-cancel-selection)
-   '("G" . meow-grab)
-   '("h" . meow-left)
-   '("H" . meow-left-expand)
-   '("i" . meow-insert)
-   '("I" . meow-open-above)
-   '("j" . meow-next)
-   '("J" . meow-next-expand)
-   '("k" . meow-prev)
-   '("K" . meow-prev-expand)
-   '("l" . meow-right)
-   '("L" . meow-right-expand)
-   '("m" . meow-join)
-   '("n" . meow-search)
-   '("o" . meow-block)
-   '("O" . meow-to-block)
-   '("p" . meow-yank)
-   '("q" . meow-quit)
-   '("Q" . meow-goto-line)
-   '("r" . meow-replace)
-   '("R" . meow-swap-grab)
-   '("s" . meow-kill)
-   '("t" . meow-till)
-   '("u" . meow-undo)
-   '("U" . meow-undo-in-selection)
-   '("v" . meow-visit)
-   '("w" . meow-mark-word)
-   '("W" . meow-mark-symbol)
-   '("x" . meow-line)
-   '("X" . meow-goto-line)
-   '("y" . meow-save)
-   '("Y" . meow-sync-grab)
-   '("z" . meow-pop-selection)
-   '("'" . repeat)
-   '("<escape>" . ignore)))
+          (defun meow-setup ()
+            (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
+            (meow-motion-overwrite-define-key
+             '("j" . meow-next)
+             '("k" . meow-prev)
+             '("<escape>" . ignore))
+            (meow-leader-define-key
+             ;; SPC j/k will run the original command in MOTION state.
+             '("j" . "H-j")
+             '("k" . "H-k")
+             ;; Use SPC (0-9) for digit arguments.
+             '("1" . meow-digit-argument)
+             '("2" . meow-digit-argument)
+             '("3" . meow-digit-argument)
+             '("4" . meow-digit-argument)
+             '("5" . meow-digit-argument)
+             '("6" . meow-digit-argument)
+             '("7" . meow-digit-argument)
+             '("8" . meow-digit-argument)
+             '("9" . meow-digit-argument)
+             '("0" . meow-digit-argument)
+             '("/" . meow-keypad-describe-key)
+             '("?" . meow-cheatsheet))
+            (meow-normal-define-key
+             '("0" . meow-expand-0)
+             '("9" . meow-expand-9)
+             '("8" . meow-expand-8)
+             '("7" . meow-expand-7)
+             '("6" . meow-expand-6)
+             '("5" . meow-expand-5)
+             '("4" . meow-expand-4)
+             '("3" . meow-expand-3)
+             '("2" . meow-expand-2)
+             '("1" . meow-expand-1)
+             '("-" . negative-argument)
+             '(";" . meow-reverse)
+             '("," . meow-inner-of-thing)
+             '("." . meow-bounds-of-thing)
+             '("[" . meow-beginning-of-thing)
+             '("]" . meow-end-of-thing)
+             '("a" . meow-append)
+             '("A" . meow-open-below)
+             '("b" . meow-back-word)
+             '("B" . meow-back-symbol)
+             '("c" . meow-change)
+             '("d" . meow-delete)
+             '("D" . meow-backward-delete)
+             '("e" . meow-next-word)
+             '("E" . meow-next-symbol)
+             '("f" . meow-find)
+             '("g" . meow-cancel-selection)
+             '("G" . meow-grab)
+             '("h" . meow-left)
+             '("H" . meow-left-expand)
+             '("i" . meow-insert)
+             '("I" . meow-open-above)
+             '("j" . meow-next)
+             '("J" . meow-next-expand)
+             '("k" . meow-prev)
+             '("K" . meow-prev-expand)
+             '("l" . meow-right)
+             '("L" . meow-right-expand)
+             '("m" . meow-join)
+             '("n" . meow-search)
+             '("o" . meow-block)
+             '("O" . meow-to-block)
+             '("p" . meow-yank)
+             '("q" . meow-quit)
+             '("Q" . meow-goto-line)
+             '("r" . meow-replace)
+             '("R" . meow-swap-grab)
+             '("s" . meow-kill)
+             '("t" . meow-till)
+             '("u" . meow-undo)
+             '("U" . meow-undo-in-selection)
+             '("v" . meow-visit)
+             '("w" . meow-mark-word)
+             '("W" . meow-mark-symbol)
+             '("x" . meow-line)
+             '("X" . meow-goto-line)
+             '("y" . meow-save)
+             '("Y" . meow-sync-grab)
+             '("z" . meow-pop-selection)
+             '("'" . repeat)
+             '("<escape>" . ignore)))
 
-(meow-setup)
+          (meow-setup)
         '';
       };
 
@@ -711,7 +769,7 @@
         config = ''
           (setq nix-nixfmt-bin "${pkgs.nixpkgs-fmt}/bin/nixpkgs-fmt")
 
-          (add-hook 'nix-mode-hook 'eglot-ensure)
+          ;;(add-hook 'nix-mode-hook 'eglot-ensure)
         '';
       };
 
@@ -934,16 +992,33 @@
         '';
       };
 
-      pulse = {
+      pulsar = {
+        # https://protesilaos.com/emacs/pulsar
         enable = true;
         config = ''
-          (defun pulse-line (&rest _)
-            "Pulse the current line."
-            (pulse-momentary-highlight-one-line (point)))
+(setq pulsar-pulse t)
+(setq pulsar-delay 0.055)
+(setq pulsar-iterations 10)
+(setq pulsar-face 'pulsar-magenta)
+(setq pulsar-highlight-face 'pulsar-yellow)
 
-          (dolist (command '( ;; scroll-up-command scroll-down-command
-                             recenter-top-bottom other-window ace-window))
-            (advice-add command :after #'pulse-line))
+(pulsar-global-mode 1)
+
+(let ((map global-map))
+  (define-key map (kbd "C-x l") #'pulsar-pulse-line)
+  (define-key map (kbd "C-x L") #'pulsar-highlight-line))
+
+(add-hook 'next-error-hook #'pulsar-pulse-line)
+
+(add-hook 'minibuffer-setup-hook #'pulsar-pulse-line-blue)
+
+;; integration with the `consult' package:
+(add-hook 'consult-after-jump-hook #'pulsar-recenter-top)
+(add-hook 'consult-after-jump-hook #'pulsar-reveal-entry)
+
+;; integration with the built-in `imenu':
+(add-hook 'imenu-after-jump-hook #'pulsar-recenter-top)
+(add-hook 'imenu-after-jump-hook #'pulsar-reveal-entry)
         '';
       };
 
@@ -973,7 +1048,8 @@
         mode = [ ''"\\.rs\\'"'' ];
         command = [ "rust-mode" ];
         hook = [
-          "(rust-mode . eglot-ensure)"
+          #"(rust-mode . eglot-ensure)"
+          "(rust-mode . lsp-deferred)"
         ];
         extraPackages = [
           pkgs.rust-analyzer
@@ -988,12 +1064,13 @@
           ''("\\.scala\\'" . scala-mode)''
           ''("\\.sbt\\'" . scala-mode)''
         ];
+        hook = [
+          # "(scala-mode . eglot-ensure)"
+          "(scala-mode . lsp-deferred)"
+        ];
         extraPackages = [
           pkgs.metals # language server
         ];
-        config = ''
-          (add-hook 'scala-mode-hook 'eglot-ensure)
-        '';
       };
 
       # Manage the ssh-agent on the system by loading identities if and when required
@@ -1012,7 +1089,7 @@
       treesit-auto = {
         enable = true;
         config = ''
-          (setq treesit-auto-install 'prompt)
+          (setq treesit-auto-install nil)
           (treesit-auto-add-to-auto-mode-alist 'all)
           (global-treesit-auto-mode)
         '';
@@ -1029,6 +1106,26 @@
         #TODO: needed?
         enable = true;
       };
+
+      # web-mode = {
+      #   enable = true;
+      #   extraPackages = [
+      #     pkgs.nodePackages.astro-language-server
+      #     pkgs.nodePackages.typescript
+      #   ];
+      #   config = ''
+      #     (setq web-mode-enable-front-matter-block t)
+
+      #     (define-derived-mode astro-mode web-mode "astro")
+      #     (setq auto-mode-alist
+      #       (append '((".*\\.astro\\'" . astro-mode))
+      #         auto-mode-alist))
+
+      #     (with-eval-after-load 'eglot
+      #       (add-to-list 'eglot-server-programs
+      #         `(astro-mode . ("${pkgs.nodePackages.astro-language-server}/bin/astro-ls" "--stdio" :initializationOptions (:typescript (:tsdk "${pkgs.nodePackages.typescript}/lib/node_modules/typescript/lib"))))))
+      #   '';
+      # };
 
       wgrep = {
         enable = true;
@@ -1135,8 +1232,8 @@
       orderless = {
         enable = true;
         config = ''
-          (setq completion-styles '(orderless flex)
-                completion-category-overrides '((eglot (styles . (orderless flex)))))
+          (setq completion-styles '(orderless flex))
+                ;;completion-category-overrides '((eglot (styles . (orderless flex))))) ;; https://github.com/minad/corfu/issues/136
         '';
       };
 

@@ -38,9 +38,9 @@ final: prev: rec {
         };
     };
 
-  tree-sitter = prev.tree-sitter.override {
-    extraGrammars = {
-      inherit tree-sitter-astro;
-    };
-  };
+#  tree-sitter = prev.tree-sitter.override {
+#    extraGrammars = {
+#      inherit tree-sitter-astro;
+#    };
+#  };
 }
