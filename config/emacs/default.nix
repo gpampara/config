@@ -14,6 +14,9 @@
       (push '(tool-bar-lines . nil) default-frame-alist)
       (push '(vertical-scroll-bars . nil) default-frame-alist)
       (blink-cursor-mode 0)
+
+      ;; Make sure that lsp-mode uses plist for performance
+      ;;(setenv "LSP_USE_PLISTS" "true")
     '';
 
     prelude = builtins.readFile ./prelude.el;
@@ -59,16 +62,16 @@
       };
 
       astro-ts-mode = {
-        enable = false;
+        enable = true;
         extraPackages = [
           pkgs.nodePackages.astro-language-server
           pkgs.nodePackages.typescript
         ];
-        config = ''
-          (with-eval-after-load 'eglot
-            (add-to-list 'eglot-server-programs
-              `(astro-ts-mode . ("${pkgs.nodePackages.astro-language-server}/bin/astro-ls" "--stdio" :initializationOptions (:typescript (:tsdk "${pkgs.nodePackages.typescript}/lib/node_modules/typescript/lib"))))))
-        '';
+        # config = ''
+        #   (with-eval-after-load 'eglot
+        #     (add-to-list 'eglot-server-programs
+        #       `(astro-ts-mode . ("${pkgs.nodePackages.astro-language-server}/bin/astro-ls" "--stdio" :initializationOptions (:typescript (:tsdk "${pkgs.nodePackages.typescript}/lib/node_modules/typescript/lib"))))))
+        # '';
       };
 
       async = {
@@ -358,6 +361,7 @@
         command = [ "elm-mode" ];
         hook = [
           "(elm-mode . elm-format-on-save-mode)"
+          "(elm-mode . lsp-deferred)"
         #  "(elm-mode . eglot-ensure)"
         ];
         extraPackages = with pkgs; [
@@ -546,11 +550,8 @@
         #after = [ "flycheck" ];
         hook = [
           "(sh-mode . lsp-deferred)"
-          "(elm-mode . lsp-deferred)"
           "(java-mode . lsp-deferred)"
           "(js-mode . lsp-deferred)"
-          "(scala-mode . lsp-deferred)"
-          "(nix-mode . lsp-deferred)"
           "(lsp-mode . lsp-enable-which-key-integration)"
           "(lsp-completion-mode . my/lsp-mode-setup-completion)"
         ];
@@ -762,14 +763,16 @@
       nix-mode = {
         enable = true;
         mode = [ ''"\\.nix\\'"'' ];
+        hook = [
+          "(nix-mode . lsp-deferred)"
+          #"(nix-mode . eglot-ensure)"
+        ];
         extraPackages = [
           pkgs.rnix-lsp
           pkgs.nixpkgs-fmt
         ];
         config = ''
           (setq nix-nixfmt-bin "${pkgs.nixpkgs-fmt}/bin/nixpkgs-fmt")
-
-          ;;(add-hook 'nix-mode-hook 'eglot-ensure)
         '';
       };
 

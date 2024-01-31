@@ -16,11 +16,10 @@ final: prev: rec {
 
   romcal = prev.callPackage ./romcal {};
 
-
   tree-sitter-astro = {
     url = "https://github.com/virchau13/tree-sitter-astro";
-    rev = "e122a8fcd07e808a7b873bfadc2667834067daf1";
-    sha256 = "sha256-iCVRTX2fMW1g40rHcJEwwE+tfwun+reIaj5y4AFgmKk=";
+    rev = "e924787e12e8a03194f36a113290ac11d6dc10f3";
+    sha256 = "sha256-FNnkti4Ypw4RGIrIL9GtgjlYFMmOWZ2f8uQg/h3xesA=";
     fetchLFS = false;
     fetchSubmodules = false;
     deepClone = false;
@@ -38,9 +37,9 @@ final: prev: rec {
         };
     };
 
-#  tree-sitter = prev.tree-sitter.override {
-#    extraGrammars = {
-#      inherit tree-sitter-astro;
-#    };
-#  };
+ tree-sitter = prev.tree-sitter.override {
+   extraGrammars = {
+     inherit tree-sitter-astro;
+   };
+ };
 }

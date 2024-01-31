@@ -187,6 +187,9 @@ in
   programs.starship = {
     enable = true;
     enableFishIntegration = true;
+    settings = {
+      python.python_binary = [ "${pkgs.python3}/bin/python" ];
+    };
   };
 
   programs.fzf = {
@@ -197,7 +200,6 @@ in
   programs.git = {
     enable = true;
     userName = fullname;
-    # delta.enable = true;
     difftastic.enable = true;
     ignores = [
       "node_modules"
@@ -226,9 +228,6 @@ in
       github = {
         user = config.home.username;
       };
-      merge = {
-        conflictstyle = "diff3";
-      };
     };
   };
 
@@ -244,6 +243,9 @@ in
       local act = wezterm.action
       local config = {}
 
+      config.check_for_updates = true
+      config.show_update_window = true
+
       config.initial_cols = 175
       config.initial_rows = 52
 
@@ -251,7 +253,6 @@ in
 
       function DoSplit ()
         local pane_count = wezterm.MuxTab.panes_with_info()
-
       end
 
       config.keys = {
