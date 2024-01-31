@@ -75,7 +75,7 @@ in
     #pkgs.helix
 
     pkgs.ledger
-    pkgs.jq
+    pkgs.fx
 
     # fonts
     pkgs.nerdfonts
