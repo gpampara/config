@@ -42,4 +42,18 @@ final: prev: rec {
      inherit tree-sitter-astro;
    };
  };
+
+ # This overlay is due to https://github.com/NixOS/nixpkgs/pull/315141 not yet being merged in unstable
+ # haskellPackages = prev.haskellPackages.override {
+ #   overrides = hself: hsuper:
+ #     {
+ #       crypton-x509-system = final.pkgs.haskell.lib.compose.overrideCabal (drv:
+ #         prev.pkgs.lib.optionalAttrs (!prev.pkgs.stdenv.cc.nativeLibc) {
+ #           postPatch = ''
+ #             substituteInPlace System/X509/MacOS.hs --replace security /usr/bin/security
+ #           '' + (drv.postPatch or "");
+ #         }) prev.haskellPackages.crypton-x509-system;
+ #     };
+ # };
+
 }

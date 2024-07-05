@@ -1,19 +1,19 @@
-{ config, pkgs, nix-colors, nixpkgsUnstable, ... }:
+{ config, pkgs, ... }:
 
 let
   fullname = "Gary Pamparà";
   emailAddr = "gpampara@gmail.com";
 
-  util = pkgs.callPackage ./util.nix {};
+  util = pkgs.callPackage ./util.nix { };
 in
 {
   imports = [
     ./config
   ];
 
-  caches.cachix = [
-    { name = "nix-community"; sha256 = "0m6kb0a0m3pr6bbzqz54x37h5ri121sraj1idfmsrr6prknc7q3x"; }
-  ];
+  #caches.cachix = [
+  #    { name = "nix-community"; sha256 = "0m6kb0a0m3pr6bbzqz54x37h5ri121sraj1idfmsrr6prknc7q3x"; }
+  #];
 
   sops = {
     age.keyFile = "${config.home.homeDirectory}/.age-key.txt";
@@ -64,7 +64,6 @@ in
     pkgs.aspell
     pkgs.aspellDicts.en
     pkgs.aspellDicts.en-computers
-    pkgs.aspellDicts.en-science
 
     pkgs.bitwarden-cli
 
@@ -72,24 +71,26 @@ in
 
     pkgs.gnupg
     pkgs.graphviz
-    #pkgs.helix
 
     pkgs.ledger
+    pkgs.jq
     pkgs.fx
 
     # fonts
     pkgs.nerdfonts
+    pkgs.dejavu_fonts
 
-    pkgs.nodejs
-    pkgs.nodePackages.node2nix
     #romcal
+    pkgs.watchman
 
     pkgs.gitAndTools.git-crypt
     pkgs.difftastic
-    nixpkgsUnstable.pkgs.git-ps-rs
+    #pkgs.unstable.git-ps-rs
     pkgs.gh # github cli tool
+    pkgs.sapling
 
-    (util.forSystem { linux = pkgs.mpv; darwin = nixpkgsUnstable.pkgs.iina; })
+    #(util.forSystem { linux = pkgs.mpv; darwin = pkgs.unstable.iina; })
+    (util.forSystem { linux = pkgs.mpv; darwin = pkgs.iina; })
 
     pkgs.ripgrep
     pkgs.shellcheck
@@ -102,7 +103,9 @@ in
     (util.forSystem { linux = pkgs.zotero; darwin = pkgs.dmgPkgs.zotero; }) # Install Zotero
     (util.forSystem { linux = pkgs.zathura; darwin = pkgs.dmgPkgs.skim-pdf; })
 
-    nixpkgsUnstable.pkgs.flix
+    #pkgs.unstable.flix
+    pkgs.flix
+    pkgs.gleam
   ];
 
   nix = {
@@ -115,7 +118,19 @@ in
     '';
   };
 
-  colorScheme = nix-colors.colorSchemes.catppuccin-mocha;
+  #colorScheme = nix-colors.colorSchemes.catppuccin-mocha;
+  stylix.enable = true;
+  stylix.image =
+    util.forSystem {
+      linux = pkgs.fetchurl {
+        url = "https://www.pixelstalk.net/wp-content/uploads/2016/05/Epic-Anime-Awesome-Wallpapers.jpg";
+        sha256 = "enQo3wqhgf0FEPHj2coOCvo7DuZv+x5rL/WIo4qPI50=";
+      };
+      darwin = ./lockscreen.png;
+    };
+  # stylix.image =
+  stylix.base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-medium.yaml";
+  stylix.polarity = "dark";
 
   programs.brave = {
     enable = true;
@@ -149,8 +164,8 @@ in
       set -p fish_function_path ${pkgs.fishPlugins.foreign-env}/share/fish/vendor_functions.d
 
       # nix
-      if test -e ${config.home.homeDirectory}/.nix-profile/etc/profile.d/nix.sh
-        fenv source ${config.home.homeDirectory}/.nix-profile/etc/profile.d/nix.sh
+      if test -e /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+        fenv source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
       end
 
       # This was removed in https://github.com/nix-community/home-manager/commit/3e4fedc1d9c53a0fad0a4e5b63880ab13d1e249d
@@ -163,26 +178,25 @@ in
       "hm-update" = "cd ~/.config/home-manager; bash update.sh; cd -";
     };
 
-    interactiveShellInit =
-      let
-        nix-colors-lib = nix-colors.lib.contrib { inherit pkgs; };
-      in
-      ''
-        ${pkgs.bash}/bin/bash ${nix-colors-lib.shellThemeFromScheme { scheme = config.colorScheme; }}
-      '';
+    # interactiveShellInit =
+    #   let
+    #     nix-colors-lib = nix-colors.lib.contrib { inherit pkgs; };
+    #   in
+    #   ''
+    #     ${pkgs.bash}/bin/bash ${nix-colors-lib.shellThemeFromScheme { scheme = config.colorScheme; }}
+    #   '';
   };
 
-  xdg.configFile."fish/functions/goto.fish".text =
-    let
-      goto_src =
-        pkgs.fetchurl {
-          url = https://raw.githubusercontent.com/matusf/goto/master/functions/goto.fish;
-          sha256 = "sha256-nfXLRsi+f42e1r7nMkf7aiQmBGH7Qz4KjQdE/fDZ4V4=";
-        };
-    in
-      (builtins.readFile goto_src);
+  programs.neovim = {
+    enable = true;
+    viAlias = true;
+    vimAlias = true;
+  };
 
-  #programs.ssh
+  # programs.ssh = {
+  #   enable = true;
+  #   addKeysToAgent = "7h";
+  # };
 
   programs.starship = {
     enable = true;
@@ -204,8 +218,11 @@ in
     ignores = [
       "node_modules"
       ".DS_Store"
+      ".jj"
     ];
     aliases = {
+      st = "status";
+
       # list all aliases
       aliases = "!git config --get-regexp 'alias.*' | colrm 1 6 | sed 's/[ ]/ = /' | sort";
 
@@ -233,7 +250,49 @@ in
 
   programs.jujutsu = {
     enable = true;
-    package = nixpkgsUnstable.pkgs.jujutsu;
+    #package = pkgs.unstable.jujutsu;
+    settings = {
+      core = {
+        fsmonitor = "watchman";
+      };
+
+      user = {
+        name = "${fullname}";
+      };
+
+      revset-aliases = {
+        MINE = "ancestors(mine() ~ ::trunk(), 2) | trunk() | @";
+      };
+
+      # revset-aliases = {
+      #   MINE = "author(${config.home.username})";
+      #   MY_HEAD = "((visible_heads() & ::MINE & (~empty() | merges())) | @)";
+      #   MAIN = ''(present("main") | present("master"))'';
+      #   DEFAULT = "MAIN | (::MY_HEAD~::MAIN) | (::MY_HEAD~::MAIN)-";
+      # };
+
+      # revsets = {
+      #   log = "DEFAULT | root()";
+      # };
+
+      snapshot = {
+        max-new-file-size = "4MiB";
+      };
+    };
+  };
+
+  # https://github.com/nix-community/home-manager/pull/5207
+  home.sessionVariables = pkgs.lib.mkIf (pkgs.stdenv.hostPlatform.isDarwin) {
+    JJ_CONFIG = "${config.xdg.configHome}/jj/config.toml";
+  };
+
+  # programs.sapling = {
+  #   enable = true;
+  #   userName = "${fullname}";
+  # };
+
+  programs.mcfly = {
+    enable = true;
   };
 
   programs.wezterm = {
@@ -261,8 +320,18 @@ in
         -- { key = 'Enter', mods = 'CMD', action = },
       }
 
+      wezterm.on('gui-startup', function(cmd)
+        local tab, pane, window = mux.spawn_window(cmd or {})
+        window:set_position(15,25)
+      end)
+
       return config
     '';
+  };
+
+  programs.zoxide = {
+    enable = true;
+    options = [ "--cmd cd" ];
   };
 
   # Custom config files
@@ -331,9 +400,9 @@ in
   #  /etc/profiles/per-user/gpampara/etc/profile.d/hm-session-vars.sh
   #
   # if you don't want to manage your shell through Home Manager.
-  home.sessionVariables = {
-    # EDITOR = "emacs";
-  };
+  # home.sessionVariables = {
+  #   # EDITOR = "emacs";
+  # };
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;

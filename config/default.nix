@@ -1,4 +1,4 @@
-{ pkgs, nixpkgsUnstable, ... }:
+{ pkgs, ... }:
 let
   util = pkgs.callPackage ../util.nix { };
 in{

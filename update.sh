@@ -25,7 +25,7 @@ SELECTED=$(nix flake metadata --json --quiet | jq -r '.locks.nodes.root.inputs |
 if [ -z "$SELECTED" ]; then
     exit 1;
 elif [ "$SELECTED" == "inputs" ]; then
-    nix flake update
+    update_brave_version && nix flake update
 elif [ "$SELECTED" == "brave" ]; then
     update_brave_version
 else

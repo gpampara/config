@@ -1,4 +1,4 @@
-{ pkgs, lib, config, ... }: {
+{ pkgs, config, ... }: {
 
   # Use the home-manager module for emacs provided in the flake.nix
   # configuration: nur-no-pkgs.repos.rycee.hmModules.emacs-init
@@ -365,11 +365,11 @@
         #  "(elm-mode . eglot-ensure)"
         ];
         extraPackages = with pkgs; [
-          elmPackages.elm
-          elmPackages.elm-format
-          elmPackages.elm-test
-          elmPackages.elm-review
-          elmPackages.elm-language-server
+          # elmPackages.elm
+          # elmPackages.elm-format
+          # elmPackages.elm-test
+          # elmPackages.elm-review
+          # elmPackages.elm-language-server
         ];
       };
 
@@ -509,6 +509,12 @@
         config = builtins.readFile ./ibuffer-config.el;
       };
 
+      just-mode = {
+        enable = true;
+        mode = [ ''"\\.just\\'"'' ''"\\.justfile\\'"''];
+        command = [ "just-mode" ];
+      };
+
       ledger-mode = {
         enable = true;
         mode = [ ''"\\.ledger\\'"'' ];
@@ -556,6 +562,7 @@
           "(lsp-completion-mode . my/lsp-mode-setup-completion)"
         ];
         extraPackages = [
+          #nixpkgs-unstable.emacs-lsp-booster
           pkgs.nodePackages.bash-language-server
           pkgs.nodePackages.typescript-language-server
           pkgs.typescript
@@ -644,12 +651,12 @@
             (jump-to-register :magit-fullscreen))
 
           ;; Remove some hooks to make the magit status buffer faster? Still experimenting
-          (remove-hook 'magit-status-sections-hook 'magit-insert-tags-header)
-          (remove-hook 'magit-status-sections-hook 'magit-insert-status-headers)
-          (remove-hook 'magit-status-sections-hook 'magit-insert-unpushed-to-pushremote)
-          (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-pushremote)
-          (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-upstream)
-          (remove-hook 'magit-status-sections-hook 'magit-insert-unpushed-to-upstream-or-recent)
+          ;;(remove-hook 'magit-status-sections-hook 'magit-insert-tags-header)
+          ;;(remove-hook 'magit-status-sections-hook 'magit-insert-status-headers)
+          ;;(remove-hook 'magit-status-sections-hook 'magit-insert-unpushed-to-pushremote)
+          ;;(remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-pushremote)
+          ;;(remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-upstream)
+          ;;(remove-hook 'magit-status-sections-hook 'magit-insert-unpushed-to-upstream-or-recent)
         '';
       };
 
@@ -768,7 +775,7 @@
           #"(nix-mode . eglot-ensure)"
         ];
         extraPackages = [
-          pkgs.rnix-lsp
+          pkgs.nixd
           pkgs.nixpkgs-fmt
         ];
         config = ''
@@ -876,6 +883,11 @@
                 org-noter-separate-notes-from-heading t
           )
         '';
+      };
+
+      org-present = {
+        enable = true;
+
       };
 
       org-ql = {
