@@ -78,29 +78,29 @@
         enable = true;
       };
 
-      auto-dark = {
-        enable = true;
-        after = [ "catppuccin-theme" ];
-        config = ''
-          (setq auto-dark-dark-theme 'catppuccin)
-          (setq auto-dark-light-theme 'catppuccin)
-
-          (add-hook 'auto-dark-dark-mode-hook
-            (lambda ()
-              (setq catppuccin-flavor 'mocha)
-              (catppuccin-reload)))
-
-          (add-hook 'auto-dark-light-mode-hook
-            (lambda ()
-              (setq catppuccin-flavor 'latte)
-              (catppuccin-reload)))
-
-          (if (eq system-type 'darwin)
-              (setq auto-dark-allow-osascript t))
-
-          (auto-dark-mode 1)
-        '';
-      };
+      # auto-dark = {
+      #   enable = true;
+      #   after = [ "catppuccin-theme" ];
+      #   config = ''
+      #     (setq auto-dark-dark-theme 'catppuccin)
+      #     (setq auto-dark-light-theme 'catppuccin)
+      #
+      #     (add-hook 'auto-dark-dark-mode-hook
+      #       (lambda ()
+      #         (setq catppuccin-flavor 'mocha)
+      #         (catppuccin-reload)))
+      #
+      #     (add-hook 'auto-dark-light-mode-hook
+      #       (lambda ()
+      #         (setq catppuccin-flavor 'latte)
+      #         (catppuccin-reload)))
+      #
+      #     (if (eq system-type 'darwin)
+      #         (setq auto-dark-allow-osascript t))
+      #
+      #     (auto-dark-mode 1)
+      #   '';
+      # };
 
       latex = {
         enable = true;
@@ -128,16 +128,6 @@
         bind = {
           "C-:" = "avy-goto-char-timer";
         };
-      };
-
-      catppuccin-theme = {
-        enable = true;
-        config = ''
-          (load-theme 'catppuccin :no-confirm)
-
-          (setq catppuccin-flavor 'latte) ;; or 'latte, 'macchiato, or 'mocha
-          (catppuccin-reload)
-        '';
       };
 
       coffee-mode = {
