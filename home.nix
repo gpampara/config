@@ -109,12 +109,11 @@ in
   ];
 
   nix = {
-    package = pkgs.nixFlakes;
+    package = pkgs.nix;
+    settings.experimental-features = [ "nix-command" "flakes" ];
     extraOptions = ''
       connect-timeout = 5
       log-lines = 25
-
-      experimental-features = nix-command flakes
     '';
   };
 
