@@ -64,7 +64,7 @@
       astro-ts-mode = {
         enable = true;
         extraPackages = [
-          pkgs.nodePackages.astro-language-server
+          pkgs.nodePackages."@astrojs/language-server"
           pkgs.nodePackages.typescript
         ];
         # config = ''

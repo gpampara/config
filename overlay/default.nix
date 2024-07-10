@@ -6,14 +6,6 @@ final: prev: rec {
     zotero = prev.callPackage ./zotero {};
   };
 
-  elmPackages = prev.elmPackages // {
-    elm-language-server = (import ./elm-language-server { pkgs = final; })."@elm-tooling/elm-language-server";
-  };
-
-  nodePackages = prev.nodePackages // {
-    astro-language-server = (import ./astro-language-server { pkgs = final; })."@astrojs/language-server";
-  };
-
   romcal = prev.callPackage ./romcal {};
 
   tree-sitter-astro = {
