@@ -5,6 +5,8 @@ let
   emailAddr = "gpampara@gmail.com";
 
   util = pkgs.callPackage ./util.nix { };
+
+  selected_nerd_fonts = pkgs.nerdfonts.override { fonts = [ "JetBrainsMono" "Iosevka" "ZedMono" ]; };
 in
 {
   imports = [
@@ -37,7 +39,7 @@ in
   # You should not change this value, even if you update Home Manager. If you do
   # want to update the value, then make sure to first check the Home Manager
   # release notes.
-  home.stateVersion = "23.11"; # Please read the comment before changing.
+  home.stateVersion = "24.05"; # Please read the comment before changing.
 
   # The home.packages option allows you to install Nix packages into your
   # environment.
@@ -77,8 +79,9 @@ in
     pkgs.fx
 
     # fonts
-    pkgs.nerdfonts
+    #pkgs.nerdfonts
     pkgs.dejavu_fonts
+    selected_nerd_fonts
 
     #romcal
     pkgs.watchman
@@ -130,6 +133,12 @@ in
   stylix.image = ./fake.png;
   stylix.base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-medium.yaml";
   stylix.polarity = "dark";
+  stylix.fonts = {
+    monospace = {
+      package = selected_nerd_fonts;
+      name = "JetBrainsMono Nerd Font";
+    };
+  };
 
   programs.brave = {
     enable = true;

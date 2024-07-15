@@ -2,9 +2,15 @@
   description = "Home Manager configuration of gpampara";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    home-manager.url = "github:nix-community/home-manager";
-    stylix.url = "github:danth/stylix";
+    nixpkgs.url = "github:NixOS/nixpkgs?ref=24.05"; #/nixos-unstable";
+    home-manager = {
+      url = "github:nix-community/home-manager?ref=release-24.05";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    stylix = {
+      url = "github:danth/stylix?ref=release-24.05";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # # Specify the source of Home Manager and Nixpkgs.
     # nixpkgs-unstable.url = github:nixos/nixpkgs/nixos-unstable;
@@ -14,16 +20,16 @@
     #   inputs.nixpkgs.follows = "nixpkgs";
     # };
     emacs-overlay = {
-      url = github:nix-community/emacs-overlay/master;
+      url = "github:nix-community/emacs-overlay/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    declarative-cachix.url = github:jonascarpay/declarative-cachix/master;
+    declarative-cachix.url = "github:jonascarpay/declarative-cachix/master";
     sops-nix = {
-      url = github:Mic92/sops-nix/master;
+      url = "github:Mic92/sops-nix/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     #nix-colors.url = github:misterio77/nix-colors;
-    nur.url = github:nix-community/NUR;
+    nur.url = "github:nix-community/NUR";
     # stylix = {
     #   url = github:danth/stylix;
     #   inputs.nixpkgs.follows = "nixpkgs";

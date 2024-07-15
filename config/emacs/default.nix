@@ -19,7 +19,9 @@
       ;;(setenv "LSP_USE_PLISTS" "true")
     '';
 
-    prelude = builtins.readFile ./prelude.el;
+    prelude = builtins.readFile (
+      pkgs.substituteAll { src = ./prelude.el; monospaceFont = config.stylix.fonts.monospace.name; }
+    );
 
     # TODO: The loading of mu4e could be done in a better way?
     postlude =
@@ -352,15 +354,15 @@
         hook = [
           "(elm-mode . elm-format-on-save-mode)"
           "(elm-mode . lsp-deferred)"
-        #  "(elm-mode . eglot-ensure)"
+          #  "(elm-mode . eglot-ensure)"
         ];
-        extraPackages = with pkgs; [
-          # elmPackages.elm
-          # elmPackages.elm-format
-          # elmPackages.elm-test
-          # elmPackages.elm-review
-          # elmPackages.elm-language-server
-        ];
+        # extraPackages = with pkgs; [
+        #   #elmPackages.elm
+        #   # elmPackages.elm-format
+        #   # elmPackages.elm-test
+        #   # elmPackages.elm-review
+        #   # elmPackages.elm-language-server
+        # ];
       };
 
       emacsql = {
@@ -501,7 +503,7 @@
 
       just-mode = {
         enable = true;
-        mode = [ ''"\\.just\\'"'' ''"\\.justfile\\'"''];
+        mode = [ ''"\\.just\\'"'' ''"\\.justfile\\'"'' ];
         command = [ "just-mode" ];
       };
 
@@ -558,16 +560,16 @@
           pkgs.typescript
         ];
         init = ''
-        (defun my/orderless-dispatch-flex-first (_pattern index _total)
-          (and (eq index 0) 'orderless-flex))
+          (defun my/orderless-dispatch-flex-first (_pattern index _total)
+            (and (eq index 0) 'orderless-flex))
 
-        (defun my/lsp-mode-setup-completion ()
-          (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
-            '(orderless))
-          ;; Optionally configure the first word as flex filtered.
-          (add-hook 'orderless-style-dispatchers #'my/orderless-dispatch-flex-first nil 'local)
-          ;; Optionally configure the cape-capf-buster.
-          (setq-local completion-at-point-functions (list (cape-capf-buster #'lsp-completion-at-point))))
+          (defun my/lsp-mode-setup-completion ()
+            (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+              '(orderless))
+            ;; Optionally configure the first word as flex filtered.
+            (add-hook 'orderless-style-dispatchers #'my/orderless-dispatch-flex-first nil 'local)
+            ;; Optionally configure the cape-capf-buster.
+            (setq-local completion-at-point-functions (list (cape-capf-buster #'lsp-completion-at-point))))
         '';
         config = ''
           (setq lsp-completion-provider :none) ;; we use Corfu!
@@ -1001,29 +1003,29 @@
         # https://protesilaos.com/emacs/pulsar
         enable = true;
         config = ''
-(setq pulsar-pulse t)
-(setq pulsar-delay 0.055)
-(setq pulsar-iterations 10)
-(setq pulsar-face 'pulsar-magenta)
-(setq pulsar-highlight-face 'pulsar-yellow)
+          (setq pulsar-pulse t)
+          (setq pulsar-delay 0.055)
+          (setq pulsar-iterations 10)
+          (setq pulsar-face 'pulsar-magenta)
+          (setq pulsar-highlight-face 'pulsar-yellow)
 
-(pulsar-global-mode 1)
+          (pulsar-global-mode 1)
 
-(let ((map global-map))
-  (define-key map (kbd "C-x l") #'pulsar-pulse-line)
-  (define-key map (kbd "C-x L") #'pulsar-highlight-line))
+          (let ((map global-map))
+            (define-key map (kbd "C-x l") #'pulsar-pulse-line)
+            (define-key map (kbd "C-x L") #'pulsar-highlight-line))
 
-(add-hook 'next-error-hook #'pulsar-pulse-line)
+          (add-hook 'next-error-hook #'pulsar-pulse-line)
 
-(add-hook 'minibuffer-setup-hook #'pulsar-pulse-line-blue)
+          (add-hook 'minibuffer-setup-hook #'pulsar-pulse-line-blue)
 
-;; integration with the `consult' package:
-(add-hook 'consult-after-jump-hook #'pulsar-recenter-top)
-(add-hook 'consult-after-jump-hook #'pulsar-reveal-entry)
+          ;; integration with the `consult' package:
+          (add-hook 'consult-after-jump-hook #'pulsar-recenter-top)
+          (add-hook 'consult-after-jump-hook #'pulsar-reveal-entry)
 
-;; integration with the built-in `imenu':
-(add-hook 'imenu-after-jump-hook #'pulsar-recenter-top)
-(add-hook 'imenu-after-jump-hook #'pulsar-reveal-entry)
+          ;; integration with the built-in `imenu':
+          (add-hook 'imenu-after-jump-hook #'pulsar-recenter-top)
+          (add-hook 'imenu-after-jump-hook #'pulsar-reveal-entry)
         '';
       };
 

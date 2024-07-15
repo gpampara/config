@@ -221,8 +221,8 @@
 (global-set-key (kbd "M-c") 'capitalize-dwim)
 
 ;; Fonts
-(set-face-attribute 'default nil :family "JetBrainsMono Nerd Font" :height 130)
-(set-face-attribute 'fixed-pitch nil :family "JetBrainsMono Nerd Font" :height 1.0) ;; relative to default
+(set-face-attribute 'default nil :family "@monospaceFont@" :height 130)
+(set-face-attribute 'fixed-pitch nil :family "@monospaceFont@" :height 1.0) ;; relative to default
 ;;(set-face-attribute 'variable-pitch nil :family "Inter" :height 1.05)
 
 ;; Force the native fullscreen?

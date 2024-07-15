@@ -1,11 +1,22 @@
-{stdenv, lib}:
+{ lib, buildNpmPackage }:
 
-# From http://www.romcal.net/
+buildNpmPackage rec {
+  pname = "romcal";
+  version = "";
 
-stdenv.mkDerivation {
-  name = "romcal";
-  src = builtins.fetchTarball {
-    url    = "http://www.romcal.net/romcal-v6.tar";
-    sha256 = "sha256:01ad3n7i0aki1bsg2a5ayms623wgy1r3j3zsxrj4lg1d28q6vpf4";
+  src = builtins.fetchFromGithub {
+    owner = pname;
+    repo = pname;
+    rev = "2f9a0c5f96d99a5505298d03e4a3ad902cb6bf43";
+    hash = "";
+  };
+
+  npmHashDeps = "";
+
+  meta = {
+    description = "JavaScript library that generates liturgical calendars of the Roman Rite of the Catholic Church.";
+    homepage = "https://romcal.js.org";
+    license = lib.licenses.mit;
+    maintainers = "gpampara@gmail.com";
   };
 }
